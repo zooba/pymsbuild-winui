@@ -1,0 +1,21 @@
+#include "pch.h"
+
+#include "$App.xaml$.h"
+#include "$MainWindow.xaml$.h"
+
+using namespace winrt;
+using namespace Windows::Foundation;
+using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Navigation;
+using namespace $namespace$;
+using namespace $namespace$::implementation;
+
+void $App$::OnLaunched(LaunchActivatedEventArgs const&)
+{
+    Py_Initialize();
+    module = PyModule_Import("$namespace$");
+
+    window = make<$MainWindow$>();
+    window.Activate();
+}

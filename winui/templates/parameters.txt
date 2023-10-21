@@ -1,0 +1,6 @@
+App.xaml: filename of the XamlApp XAML file (e.g. "App.xaml")
+App: name of the XamlApp class (e.g. "App")
+MainWindow.xaml: filename of the main XamlPage XAML file (e.g. "MainWindow.xaml")
+MainWindow: name of the main XamlPage class (e.g. "MainWindow")
+namespace: namespace of the app, taken from all x:Class attributes (e.g. "app")
+module: name of the associated Python module (e.g. "app")
