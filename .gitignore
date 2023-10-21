@@ -3,4 +3,4 @@
 /env
 __pycache__/
 /.vscode
-/winui/targets/Microsoft.*/
+/pymsbuild_winui/targets/Microsoft.*/
