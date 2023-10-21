@@ -40,15 +40,15 @@ METADATA = {
 
 
 PACKAGE = Package(
-    'winui',
-    PyFile('winui/*.py'),
+    'pymsbuild_winui',
+    PyFile('pymsbuild_winui/*.py'),
     Package(
         'targets',
-        File('winui/targets/*'),
+        File('pymsbuild_winui/targets/*'),
     ),
     Package(
         'templates',
-        File('winui/templates/*'),
+        File('pymsbuild_winui/templates/*'),
     ),
 )
 

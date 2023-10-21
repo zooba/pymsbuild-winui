@@ -14,7 +14,7 @@
     <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
     <GeneratedFilesDir>$(IntDir)Generated/</GeneratedFilesDir>
     <PyMSBuildWinUIPackages Condition="$(PyMSBuildWinUIPackages) == ''">$(MSBuildThisFileDirectory)</PyMSBuildWinUIPackages>
-    <_PyMSBuildWinUIPackages>$([msbuild]::EnsureEndSeparator($(PyMSBuildWinUIPackages)))</_PyMSBuildWinUIPackages>
+    <_PyMSBuildWinUIPackages>$([msbuild]::EnsureTrailingSlash($(PyMSBuildWinUIPackages)))</_PyMSBuildWinUIPackages>
   </PropertyGroup>
 
   <Import Project="$(_PyMSBuildWinUIPackages)Microsoft.WindowsAppSDK/build/native/Microsoft.WindowsAppSDK.props" />
