@@ -12,7 +12,7 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
     <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
-    <GeneratedFilesDir>$(IntDir)Generated/</GeneratedFilesDir>
+    <GeneratedFilesDir>$([msbuild]::EnsureTrailingSlash('$(IntDir)Generated'))</GeneratedFilesDir>
     <PyMSBuildWinUIPackages Condition="$(PyMSBuildWinUIPackages) == ''">$(MSBuildThisFileDirectory)</PyMSBuildWinUIPackages>
     <_PyMSBuildWinUIPackages>$([msbuild]::EnsureTrailingSlash($(PyMSBuildWinUIPackages)))</_PyMSBuildWinUIPackages>
   </PropertyGroup>
@@ -27,7 +27,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory);$(_PyBind11IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
 </Project>

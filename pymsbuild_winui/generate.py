@@ -38,27 +38,53 @@ def short_name(text):
 
 PROPERTY_TYPE_MAP = {
     "str": "std::wstring",
+    "float": "double",
+    "UUID": "GUID",
+}
+
+
+PROPERTY_IDLTYPE_MAP = {
+    "uint8_t": "UInt8",
+    "uint16_t": "UInt16",
+    "uint32_t": "UInt32",
+    "uint64_t": "UInt64",
+    "int16_t": "Int16",
+    "int32_t": "Int32",
+    "int64_t": "Int64",
+    "wchar_t": "Char",
+    "std::wstring": "String",
+    "float": "Single",
+    "double": "Double",
+    "bool": "Boolean",
+    "GUID": "Guid",
 }
 
 
 class ParsedProperty:
     def __init__(self):
         self.type = None
+        self.idltype = None
         self.name = None
+        self.hold = False
+
 
 class ParsedEventHandler:
     def __init__(self):
         self.name = None
         self.eventarg = None
 
+
 class ParsedControl:
     def __init__(self):
         self.name = None
+        self.idltype = None
+
 
 class ParsedPage:
     def __init__(self, filename):
         self.filename = filename
         self.basename = PurePath(filename).name
+        self.version = "0.0.0.0"
         self.name = None
         self.properties = []
         self.handlers = []
@@ -69,6 +95,10 @@ class ParsedPage:
         p.name = e.attrib["Name"]
         p.type = e.attrib["Type"]
         p.type = PROPERTY_TYPE_MAP.get(p.type, p.type)
+        try:
+            p.idltype = e.attrib["IdlType"]
+        except KeyError:
+            p.idltype = PROPERTY_IDLTYPE_MAP.get(p.type)
         self.properties.append(p)
 
     def _handler(self, e):
@@ -83,6 +113,7 @@ class ParsedPage:
     def _control(self, e):
         c = ParsedControl()
         c.name = e.attrib[QN(NS["x"], "Name")]
+        c.idltype = e.tag.partition("}")[2]
         self.controls.append(c)
 
 
@@ -130,31 +161,97 @@ class Parser:
 
         return page
 
-    def render_app(self, cpp_file, h_file):
-        t_cpp = RENDER_ENV.get_template("app.xaml.cpp.in")
-        t_h = RENDER_ENV.get_template("app.xaml.h.in")
+    def _open_files(self, force=False, **files):
+        ignore = []
+        if not force:
+            for k, v in files.items():
+                try:
+                    with open(v, "r", encoding="utf-8-sig") as f:
+                        for i, line in zip(range(8), f):
+                            if "-autogen:true" in line.lower().replace(" ", ""):
+                                break
+                        else:
+                            ignore.append(k)
+                except IOError:
+                    pass
+        return {k: (open(v, "w", encoding="utf-8") if k not in ignore else None)
+                for k, v in files.items()}
+
+    def open_app_files(self, force=False):
+        return self._open_files(
+            force,
+            cpp_file=f"{self.app.basename}.cpp",
+            h_file=f"{self.app.basename}.h",
+            idl_file=f"{self.app.basename.rpartition('.')[0]}.idl",
+            manifest_file=f"app.manifest",
+            pch_file=f"pch.h",
+        )
+
+    def open_page_files(self, page, force=False):
+        return self._open_files(
+            force,
+            cpp_file=f"{page.basename}.cpp",
+            h_file=f"{page.basename}.h",
+            idl_file=f"{page.basename.rpartition('.')[0]}.idl",
+        )
+
+    def render_app(self, cpp_file, h_file, idl_file, manifest_file, pch_file):
         context = {
             "app": self.app,
             "page": self.pages[0],
             "pages": self.pages,
             "namespace": self.namespace,
         }
-        for s in t_cpp.generate(context):
-            cpp_file.write(s)
-        for s in t_h.generate(context):
-            h_file.write(s)
+        for tmpl, file in [
+            ("app.xaml.cpp.in", cpp_file),
+            ("app.xaml.h.in", h_file),
+            ("app.idl.in", idl_file),
+            ("app.manifest.in", manifest_file),
+            ("pch.h.in", pch_file),
+        ]:
+            if file:
+                for s in RENDER_ENV.get_template(tmpl).generate(context):
+                    file.write(s)
         
-    def render_page(self, basename, cpp_file, h_file):
-        t_cpp = RENDER_ENV.get_template("page.xaml.cpp.in")
-        t_h = RENDER_ENV.get_template("page.xaml.h.in")
+        
+    def render_page(self, page, cpp_file, h_file, idl_file):
+        if not isinstance(page, ParsedPage):
+            page = [p for p in self.pages if p.basename == page][0]
         context = {
             "app": self.app,
-            "page": [p for p in self.pages if p.basename == basename][0],
+            "page": page,
             "pages": self.pages,
             "namespace": self.namespace,
         }
-        for s in t_cpp.generate(context):
-            cpp_file.write(s)
-        for s in t_h.generate(context):
-            h_file.write(s)
+        for tmpl, file in [
+            ("page.xaml.cpp.in", cpp_file),
+            ("page.xaml.h.in", h_file),
+            ("page.idl.in", idl_file),
+        ]:
+            if file:
+                for s in RENDER_ENV.get_template(tmpl).generate(context):
+                    file.write(s)
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    try:
+        args.remove("-f")
+        force = True
+    except ValueError:
+        force = False
+
+    p = Parser()
+    app = None
+    to_write = []
+    for f in args:
+        if f.startswith("--app:"):
+            app = p.parse_app(f[6:])
+        else:
+            to_write.append(p.parse_page(f))
+
+    if app:
+        p.render_app(**p.open_app_files(force=force))
+    for f in to_write:
+        p.render_page(f, **p.open_page_files(f, force=force))
 

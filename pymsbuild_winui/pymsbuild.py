@@ -23,11 +23,6 @@ class XamlPage(File):
         "IncludeInWheel": False,
     }
 
-    def generated_files(self):
-        yield CSourceFile(self.name + ".cpp", DependentUpon=self.name)
-        yield IncludeFile(self.name + ".h", DependentUpon=self.name)
-        yield Midl(self.name.rpartition(".")[0] + ".idl", DependentUpon=self.name)
-
 
 class XamlApp(XamlPage):
     _ITEMNAME = "ApplicationDefinition"
@@ -38,8 +33,10 @@ class WinUIExe(PydFile):
         members = ()
         name = "$WinUIExe.WinUIProps"
         def write_member(self, f, g):
+            import pybind11
             g.switch_to("PropertyGroup")
             f.add_property("_WinUITargetsPath", TARGETS)
+            f.add_property("_PyBind11IncludePath", pybind11.get_include()),
             g.switch_to(None)
             f.add_import(f"$(_WinUITargetsPath){os.path.sep}winui.props")
 
@@ -54,9 +51,7 @@ class WinUIExe(PydFile):
         kwargs.setdefault("ConfigurationType", "Application")
         kwargs["TargetExt"] = ".exe"
         super().__init__(name, *members, project_file=project_file, **kwargs)
-        extras = [m2 for m in self.members if isinstance(m, XamlPage) for m2 in m.generated_files()]
         self.insert(PydFile.GlobalProperties.name, self.WinUIProps(), offset=1)
-        self.insert(PydFile.CppTargets.name, extras, range=True)
         self.members.append(self.WinUITargets())
 
     def init_PACKAGE(self, tag):

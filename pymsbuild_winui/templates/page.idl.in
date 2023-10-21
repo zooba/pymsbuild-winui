@@ -1,0 +1,19 @@
+{% include "regen-header.tmpl" %}
+namespace {{namespace}}
+{
+    [default_interface]
+    runtimeclass {{page.name}} : Microsoft.UI.Xaml.Window, Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        {{page.name}}();
+{% for p in page.properties %}
+{% if p.idltype %}
+        {{p.idltype}} {{p.name}};
+{% endif %}
+{% endfor %}
+{% for c in page.controls %}
+{% if c.idltype %}
+        {{'' if '.' in c.idltype else 'Microsoft.UI.Xaml.Controls.'}}{{c.idltype}} {{c.name}};
+{% endif %}
+{% endfor %}
+    }
+}

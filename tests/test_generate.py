@@ -14,9 +14,9 @@ def test_basic_parse():
     page = p.parse_page(TESTDATA / "MainWindow.xaml")
     assert page.basename == "MainWindow.xaml"
     assert p.namespace == "app"
-    assert [vars(p) for p in page.properties] == [{"name": "MyProperty", "type": "int32_t"}]
+    assert [vars(p) for p in page.properties] == [{"name": "MyProperty", "type": "int32_t", "idltype": "Int32"}]
     assert [vars(h) for h in page.handlers] == [{"name": "myButton_Click", "eventarg": "RoutedEventArgs"}]
-    assert [vars(c) for c in page.controls] == [{"name": "myButton"}]
+    assert [vars(c) for c in page.controls] == [{"name": "myButton", "idltype": "Object"}]
 
 
 def test_basic_app_parse():

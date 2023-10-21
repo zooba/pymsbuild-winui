@@ -2,7 +2,67 @@
   <PropertyGroup>
     <GetPackageFilesTargets>_GetWinUIExePackageFiles;$(GetPackageFilesTargets)</GetPackageFilesTargets>
     <BeforeBuildGenerateSourcesTargets>_PrepareWinUIPchFile;_IncludeSources;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
+    <BeforeBuildGenerateSourcesTargets Condition="$(WinUIGeneratePythonBinding) != 'false'">_PrepareXamlApp;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
+    <_WinUIGeneratedDir Condition="$(_WinUIGeneratedDir) == ''">$([msbuild]::EnsureTrailingSlash(`$(IntDir)pymsbuild_winui`))</_WinUIGeneratedDir>
   </PropertyGroup>
+
+  <Target Name="_PrepareXamlApp_Metadata">
+    <ItemGroup>
+      <_PrepareXamlApp_SourceFiles Include="@(ApplicationDefinition)">
+        <_Cmd>&quot;--app:%(FullPath)&quot;</_Cmd>
+      </_PrepareXamlApp_SourceFiles>
+      <_PrepareXamlApp_SourceFiles Include="@(Page)">
+        <_Cmd>&quot;%(FullPath)&quot;</_Cmd>
+      </_PrepareXamlApp_SourceFiles>
+      <ClCompile Include="@(ApplicationDefinition->'%(Identity).cpp');@(Page->'%(Identity).cpp')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </ClCompile>
+      <ClInclude Include="@(ApplicationDefinition->'%(Identity).h');@(Page->'%(Identity).h')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </ClInclude>
+      <Midl Include="@(ApplicationDefinition->'%(Identity).idl');@(Page->'%(Identity).idl')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </Midl>
+      <ClInclude Include="$(_WinUIGeneratedDir)pch.h" />
+      <!-- HACK: Hate having to copy these back to the source directory,
+           but it seems to be the only way to make the Xaml compiler generate
+           files that will compile. -->
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename)%(Extension).cpp')">
+        <CopyTo>%(Identity).cpp</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename)%(Extension).h')">
+        <CopyTo>%(Identity).h</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename).idl')">
+        <CopyTo>%(Identity).idl</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+    </ItemGroup>
+    <ItemGroup Condition="@(Manifest) == ''">
+      <Manifest Include="$(_WinUIGeneratedDir)app.manifest" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_PrepareXamlApp_Generate">
+    <MakeDir Directories="$(_WinUIGeneratedDir)" />
+    <PropertyGroup>
+      <_Cmd>"$(HostPython)" -m pymsbuild_winui.generate -f @(_PrepareXamlApp_SourceFiles->'%(_Cmd)',' ')</_Cmd>
+    </PropertyGroup>
+    <ItemGroup>
+    </ItemGroup>
+    <Exec Command="$(_Cmd)" WorkingDirectory="$(_WinUIGeneratedDir)" />
+  </Target>
+
+  <Target Name="_PrepareXamlApp_Update"
+          Inputs="@(_PrepareXamlApp_GeneratedFiles)"
+          Outputs="%(_PrepareXamlApp_GeneratedFiles.CopyTo)">
+    <Copy SourceFiles="%(_PrepareXamlApp_GeneratedFiles.FullPath)"
+          DestinationFiles="%(_PrepareXamlApp_GeneratedFiles.CopyTo)">
+      <Output TaskParameter="CopiedFiles" ItemName="FileWrites" />
+    </Copy>
+  </Target>
+
+  <Target Name="_PrepareXamlApp"
+          DependsOnTargets="_PrepareXamlApp_Metadata;_PrepareXamlApp_Generate;_PrepareXamlApp_Update" />
 
   <ItemGroup>
     <IncludeFile Include="$(MSBuildThisFileDirectory)python-winui.h">
@@ -36,12 +96,14 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="_GetWinUIExePackageFiles">
+  <Target Name="Heeeeelp" BeforeTargets="MarkupCompilePass2">
+    <Message Text="@(ClCompile->'%(Identity)::%(DependentUpon)')" Importance="high" />
+    <Message Text="@(ClInclude->'%(Identity)::%(DependentUpon)')" Importance="high" />
+  </Target>
+
+  <Target Name="_GetWinUIExePackageFiles" DependsOnTargets="CustomOutputGroupForPackaging">
     <ItemGroup>
-      <_AllPages Include="@(ApplicationDefinition);@(Page)">
-        <XbfFile>$(OutDir)%(Filename).xbf</XbfFile>
-      </_AllPages>
-      <AllSourceFiles Include="%(_AllPages.XbfFile)">
+      <AllSourceFiles Include="@(CustomOutputGroupForPackagingOutput)">
         <TargetDir></TargetDir>
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>
