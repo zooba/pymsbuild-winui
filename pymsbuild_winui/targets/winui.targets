@@ -96,13 +96,9 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="Heeeeelp" BeforeTargets="MarkupCompilePass2">
-    <Message Text="@(ClCompile->'%(Identity)::%(DependentUpon)')" Importance="high" />
-    <Message Text="@(ClInclude->'%(Identity)::%(DependentUpon)')" Importance="high" />
-  </Target>
-
   <Target Name="_GetWinUIExePackageFiles" DependsOnTargets="CustomOutputGroupForPackaging">
     <ItemGroup>
+      <!-- TODO: Get resource files as well -->
       <AllSourceFiles Include="@(CustomOutputGroupForPackagingOutput)">
         <TargetDir></TargetDir>
         <IncludeInSdist>false</IncludeInSdist>

@@ -10,15 +10,15 @@
     xmlns:py="http://schemas.stevedower.id.au/pymsbuild/winui"
     mc:Ignorable="d py">
 
-    <py:Property Name="MyProperty" Type="int32_t" />
-    <py:EventHandler Name="myButton_Click" />
+    <py:Property Name="MyProperty" Type="str" />
+    <py:EventHandler Name="Calendar_DateChanged" Sender="CalendarDatePicker" EventArg="CalendarDatePickerDateChangedEventArgs" />
+    <py:EventHandler Name="Color_ColorChanged" Sender="ColorPicker" EventArg="ColorChangedEventArgs" />
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">
-          <TextBlock>
-            <Run>Click count: </Run>
-            <Run Text="{x:Bind MyProperty,Mode=OneWay}" />
-          </TextBlock>
-        </Button>
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="{x:Bind MyProperty,Mode=OneWay}" />
+        <StackPanel Orientation="Horizontal">
+            <CalendarDatePicker x:Name="Calendar" DateChanged="Calendar_DateChanged" />
+            <ColorPicker x:Name="Color" ColorChanged="Color_ColorChanged" />
+        </StackPanel>
     </StackPanel>
 </Window>

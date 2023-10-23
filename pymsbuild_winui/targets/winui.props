@@ -27,6 +27,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory);$(_PyBind11IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>

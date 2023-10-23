@@ -9,7 +9,9 @@
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Media.Playback.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
+#include <winrt/Microsoft.UI.h>
 #include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -27,17 +29,23 @@
 #include <Python.h>
 
 #include <exception>
+#include <sstream>
 
 #include <pybind11\pybind11.h>
+#include <pybind11\stl.h>
+#include <pybind11\chrono.h>
 #include <pybind11\embed.h>
 
-template <typename T> struct holder {
-    T v;
-    holder() : v() { }
-    holder(T o) : v(o) { }
-    holder<T>& operator =(T o) { v = o; return *this; }
-    operator T() { return v; }
-    operator const T& () const { return v; }
-};
+namespace pywinui {
+    template <typename T> struct holder {
+        T v;
+        holder(T v) : v(v) { }
+        holder(T *v) : v(*v) { }
+        inline T *get() const { return (T *)&v; }
+    };
 
-template <typename T> static inline holder<T> hold(T v) { return holder<T>{v}; }
+    template <typename T, typename U = std::conditional<std::is_base_of<winrt::Windows::Foundation::IInspectable, T>::value, holder<T>, T>::type>
+    U hold(const T& t) { return U(t); }
+}
+
+PYBIND11_DECLARE_HOLDER_TYPE(T, ::pywinui::holder<T>, true);

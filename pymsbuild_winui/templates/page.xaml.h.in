@@ -4,6 +4,11 @@
 
 namespace winrt::{{namespace}}::implementation
 {
+    using namespace Windows::UI;
+    using namespace Microsoft::UI::Xaml;
+    using namespace Microsoft::UI::Xaml::Controls;
+    using namespace Microsoft::UI::Xaml::Data;
+
     struct {{page.name}} : {{page.name}}T<{{page.name}}>
     {
         {{page.name}}();
@@ -14,13 +19,13 @@ namespace winrt::{{namespace}}::implementation
 {% endfor %}
 
 {% for h in page.handlers %}
-        void {{h.name}}(IInspectable const&, {{h.eventarg if '::' in h.eventarg else ("Microsoft::UI::Xaml::" + h.eventarg)}} const&);
+        void {{h.name}}({{h.sender}}, {{h.eventarg}});
 {% endfor %}
 
-        winrt::event_token PropertyChanged(Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& value);
+        winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
         void PropertyChanged(winrt::event_token const& token);
     private:
-        winrt::event<Microsoft::UI::Xaml::Data::PropertyChangedEventHandler> __propertyChanged;
+        winrt::event<PropertyChangedEventHandler> __propertyChanged;
         pybind11::object __pyobj;
 
 {% for prop in page.properties %}

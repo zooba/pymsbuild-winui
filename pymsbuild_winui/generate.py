@@ -37,7 +37,7 @@ def short_name(text):
 
 
 PROPERTY_TYPE_MAP = {
-    "str": "std::wstring",
+    "str": "winrt::hstring",
     "float": "double",
     "UUID": "GUID",
 }
@@ -53,6 +53,7 @@ PROPERTY_IDLTYPE_MAP = {
     "int64_t": "Int64",
     "wchar_t": "Char",
     "std::wstring": "String",
+    "winrt::hstring": "String",
     "float": "Single",
     "double": "Double",
     "bool": "Boolean",
@@ -89,6 +90,7 @@ class ParsedPage:
         self.properties = []
         self.handlers = []
         self.controls = []
+        self.types = set()
 
     def _property(self, e):
         p = ParsedProperty()
@@ -105,16 +107,23 @@ class ParsedPage:
         h = ParsedEventHandler()
         h.name = e.attrib["Name"]
         try:
+            h.sender = e.attrib["Sender"]
+        except KeyError:
+            h.sender = "Control"
+        try:
             h.eventarg = e.attrib["EventArg"]
         except KeyError:
             h.eventarg = "RoutedEventArgs"
         self.handlers.append(h)
+        self.types.add(h.sender)
+        self.types.add(h.eventarg)
 
     def _control(self, e):
         c = ParsedControl()
         c.name = e.attrib[QN(NS["x"], "Name")]
         c.idltype = e.tag.partition("}")[2]
         self.controls.append(c)
+        self.types.add(c.name)
 
 
 class Parser:

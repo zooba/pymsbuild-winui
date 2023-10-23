@@ -4,24 +4,28 @@
 #include "{{page.name}}.g.cpp"
 
 using namespace winrt;
+using namespace Windows::UI;
 using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Data;
 namespace py = pybind11;
 using Cls = winrt::{{namespace}}::implementation::{{page.name}};
 
 PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
     py::class_<Cls>(m, "{{page.name}}_View")
 {% for p in page.properties %}
-{% if p.hold %}
-        .def_property("{{p.name}}", [](const Cls &c) { return hold(c.{{p.name}}()); }, [](Cls &c, holder<{{p.type}}> v) { c.{{p.name}}(v.v); })
+{% if p.type == 'winrt::hstring' %}
+        .def_property("{{p.name}}", [](const Cls &c) { return std::wstring_view{c.{{p.name}}()}; }, [](Cls &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
 {% else %}
         .def_property("{{p.name}}", [](const Cls &c) { return c.{{p.name}}(); }, [](Cls &c, {{p.type}} v) { c.{{p.name}}(v); })
 {% endif %}
 {% endfor %}
 {% for c in page.controls %}
-        .def_property_readonly("{{c.name}}", [](Cls &c) { return hold(c.{{c.name}}()); })
+        .def_property_readonly("{{c.name}}", [](Cls &c) { return c.{{c.name}}(); })
 {% endfor %}
     ;
 };
+
 
 namespace winrt::{{namespace}}::implementation
 {
@@ -35,7 +39,7 @@ namespace winrt::{{namespace}}::implementation
         InitializeComponent();
     }
 
-    winrt::event_token {{page.name}}::PropertyChanged(Data::PropertyChangedEventHandler const& handler)
+    winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler)
     {
         return __propertyChanged.add(handler);
     }
@@ -59,7 +63,7 @@ namespace winrt::{{namespace}}::implementation
         if (_{{p.name}} != value) {
             _{{p.name}} = value;
             if (__propertyChanged) {
-                __propertyChanged(*this, Data::PropertyChangedEventArgs{ L"{{p.name}}" });
+                __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
             }
         }
     }
@@ -69,9 +73,9 @@ namespace winrt::{{namespace}}::implementation
     // Event handlers
 {% for h in page.handlers %}
 
-    void {{page.name}}::{{h.name}}(IInspectable const&, {{h.eventarg}} const&)
+    void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
     {
-        __pyobj.attr("{{h.name}}")();
+        __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
     }
 {% endfor %}
 {% endif %}
