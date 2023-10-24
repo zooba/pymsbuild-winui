@@ -27,7 +27,7 @@ METADATA = {
         "Topic :: Utilities",
     ],
     "Requires-Dist": [
-        "pymsbuild",
+        "pymsbuild>=1.0.0b7",
         "pybind11",
     ],
 
