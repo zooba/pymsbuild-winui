@@ -11,12 +11,21 @@
     mc:Ignorable="d py">
 
     <py:Property Name="MyProperty" Type="str" />
+    <py:Property Name="Obj" Type="app::DayColor" IdlType="app.DayColor" />
     <py:EventHandler Name="Calendar_DateChanged" Sender="CalendarDatePicker" EventArg="CalendarDatePickerDateChangedEventArgs" />
     <py:EventHandler Name="Color_ColorChanged" Sender="ColorPicker" EventArg="ColorChangedEventArgs" />
 
+    <py:ViewModel Name="DayColor">
+      <py:Property Name="Day" Type="datetime" />
+      <py:Property Name="Color" Type="uint32_t" />
+    </py:ViewModel>
+
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="{x:Bind MyProperty,Mode=OneWay}" />
+        <TextBlock>
+          Selected color <Run Text="{x:Bind Obj.Color,Mode=OneWay}" />
+        </TextBlock>
         <StackPanel Orientation="Horizontal">
+            <DatePicker Date="{x:Bind Obj.Day,Mode=TwoWay}" />
             <CalendarDatePicker x:Name="Calendar" DateChanged="Calendar_DateChanged" />
             <ColorPicker x:Name="Color" ColorChanged="Color_ColorChanged" />
         </StackPanel>

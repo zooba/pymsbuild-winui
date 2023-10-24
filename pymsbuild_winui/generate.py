@@ -37,6 +37,8 @@ def short_name(text):
 
 
 PROPERTY_TYPE_MAP = {
+    "datetime": "winrt::Windows::Foundation::DateTime",
+    "timedelta": "winrt::Windows::Foundation::TimeSpan",
     "str": "winrt::hstring",
     "float": "double",
     "UUID": "GUID",
@@ -58,6 +60,8 @@ PROPERTY_IDLTYPE_MAP = {
     "double": "Double",
     "bool": "Boolean",
     "GUID": "Guid",
+    "winrt::Windows::Foundation::DateTime": "Windows.Foundation.DateTime",
+    "winrt::Windows::Foundation::TimeSpan": "Windows.Foundation.TimeSpan",
 }
 
 
@@ -75,6 +79,23 @@ class ParsedEventHandler:
         self.eventarg = None
 
 
+class ParsedViewModel:
+    def __init__(self):
+        self.name = None
+        self.properties = []
+
+    def _property(self, e):
+        p = ParsedProperty()
+        p.name = e.attrib["Name"]
+        p.type = e.attrib["Type"]
+        p.type = PROPERTY_TYPE_MAP.get(p.type, p.type)
+        try:
+            p.idltype = e.attrib["IdlType"]
+        except KeyError:
+            p.idltype = PROPERTY_IDLTYPE_MAP.get(p.type)
+        self.properties.append(p)
+
+
 class ParsedControl:
     def __init__(self):
         self.name = None
@@ -82,13 +103,14 @@ class ParsedControl:
 
 
 class ParsedPage:
-    def __init__(self, filename):
+    def __init__(self, filename, version="0.0.0.0"):
         self.filename = filename
         self.basename = PurePath(filename).name
-        self.version = "0.0.0.0"
+        self.version = version
         self.name = None
         self.properties = []
         self.handlers = []
+        self.viewmodels = []
         self.controls = []
         self.types = set()
 
@@ -124,6 +146,13 @@ class ParsedPage:
         c.idltype = e.tag.partition("}")[2]
         self.controls.append(c)
         self.types.add(c.name)
+
+    def _viewmodel(self, e):
+        m = ParsedViewModel()
+        m.name = e.attrib["Name"]
+        for p in e.findall("py:Property", NS):
+            m._property(p)
+        self.viewmodels.append(m)
 
 
 class Parser:
@@ -165,6 +194,8 @@ class Parser:
             page._property(e)
         for e in root.findall("py:EventHandler", NS):
             page._handler(e)
+        for e in root.findall("py:ViewModel", NS):
+            page._viewmodel(e)
         for e in root.findall("**[@x:Name]", NS):
             page._control(e)
 

@@ -3,25 +3,43 @@
 #include "{{page.basename}}.h"
 #include "{{page.name}}.g.cpp"
 
+{% for vm in page.viewmodels %}
+#include "{{vm.name}}.g.cpp"
+{% endfor %}
+
 using namespace winrt;
 using namespace Windows::UI;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Data;
 namespace py = pybind11;
-using Cls = winrt::{{namespace}}::implementation::{{page.name}};
 
 PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
-    py::class_<Cls>(m, "{{page.name}}_View")
+{% for vm in page.viewmodels %}
+{% set Cls = (namespace + '::' + vm.name) %}
+    py::class_<{{Cls}}, std::shared_ptr<{{Cls}}>>(m, "{{vm.name}}")
+        .def(py::init([]() { return std::make_shared<{{Cls}}>(); }))
+{% for p in vm.properties %}
+{% if p.type == 'winrt::hstring' %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
+{% else %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
+{% endif %}
+{% endfor %}
+    ;
+{% endfor %}
+
+{% set Cls = ('winrt::' + namespace + '::implementation::' + page.name) %}
+    py::class_<{{Cls}}>(m, "{{page.name}}_View")
 {% for p in page.properties %}
 {% if p.type == 'winrt::hstring' %}
-        .def_property("{{p.name}}", [](const Cls &c) { return std::wstring_view{c.{{p.name}}()}; }, [](Cls &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
 {% else %}
-        .def_property("{{p.name}}", [](const Cls &c) { return c.{{p.name}}(); }, [](Cls &c, {{p.type}} v) { c.{{p.name}}(v); })
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
 {% endif %}
 {% endfor %}
 {% for c in page.controls %}
-        .def_property_readonly("{{c.name}}", [](Cls &c) { return c.{{c.name}}(); })
+        .def_property_readonly("{{c.name}}", []({{Cls}} &c) { return c.{{c.name}}(); })
 {% endfor %}
     ;
 };
@@ -29,25 +47,35 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 
 namespace winrt::{{namespace}}::implementation
 {
+{% for vm in page.viewmodels %}
+    {{vm.name}}::{{vm.name}}() { }
+    winrt::event_token {{vm.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
+    void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
+
+{% for p in vm.properties %}
+    void {{vm.name}}::{{p.name}}({{p.type}} value)
+    {
+        _{{p.name}} = value;
+        if (__propertyChanged) {
+            __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
+        }
+    }
+
+{% endfor %}
+{% endfor %}
+
     {{page.name}}::{{page.name}}()
     {
-        ::pybind11::module_::import("_{{namespace}}_{{page.name}}");
+        auto own_module = ::pybind11::module_::import("_{{namespace}}_{{page.name}}");
         auto module_ = ::pybind11::module_::import("{{namespace}}");
         auto cls = module_.attr("{{page.name}}");
-        __pyobj = cls(this);
+        __pyobj = cls(this, own_module);
         Closed([this](IInspectable const&, WindowEventArgs const&) { __pyobj.release(); });
         InitializeComponent();
     }
 
-    winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler)
-    {
-        return __propertyChanged.add(handler);
-    }
-
-    void {{page.name}}::PropertyChanged(winrt::event_token const& token)
-    {
-        __propertyChanged.remove(token);
-    }
+    winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
+    void {{page.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
 
 {% if page.properties +%}
     // Bindable property getter/setters
@@ -60,12 +88,13 @@ namespace winrt::{{namespace}}::implementation
 
     void {{page.name}}::{{p.name}}({{p.type}} value)
     {
-        if (_{{p.name}} != value) {
+        // TODO: Detect whether type is comparable
+        //if (_{{p.name}} != value) {
             _{{p.name}} = value;
             if (__propertyChanged) {
                 __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
             }
-        }
+        //}
     }
 {% endfor %}
 {% endif %}
@@ -75,7 +104,14 @@ namespace winrt::{{namespace}}::implementation
 
     void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
     {
-        __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+        try {
+            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+        } catch (py::error_already_set &ex) {
+            // TODO: Better error output
+            const char *msg = ex.what();
+            AllocConsole();
+            WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), msg, (DWORD)strlen(msg), NULL, NULL);
+        }
     }
 {% endfor %}
 {% endif %}

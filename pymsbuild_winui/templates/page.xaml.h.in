@@ -2,12 +2,36 @@
 #pragma once
 #include <{{page.name}}.g.h>
 
+{% for vm in page.viewmodels %}
+#include "{{vm.name}}.g.h"
+{% endfor %}
+
 namespace winrt::{{namespace}}::implementation
 {
     using namespace Windows::UI;
     using namespace Microsoft::UI::Xaml;
     using namespace Microsoft::UI::Xaml::Controls;
     using namespace Microsoft::UI::Xaml::Data;
+
+{% for m in page.viewmodels %}
+    struct {{m.name}} : {{m.name}}T<{{m.name}}>
+    {
+        {{m.name}}();
+{% for prop in m.properties %}
+        {{prop.type}} {{prop.name}}() const { return _{{prop.name}}; }
+        void {{prop.name}}({{prop.type}} value);
+{% endfor %}
+
+        winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
+        void PropertyChanged(winrt::event_token const& token);
+    private:
+        winrt::event<PropertyChangedEventHandler> __propertyChanged;
+{% for prop in m.properties %}
+        {{prop.type}} _{{prop.name}};
+{% endfor %}
+    };
+
+{% endfor %}
 
     struct {{page.name}} : {{page.name}}T<{{page.name}}>
     {
@@ -36,6 +60,8 @@ namespace winrt::{{namespace}}::implementation
 
 namespace winrt::{{namespace}}::factory_implementation
 {
-    struct {{page.name}} : {{page.name}}T<{{page.name}}, implementation::{{page.name}}>
-    { };
+{% for m in page.viewmodels %}
+    struct {{m.name}} : {{m.name}}T<{{m.name}}, implementation::{{m.name}}> { };
+{% endfor %}
+    struct {{page.name}} : {{page.name}}T<{{page.name}}, implementation::{{page.name}}> { };
 }
