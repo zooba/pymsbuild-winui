@@ -2,7 +2,7 @@ import os
 import sys
 
 from pathlib import Path
-from pymsbuild import CSourceFile, File, IncludeFile, Midl, PydFile
+from pymsbuild import CSourceFile, File, IncludeFile, Midl, Property, PydFile
 
 
 __all__ = [
@@ -51,11 +51,19 @@ class WinUIExe(PydFile):
         kwargs.setdefault("ConfigurationType", "Application")
         kwargs["TargetExt"] = ".exe"
         super().__init__(name, *members, project_file=project_file, **kwargs)
-        self.insert(PydFile.GlobalProperties.name, self.WinUIProps(), offset=1)
+        self._embed_tag = Property("PythonRuntimeTag", "")
+        self.insert(PydFile.GlobalProperties.name,
+                    [self.WinUIProps(), self._embed_tag],
+                    offset=1, range=True)
         self.members.append(self.WinUITargets())
 
     def init_PACKAGE(self, tag):
         if not tag:
             return
-        # TODO: download packages from Nuget
-        # TODO: download Python runtime
+        # Restore our build packages before build begins
+        import subprocess
+        dest = os.getenv("PYMSBUILD_WINUIPACKAGES") or TARGETS
+        subprocess.check_call([sys.executable, TARGETS / "restore.py", "-o", dest])
+
+        # Provide wheel tag so we embed the correct CPython build
+        self._embed_tag.value = tag

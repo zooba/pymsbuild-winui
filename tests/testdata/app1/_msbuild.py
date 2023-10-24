@@ -13,3 +13,7 @@ PACKAGE = Package(
         XamlPage("MainWindow.xaml"),
     ),
 )
+
+def init_PACKAGE(tag):
+    # WinUIExe needs to be passed the wheel tag
+    PACKAGE.find("app").init_PACKAGE(tag)

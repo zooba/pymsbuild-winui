@@ -12,9 +12,12 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
     <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
+
+    <PythonRuntimeEmbeddable>true</PythonRuntimeEmbeddable>
+
     <GeneratedFilesDir>$([msbuild]::EnsureTrailingSlash('$(IntDir)Generated'))</GeneratedFilesDir>
-    <PyMSBuildWinUIPackages Condition="$(PyMSBuildWinUIPackages) == ''">$(MSBuildThisFileDirectory)</PyMSBuildWinUIPackages>
-    <_PyMSBuildWinUIPackages>$([msbuild]::EnsureTrailingSlash($(PyMSBuildWinUIPackages)))</_PyMSBuildWinUIPackages>
+    <PYMSBUILD_WINUIPACKAGES Condition="$(PYMSBUILD_WINUIPACKAGES) == ''">$(MSBuildThisFileDirectory)</PYMSBUILD_WINUIPACKAGES>
+    <_PyMSBuildWinUIPackages>$([msbuild]::EnsureTrailingSlash($(PYMSBUILD_WINUIPACKAGES)))</_PyMSBuildWinUIPackages>
   </PropertyGroup>
 
   <Import Project="$(_PyMSBuildWinUIPackages)Microsoft.WindowsAppSDK/build/native/Microsoft.WindowsAppSDK.props" />

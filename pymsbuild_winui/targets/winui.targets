@@ -1,10 +1,17 @@
 <Project>
   <PropertyGroup>
+    <GetSdistFilesTargets>_GetWinUIExeSdistFiles;$(GetSdistFilesTargets)</GetSdistFilesTargets>
     <GetPackageFilesTargets>_GetWinUIExePackageFiles;$(GetPackageFilesTargets)</GetPackageFilesTargets>
     <BeforeBuildGenerateSourcesTargets>_PrepareWinUIPchFile;_IncludeSources;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
     <BeforeBuildGenerateSourcesTargets Condition="$(WinUIGeneratePythonBinding) != 'false'">_PrepareXamlApp;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
     <_WinUIGeneratedDir Condition="$(_WinUIGeneratedDir) == ''">$([msbuild]::EnsureTrailingSlash(`$(IntDir)pymsbuild_winui`))</_WinUIGeneratedDir>
   </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(_WinUIGeneratedDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
 
   <Target Name="_PrepareXamlApp_Metadata">
     <ItemGroup>
@@ -96,11 +103,21 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="_GetWinUIExePackageFiles" DependsOnTargets="CustomOutputGroupForPackaging">
+  <Target Name="_GetWinUIExeSdistFiles">
     <ItemGroup>
-      <!-- TODO: Get resource files as well -->
-      <AllSourceFiles Include="@(CustomOutputGroupForPackagingOutput)">
-        <TargetDir></TargetDir>
+      <Sdist Include="@(Page);@(ApplicationDefinition)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_GetWinUIExePackageFiles"
+          DependsOnTargets="DownloadRuntime">
+    <CallTarget Targets="GetCopyToOutputDirectoryItems">
+      <Output TaskParameter="TargetOutputs" ItemName="_GetCopyToOutputDirectoryItemsOutput"/>
+    </CallTarget>
+
+    <ItemGroup>
+      <AllSourceFiles Include="@(_GetCopyToOutputDirectoryItemsOutput)">
+        <Name>%(TargetPath)</Name>
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
@@ -115,9 +132,15 @@
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
       </AllSourceFiles>
+      <AllSourceFiles Include="@(PythonRuntime)">
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>true</IncludeInLayout>
+        <IncludeInWheel>true</IncludeInWheel>
+      </AllSourceFiles>
     </ItemGroup>
   </Target>
 
+  <Import Project="$(PyMSBuildTargets)/runtime.targets" />
   <Import Project="$(PyMSBuildWinUIPackages)Microsoft.Windows.CppWinRT/build/native/Microsoft.Windows.CppWinRT.targets" />
   <Import Project="$(PyMSBuildWinUIPackages)Microsoft.Windows.SDK.BuildTools/build/Microsoft.Windows.SDK.BuildTools.targets" />
   <Import Project="$(PyMSBuildWinUIPackages)Microsoft.WindowsAppSDK/build/native/Microsoft.WindowsAppSDK.targets" />
