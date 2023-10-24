@@ -29,6 +29,7 @@ METADATA = {
     "Requires-Dist": [
         "pymsbuild>=1.0.0b7",
         "pybind11",
+        "jinja2",
     ],
 
     # Semi-universal, we only build once per OS
