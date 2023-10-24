@@ -1,0 +1,118 @@
+{% include "regen-header.tmpl" %}
+#include "pch.h"
+#include "{{page.basename}}.h"
+#include "{{page.name}}.g.cpp"
+
+{% for vm in page.viewmodels %}
+#include "{{vm.name}}.g.cpp"
+{% endfor %}
+
+using namespace winrt;
+using namespace Windows::UI;
+using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Data;
+namespace py = pybind11;
+
+PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
+{% for vm in page.viewmodels %}
+{% set Cls = (namespace + '::' + vm.name) %}
+    py::class_<{{Cls}}, std::shared_ptr<{{Cls}}>>(m, "{{vm.name}}")
+        .def(py::init([]() { return std::make_shared<{{Cls}}>(); }))
+{% for p in vm.properties %}
+{% if p.type == 'winrt::hstring' %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
+{% else %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
+{% endif %}
+{% endfor %}
+    ;
+{% endfor %}
+
+{% set Cls = ('winrt::' + namespace + '::implementation::' + page.name) %}
+    py::class_<{{Cls}}>(m, "{{page.name}}_View")
+{% for p in page.properties %}
+{% if p.type == 'winrt::hstring' %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
+{% else %}
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
+{% endif %}
+{% endfor %}
+{% for c in page.controls %}
+        .def_property_readonly("{{c.name}}", []({{Cls}} &c) { return c.{{c.name}}(); })
+{% endfor %}
+    ;
+};
+
+
+namespace winrt::{{namespace}}::implementation
+{
+{% for vm in page.viewmodels %}
+    {{vm.name}}::{{vm.name}}() { }
+    winrt::event_token {{vm.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
+    void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
+
+{% for p in vm.properties %}
+    void {{vm.name}}::{{p.name}}({{p.type}} value)
+    {
+        _{{p.name}} = value;
+        if (__propertyChanged) {
+            __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
+        }
+    }
+
+{% endfor %}
+{% endfor %}
+
+    {{page.name}}::{{page.name}}()
+    {
+        auto own_module = ::pybind11::module_::import("_{{namespace}}_{{page.name}}");
+        auto module_ = ::pybind11::module_::import("{{namespace}}");
+        auto cls = module_.attr("{{page.name}}");
+        __pyobj = cls(this, own_module);
+        Closed([this](IInspectable const&, WindowEventArgs const&) { __pyobj.release(); });
+        InitializeComponent();
+    }
+
+    winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
+    void {{page.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
+
+{% if page.properties +%}
+    // Bindable property getter/setters
+{% for p in page.properties %}
+
+    {{p.type}} {{page.name}}::{{p.name}}() const
+    {
+        return _{{p.name}};
+    }
+
+    void {{page.name}}::{{p.name}}({{p.type}} value)
+    {
+        // TODO: Detect whether type is comparable
+        //if (_{{p.name}} != value) {
+            _{{p.name}} = value;
+            if (__propertyChanged) {
+                __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
+            }
+        //}
+    }
+{% endfor %}
+{% endif %}
+{% if page.handlers +%}
+    // Event handlers
+{% for h in page.handlers %}
+
+    void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
+    {
+        try {
+            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+        } catch (py::error_already_set &ex) {
+            // TODO: Better error output
+            const char *msg = ex.what();
+            AllocConsole();
+            WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), msg, (DWORD)strlen(msg), NULL, NULL);
+        }
+    }
+{% endfor %}
+{% endif %}
+}

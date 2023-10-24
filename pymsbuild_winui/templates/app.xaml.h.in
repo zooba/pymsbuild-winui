@@ -1,0 +1,18 @@
+{% include "regen-header.tmpl" %}
+#pragma once
+
+#include "{{app.basename}}.g.h"
+
+namespace winrt::{{namespace}}::implementation
+{
+    struct {{app.name}} : {{app.name}}T<{{app.name}}>
+    {
+        {{app.name}}() { InitializeComponent(); }
+
+        void OnLaunched(Microsoft::UI::Xaml::LaunchActivatedEventArgs const&);
+
+    private:
+        winrt::Microsoft::UI::Xaml::Window window{ nullptr };
+        ::pybind11::scoped_interpreter interpreter{};
+    };
+}

@@ -1,0 +1,37 @@
+<Project>
+  <PropertyGroup>
+    <ConfigurationType>Application</ConfigurationType>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <ApplicationType>Windows Store</ApplicationType>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion>10.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <WindowsAppSDKWinUI>true</WindowsAppSDKWinUI>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <WindowsPackageType>None</WindowsPackageType>
+    <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
+
+    <PythonRuntimeEmbeddable>true</PythonRuntimeEmbeddable>
+
+    <GeneratedFilesDir>$([msbuild]::EnsureTrailingSlash('$(IntDir)Generated'))</GeneratedFilesDir>
+    <PYMSBUILD_WINUIPACKAGES Condition="$(PYMSBUILD_WINUIPACKAGES) == ''">$(MSBuildThisFileDirectory)</PYMSBUILD_WINUIPACKAGES>
+    <_PyMSBuildWinUIPackages>$([msbuild]::EnsureTrailingSlash($(PYMSBUILD_WINUIPACKAGES)))</_PyMSBuildWinUIPackages>
+  </PropertyGroup>
+
+  <Import Project="$(_PyMSBuildWinUIPackages)Microsoft.WindowsAppSDK/build/native/Microsoft.WindowsAppSDK.props" />
+  <Import Project="$(_PyMSBuildWinUIPackages)Microsoft.Windows.SDK.BuildTools/build/Microsoft.Windows.SDK.BuildTools.props" />
+  <Import Project="$(_PyMSBuildWinUIPackages)Microsoft.Windows.CppWinRT/build/native/Microsoft.Windows.CppWinRT.props" />
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory);$(_PyBind11IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

@@ -1,0 +1,28 @@
+{% include "regen-header.tmpl" %}
+#include "pch.h"
+
+#include "{{app.basename}}.h"
+{% if page %}
+#include "{{page.basename}}.h"
+{% endif %}
+
+using namespace winrt;
+using namespace Windows::Foundation;
+using namespace Microsoft::UI::Xaml;
+using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Navigation;
+using namespace {{namespace}};
+using namespace {{namespace}}::implementation;
+
+void {{app.name}}::OnLaunched(LaunchActivatedEventArgs const&)
+{
+    ::pybind11::module_::import("_winui_Xaml_Controls");
+{% if page %}
+
+    window = make<{{page.name}}>();
+    window.Activate();
+{% else %}
+
+    #error "No page set as default!"
+{% endif %}
+}

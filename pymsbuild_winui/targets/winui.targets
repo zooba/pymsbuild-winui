@@ -1,0 +1,148 @@
+<Project>
+  <PropertyGroup>
+    <GetSdistFilesTargets>_GetWinUIExeSdistFiles;$(GetSdistFilesTargets)</GetSdistFilesTargets>
+    <GetPackageFilesTargets>_GetWinUIExePackageFiles;$(GetPackageFilesTargets)</GetPackageFilesTargets>
+    <BeforeBuildGenerateSourcesTargets>_PrepareWinUIPchFile;_IncludeSources;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
+    <BeforeBuildGenerateSourcesTargets Condition="$(WinUIGeneratePythonBinding) != 'false'">_PrepareXamlApp;$(BeforeBuildGenerateSourcesTargets)</BeforeBuildGenerateSourcesTargets>
+    <_WinUIGeneratedDir Condition="$(_WinUIGeneratedDir) == ''">$([msbuild]::EnsureTrailingSlash(`$(IntDir)pymsbuild_winui`))</_WinUIGeneratedDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(_WinUIGeneratedDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <Target Name="_PrepareXamlApp_Metadata">
+    <ItemGroup>
+      <_PrepareXamlApp_SourceFiles Include="@(ApplicationDefinition)">
+        <_Cmd>&quot;--app:%(FullPath)&quot;</_Cmd>
+      </_PrepareXamlApp_SourceFiles>
+      <_PrepareXamlApp_SourceFiles Include="@(Page)">
+        <_Cmd>&quot;%(FullPath)&quot;</_Cmd>
+      </_PrepareXamlApp_SourceFiles>
+      <ClCompile Include="@(ApplicationDefinition->'%(Identity).cpp');@(Page->'%(Identity).cpp')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </ClCompile>
+      <ClInclude Include="@(ApplicationDefinition->'%(Identity).h');@(Page->'%(Identity).h')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </ClInclude>
+      <Midl Include="@(ApplicationDefinition->'%(Identity).idl');@(Page->'%(Identity).idl')">
+        <DependentUpon>%(Identity)</DependentUpon>
+      </Midl>
+      <ClInclude Include="$(_WinUIGeneratedDir)pch.h" />
+      <!-- HACK: Hate having to copy these back to the source directory,
+           but it seems to be the only way to make the Xaml compiler generate
+           files that will compile. -->
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename)%(Extension).cpp')">
+        <CopyTo>%(Identity).cpp</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename)%(Extension).h')">
+        <CopyTo>%(Identity).h</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+      <_PrepareXamlApp_GeneratedFiles Include="@(_PrepareXamlApp_SourceFiles->'$(_WinUIGeneratedDir)%(Filename).idl')">
+        <CopyTo>%(Identity).idl</CopyTo>
+      </_PrepareXamlApp_GeneratedFiles>
+    </ItemGroup>
+    <ItemGroup Condition="@(Manifest) == ''">
+      <Manifest Include="$(_WinUIGeneratedDir)app.manifest" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_PrepareXamlApp_Generate">
+    <MakeDir Directories="$(_WinUIGeneratedDir)" />
+    <PropertyGroup>
+      <_Cmd>"$(HostPython)" -m pymsbuild_winui.generate -f @(_PrepareXamlApp_SourceFiles->'%(_Cmd)',' ')</_Cmd>
+    </PropertyGroup>
+    <ItemGroup>
+    </ItemGroup>
+    <Exec Command="$(_Cmd)" WorkingDirectory="$(_WinUIGeneratedDir)" />
+  </Target>
+
+  <Target Name="_PrepareXamlApp_Update"
+          Inputs="@(_PrepareXamlApp_GeneratedFiles)"
+          Outputs="%(_PrepareXamlApp_GeneratedFiles.CopyTo)">
+    <Copy SourceFiles="%(_PrepareXamlApp_GeneratedFiles.FullPath)"
+          DestinationFiles="%(_PrepareXamlApp_GeneratedFiles.CopyTo)">
+      <Output TaskParameter="CopiedFiles" ItemName="FileWrites" />
+    </Copy>
+  </Target>
+
+  <Target Name="_PrepareXamlApp"
+          DependsOnTargets="_PrepareXamlApp_Metadata;_PrepareXamlApp_Generate;_PrepareXamlApp_Update" />
+
+  <ItemGroup>
+    <IncludeFile Include="$(MSBuildThisFileDirectory)python-winui.h">
+      <IncludeInSdist>false</IncludeInSdist>
+      <IncludeInLayout>false</IncludeInLayout>
+      <IncludeInWheel>false</IncludeInWheel>
+    </IncludeFile>
+  </ItemGroup>
+
+  <Target Name="_PrepareWinUIPchFile">
+    <WriteLinesToFile File="$(IntDir)pch.cpp" Lines="#include &quot;pch.h&quot;" />
+    <ItemGroup>
+      <ClCompile Include="$(IntDir)pch.cpp">
+        <PrecompiledHeader>Create</PrecompiledHeader>
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>false</IncludeInLayout>
+        <IncludeInWheel>false</IncludeInWheel>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_IncludeSources">
+    <ItemGroup>
+      <_Src Include="$(GeneratedFilesDir)module.g.cpp" />
+      <_Src Include="$(MSBuildThisFileDirectory)xaml_controls.cpp" />
+      <ClCompile Include="@(_Src)">
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>false</IncludeInLayout>
+        <IncludeInWheel>false</IncludeInWheel>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_GetWinUIExeSdistFiles">
+    <ItemGroup>
+      <Sdist Include="@(Page);@(ApplicationDefinition)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_GetWinUIExePackageFiles"
+          DependsOnTargets="DownloadRuntime">
+    <CallTarget Targets="GetCopyToOutputDirectoryItems">
+      <Output TaskParameter="TargetOutputs" ItemName="_GetCopyToOutputDirectoryItemsOutput"/>
+    </CallTarget>
+
+    <ItemGroup>
+      <AllSourceFiles Include="@(_GetCopyToOutputDirectoryItemsOutput)">
+        <Name>%(TargetPath)</Name>
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>true</IncludeInLayout>
+        <IncludeInWheel>true</IncludeInWheel>
+      </AllSourceFiles>
+      <_AppDefinition Include="@(ApplicationDefinition)">
+        <PriFile>$(OutDir)%(Filename).pri</PriFile>
+        <WinmdFile>$(OutDir)%(Filename).winmd</WinmdFile>
+      </_AppDefinition>
+      <AllSourceFiles Include="%(_AppDefinition.PriFile);%(_AppDefinition.WinmdFile)">
+        <TargetDir></TargetDir>
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>true</IncludeInLayout>
+        <IncludeInWheel>true</IncludeInWheel>
+      </AllSourceFiles>
+      <AllSourceFiles Include="@(PythonRuntime)">
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>true</IncludeInLayout>
+        <IncludeInWheel>true</IncludeInWheel>
+      </AllSourceFiles>
+    </ItemGroup>
+  </Target>
+
+  <Import Project="$(PyMSBuildTargets)/runtime.targets" />
+  <Import Project="$(PyMSBuildWinUIPackages)Microsoft.Windows.CppWinRT/build/native/Microsoft.Windows.CppWinRT.targets" />
+  <Import Project="$(PyMSBuildWinUIPackages)Microsoft.Windows.SDK.BuildTools/build/Microsoft.Windows.SDK.BuildTools.targets" />
+  <Import Project="$(PyMSBuildWinUIPackages)Microsoft.WindowsAppSDK/build/native/Microsoft.WindowsAppSDK.targets" />
+  <Import Project="$(PyMSBuildWinUIPackages)Microsoft.Windows.ImplementationLibrary/build/native/Microsoft.Windows.ImplementationLibrary.targets" />
+</Project>

@@ -1,0 +1,6 @@
+/build
+/dist
+/env
+__pycache__/
+/.vscode
+/pymsbuild_winui/targets/Microsoft.*/

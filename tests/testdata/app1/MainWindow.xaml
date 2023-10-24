@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="app.MainWindow"
+    x:Name="MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:app"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:py="http://schemas.stevedower.id.au/pymsbuild/winui"
+    mc:Ignorable="d py">
+
+    <py:Property Name="MyProperty" Type="str" />
+    <py:Property Name="Obj" Type="app::DayColor" IdlType="app.DayColor" />
+    <py:EventHandler Name="Calendar_DateChanged" Sender="CalendarDatePicker" EventArg="CalendarDatePickerDateChangedEventArgs" />
+    <py:EventHandler Name="Color_ColorChanged" Sender="ColorPicker" EventArg="ColorChangedEventArgs" />
+
+    <py:ViewModel Name="DayColor">
+      <py:Property Name="Day" Type="datetime" />
+      <py:Property Name="Color" Type="uint32_t" />
+    </py:ViewModel>
+
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock>
+          Selected color <Run Text="{x:Bind Obj.Color,Mode=OneWay}" />
+        </TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <DatePicker Date="{x:Bind Obj.Day,Mode=TwoWay}" />
+            <CalendarDatePicker x:Name="Calendar" DateChanged="Calendar_DateChanged" />
+            <ColorPicker x:Name="Color" ColorChanged="Color_ColorChanged" />
+        </StackPanel>
+    </StackPanel>
+</Window>

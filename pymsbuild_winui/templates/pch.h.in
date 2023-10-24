@@ -1,0 +1,3 @@
+{% include "regen-header.tmpl" %}
+#pragma once
+#include <python-winui.h>
