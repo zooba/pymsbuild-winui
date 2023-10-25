@@ -17,13 +17,13 @@ namespace py = pybind11;
 PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 {% for vm in page.viewmodels %}
 {% set Cls = (namespace + '::' + vm.name) %}
-    py::class_<{{Cls}}, std::shared_ptr<{{Cls}}>>(m, "{{vm.name}}")
-        .def(py::init([]() { return std::make_shared<{{Cls}}>(); }))
+    py::class_<{{Cls}}, ::std::shared_ptr<{{Cls}}>>(m, "{{vm.name}}")
+        .def(py::init([]() { return ::std::make_shared<{{Cls}}>(); }))
 {% for p in vm.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
 {% else %}
-        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return ::pywinui::hold(c.{{p.name}}()); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
 {% endif %}
 {% endfor %}
     ;
@@ -53,7 +53,7 @@ namespace winrt::{{namespace}}::implementation
     void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
 
 {% for p in vm.properties %}
-    void {{vm.name}}::{{p.name}}({{p.type}} value)
+    void {{vm.name}}::{{p.name}}(const {{p.type}} &value)
     {
         _{{p.name}} = value;
         if (__propertyChanged) {

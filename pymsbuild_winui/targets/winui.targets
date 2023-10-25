@@ -30,7 +30,6 @@
       <Midl Include="@(ApplicationDefinition->'%(Identity).idl');@(Page->'%(Identity).idl')">
         <DependentUpon>%(Identity)</DependentUpon>
       </Midl>
-      <ClInclude Include="$(_WinUIGeneratedDir)pch.h" />
       <!-- HACK: Hate having to copy these back to the source directory,
            but it seems to be the only way to make the Xaml compiler generate
            files that will compile. -->
@@ -80,8 +79,20 @@
   </ItemGroup>
 
   <Target Name="_PrepareWinUIPchFile">
-    <WriteLinesToFile File="$(IntDir)pch.cpp" Lines="#include &quot;pch.h&quot;" />
+    <WriteLinesToFile File="$(IntDir)pch.h"
+                      Lines="#pragma once%0D%0A#include &lt;python-winui.h&gt;;"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(IntDir)pch.cpp"
+                      Lines="#include &quot;pch.h&quot;"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
     <ItemGroup>
+      <ClInclude Include="$(IntDir)pch.h">
+        <IncludeInSdist>false</IncludeInSdist>
+        <IncludeInLayout>false</IncludeInLayout>
+        <IncludeInWheel>false</IncludeInWheel>
+      </ClInclude>
       <ClCompile Include="$(IntDir)pch.cpp">
         <PrecompiledHeader>Create</PrecompiledHeader>
         <IncludeInSdist>false</IncludeInSdist>
@@ -122,16 +133,12 @@
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
       </AllSourceFiles>
-      <_AppDefinition Include="@(ApplicationDefinition)">
-        <PriFile>$(OutDir)%(Filename).pri</PriFile>
-        <WinmdFile>$(OutDir)%(Filename).winmd</WinmdFile>
-      </_AppDefinition>
-      <AllSourceFiles Include="%(_AppDefinition.PriFile);%(_AppDefinition.WinmdFile)">
+      <!--<AllSourceFiles Include="$(OutDir)$(RootNamespace).pri;$(OutDir)$(RootNamespace).winmd">
         <TargetDir></TargetDir>
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
-      </AllSourceFiles>
+      </AllSourceFiles>-->
       <AllSourceFiles Include="@(PythonRuntime)">
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>

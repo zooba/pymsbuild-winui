@@ -1,0 +1,89 @@
+﻿<Window
+    x:Class="PhotoViewer.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PhotoViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:py="http://schemas.stevedower.id.au/pymsbuild/winui"
+    mc:Ignorable="d py">
+
+    <py:EventHandler Name="SelectFolderClick" />
+    <py:EventHandler Name="AboutClick" />
+    <py:EventHandler Name="ImageClick" />
+    <py:EventHandler Name="OnElementPointerEntered" EventArgs="Microsoft::UI::Xaml::Input::PointerRoutedEventArgs" />
+    <py:EventHandler Name="OnElementPointerExited" EventArgs="Microsoft::UI::Xaml::Input::PointerRoutedEventArgs" />
+
+    <py:ViewModel Name="ImageInfo">
+        <py:Property Name="Name" Type="str" />
+        <py:Property Name="Path" Type="str" />
+    </py:ViewModel>
+    <py:ViewModel Name="ImageRepository">
+        <!--TODO <py:Property Name="Images" Type="ObservableCollection<ImageInfo>" />-->
+        <py:Property Name="Images" Type="list[PhotoViewer.ImageInfo]" />
+    </py:ViewModel>
+    <py:Property Name="ImagesRepository" Type="PhotoViewer.ImageRepository" />
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border x:Name="CustomTitleBar" Height="30" Margin="-1,0" >
+            <TextBlock VerticalAlignment="Center" 
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Margin="20,0"
+                       Text="{x:Bind Title}"/>
+        </Border>
+        
+        <CommandBar Background="Transparent" 
+                    IsOpen="False" 
+                    DefaultLabelPosition="Right"
+                    Grid.Row="1">
+            <AppBarButton Icon="Folder" Label="Select Folder" Click="SelectFolderClick"/>
+            <AppBarButton Icon="Flag" Label="About" Click="AboutClick"/>
+        </CommandBar>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      VerticalScrollMode="Auto"
+                      HorizontalScrollMode="Disabled"
+                      Grid.Row="2">   
+            <ScrollViewer.Resources>
+                
+                <UniformGridLayout x:Key="RepeaterLayout" 
+                                   MinColumnSpacing="20" 
+                                   MinRowSpacing="20"
+                                   ItemsJustification="SpaceEvenly"/>
+
+                <DataTemplate x:Key="ImageInfoTemplate"
+                              x:DataType="local:ImageInfo">
+                    <Button Click="ImageClick"
+                            DataContext="{x:Bind}"
+                            BorderThickness="0"
+                            CornerRadius="0"
+                            Padding="0"
+                            PointerEntered="OnElementPointerEntered"
+                            PointerExited="OnElementPointerExited">
+                        <Image Source="{x:Bind Path}"
+                               MaxWidth="360"
+                               MaxHeight="360"
+                               ToolTipService.ToolTip="{x:Bind Name}"/>
+                    </Button>
+                </DataTemplate>
+
+            </ScrollViewer.Resources>
+
+            <ItemsRepeater x:Name="ImagesRepeater"
+                           ItemsSource="{x:Bind ImagesRepository.Images}"
+                           ItemTemplate="{StaticResource ImageInfoTemplate}"
+                           Layout="{StaticResource RepeaterLayout}"/>
+        </ScrollViewer>
+
+        <InfoBar x:Name="ImageCollectionInfoBar"
+                 Title="Info"
+                 Grid.Row="3"/>
+    </Grid>
+</Window>

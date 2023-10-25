@@ -2,6 +2,7 @@
 namespace {{namespace}}
 {
 {% for m in page.viewmodels %}
+    [default_interface]
     runtimeclass {{m.name}} : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
     {
         {{m.name}}();

@@ -29,6 +29,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .value("Paused", MediaPlaybackState::Paused)
     ;
 
+    py::class_<IInspectable, ::pywinui::holder<IInspectable>>(m, "Windows.Foundation.IInspectable")
+        .def("__repr__", [](const IInspectable& _self) { return default_repr(_self); } )
+    ;
+
     py::class_<AnchorRequestedEventArgs, ::pywinui::holder<AnchorRequestedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.AnchorRequestedEventArgs")
         .def("__repr__", [](const AnchorRequestedEventArgs& _self) { return default_repr(_self); } )
         .def_property_readonly("Anchor", [](const AnchorRequestedEventArgs& _self) { return (_self.Anchor()); })
@@ -392,6 +396,8 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     ;
     py::class_<InfoBar, ::pywinui::holder<InfoBar>>(m, "Microsoft.UI.Xaml.Controls.InfoBar")
         .def("__repr__", [](const InfoBar& _self) { return default_repr(_self); } )
+        .def_property("Message", [](const InfoBar& _self) { return (_self.Message()); }, [](InfoBar& _self, std::wstring v) { return _self.Message(v); })
+        .def_property("IsOpen", [](const InfoBar& _self) { return (_self.IsOpen()); }, [](InfoBar& _self, bool v) { return _self.IsOpen(v); })
     ;
     py::class_<InfoBarClosedEventArgs, ::pywinui::holder<InfoBarClosedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.InfoBarClosedEventArgs")
         .def("__repr__", [](const InfoBarClosedEventArgs& _self) { return default_repr(_self); } )
@@ -755,6 +761,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     ;
     py::class_<RichTextBlockOverflow, ::pywinui::holder<RichTextBlockOverflow>>(m, "Microsoft.UI.Xaml.Controls.RichTextBlockOverflow")
         .def("__repr__", [](const RichTextBlockOverflow& _self) { return default_repr(_self); } )
+    ;
+    py::class_<RoutedEventArgs, ::pywinui::holder<RoutedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.RoutedEventArgs")
+        .def("__repr__", [](const RoutedEventArgs& _self) { return default_repr(_self); } )
     ;
     py::class_<RowDefinition, ::pywinui::holder<RowDefinition>>(m, "Microsoft.UI.Xaml.Controls.RowDefinition")
         .def("__repr__", [](const RowDefinition& _self) { return default_repr(_self); } )

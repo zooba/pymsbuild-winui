@@ -3,7 +3,7 @@
 #include <{{page.name}}.g.h>
 
 {% for vm in page.viewmodels %}
-#include "{{vm.name}}.g.h"
+#include <{{vm.name}}.g.h>
 {% endfor %}
 
 namespace winrt::{{namespace}}::implementation
@@ -19,7 +19,7 @@ namespace winrt::{{namespace}}::implementation
         {{m.name}}();
 {% for prop in m.properties %}
         {{prop.type}} {{prop.name}}() const { return _{{prop.name}}; }
-        void {{prop.name}}({{prop.type}} value);
+        void {{prop.name}}(const {{prop.type}} &value);
 {% endfor %}
 
         winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);

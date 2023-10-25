@@ -39,13 +39,15 @@
 namespace pywinui {
     template <typename T> struct holder {
         T v;
-        holder(T v) : v(v) { }
-        holder(T *v) : v(*v) { }
+        holder(T t) : v{t} { }
+        holder(T *t) : v{*t} { }
         inline T *get() const { return (T *)&v; }
     };
 
-    template <typename T, typename U = std::conditional<std::is_base_of<winrt::Windows::Foundation::IInspectable, T>::value, holder<T>, T>::type>
-    U hold(const T& t) { return U(t); }
+    template <typename T>
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, holder<T>> hold(const T& t) { return holder<T>(t); }
+    template <typename T>
+    std::enable_if_t<!std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, T> hold(const T& t) { return t; }
 }
 
 PYBIND11_DECLARE_HOLDER_TYPE(T, ::pywinui::holder<T>, true);
