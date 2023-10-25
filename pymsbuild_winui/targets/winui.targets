@@ -133,12 +133,13 @@
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
       </AllSourceFiles>
-      <!--<AllSourceFiles Include="$(OutDir)$(RootNamespace).pri;$(OutDir)$(RootNamespace).winmd">
+      <!-- TODO: Less hardcoded way to find these two files? -->
+      <AllSourceFiles Include="$(OutDir)$(RootNamespace).pri;$(OutDir)$(RootNamespace).winmd">
         <TargetDir></TargetDir>
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
-      </AllSourceFiles>-->
+      </AllSourceFiles>
       <AllSourceFiles Include="@(PythonRuntime)">
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>

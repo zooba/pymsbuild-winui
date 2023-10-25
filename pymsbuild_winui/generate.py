@@ -62,7 +62,7 @@ PROPERTY_IDLTYPE_MAP = {
     "double": "Double",
     "bool": "Boolean",
     "GUID": "Guid",
-    "winrt::Windows::Foundation::IInpsectable": "Windows.Foundation.IInspectable",
+    "winrt::Windows::Foundation::IInspectable": "Windows.Foundation.IInspectable",
     "winrt::Windows::Foundation::DateTime": "Windows.Foundation.DateTime",
     "winrt::Windows::Foundation::TimeSpan": "Windows.Foundation.TimeSpan",
     "winrt::Windows::Foundation::Collections::IVector": "Windows.Foundation.Collections.IVector",
