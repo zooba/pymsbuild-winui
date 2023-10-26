@@ -11,6 +11,7 @@ class MainWindow:
         self.view.models[image_info.ImagesRepository] = viewmodels.ImageRepository
         self.view.ExtendsContentIntoTitleBar = True
         self.view.SetTitleBar(self.view.CustomTitleBar)
+        self.spring_animation = None
 
     def SelectFolderClick(self, sender, e):
         self.repo = repo = image_info.ImagesRepository()
@@ -41,9 +42,17 @@ class MainWindow:
         op.Completed(update_bar)
 
     def OnElementPointerEntered(self, sender, e):
-        # TODO: Animation
-        pass
+        self.create_or_update_spring_animation(1.05)
+        sender.as_("Microsoft.UI.Xaml.UIElement").StartAnimation(self.spring_animation)
 
     def OnElementPointerExited(self, sender, e):
-        # TODO: Animation
-        pass
+        self.create_or_update_spring_animation(1.0)
+        sender.as_("Microsoft.UI.Xaml.UIElement").StartAnimation(self.spring_animation)
+
+    def create_or_update_spring_animation(self, final_value):
+        if self.spring_animation is None:
+            compositor = self.view.Compositor
+            if compositor:
+                self.spring_animation = compositor.CreateSpringVector3Animation()
+                self.spring_animation.Target = "Scale"
+        self.spring_animation.FinalValue = (final_value, final_value, final_value)

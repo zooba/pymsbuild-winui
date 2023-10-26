@@ -36,6 +36,7 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
         .def("Activate", [](const {{Cls}} &c) { c.Activate(); })
         .def("Close", [](const {{Cls}} &c) { c.Close(); })
         .def("SetTitleBar", [](const {{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &titleBar) { c.SetTitleBar(titleBar.as<UIElement>()); })
+        .def_property_readonly("Compositor", [](const {{Cls}} &c) { return ::pywinui::hold(c.Compositor()); })
         .def_property("ExtendsContentIntoTitleBar", [](const {{Cls}} &c) { return c.ExtendsContentIntoTitleBar(); }, []({{Cls}} &c, bool v) { c.ExtendsContentIntoTitleBar(v); })
         .def_property_readonly("models", &{{Cls}}::_get_viewmodels)
         .def("wrap", &{{Cls}}::wrap)

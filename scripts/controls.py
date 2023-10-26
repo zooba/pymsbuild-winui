@@ -89,19 +89,17 @@ class AsyncOpInfo(BaseInfo):
 
 class CALL:
     kind = "call"
-    def __init__(self, pre="", post="", **kwargs):
-        self.pre = pre
-        self.post = post
+    def __init__(self, cvt="", **kwargs):
+        self.cvt = cvt
         self.args = list(kwargs.items())
         self.prototype = "".join(f", {v} {k}" for k, v in self.args)
         self.argspec = ", ".join(f"{k}" for k, v in self.args)
 
 class GET:
     kind = "get"
-    def __init__(self, type, pre="", post=""):
+    def __init__(self, type, cvt=""):
         self.type = type
-        self.pre = pre
-        self.post = post
+        self.cvt = cvt
 
 class GETSET(GET):
     kind = "getset"
@@ -124,17 +122,168 @@ MICROSOFT_UI = dict(
     ),
 )
 
+MICROSOFT_UI_COMPOSITION = dict(
+    AmbientLight={},
+    AnimationController={},
+    AnimationControllerProgressBehavior=EnumInfo(),
+    AnimationDelayBehavior=EnumInfo(),
+    AnimationDirection=EnumInfo(),
+    AnimationIterationBehavior=EnumInfo(),
+    AnimationPropertyAccessMode=EnumInfo(),
+    AnimationPropertyInfo={},
+    AnimationStopBehavior=EnumInfo(),
+    BackEasingFunction={},
+    BooleanKeyFrameAnimation={},
+    BounceEasingFunction={},
+    BounceScalarNaturalMotionAnimation={},
+    BounceVector2NaturalMotionAnimation={},
+    BounceVector3NaturalMotionAnimation={},
+    CircleEasingFunction={},
+    ColorKeyFrameAnimation={},
+    CompositionAnimation={
+        "__base__": "CompositionObject",
+        "InitialValueExpressions": GET("InitialValueExpressionCollection"),
+        "Target": GETSET(STR),
+    },
+    CompositionAnimationGroup={},
+    CompositionApiInformation=StructInfo(),
+    CompositionBackdropBrush={},
+    CompositionBackfaceVisibility=EnumInfo(),
+    CompositionBatchCompletedEventArgs={},
+    CompositionBatchTypes=EnumInfo(),
+    CompositionBitmapInterpolationMode=EnumInfo(),
+    CompositionBorderMode=EnumInfo(),
+    CompositionBrush={},
+    CompositionCapabilities={},
+    CompositionClip={},
+    CompositionColorBrush={},
+    CompositionColorGradientStop={},
+    CompositionColorGradientStopCollection={},
+    CompositionColorSpace=EnumInfo(),
+    CompositionCommitBatch={},
+    CompositionCompositeMode=EnumInfo(),
+    CompositionContainerShape={},
+    CompositionDrawingSurface={},
+    CompositionDropShadowSourcePolicy=EnumInfo(),
+    CompositionEasingFunction={},
+    CompositionEasingFunctionMode=EnumInfo(),
+    CompositionEffectBrush={},
+    CompositionEffectFactory={},
+    CompositionEffectFactoryLoadStatus=EnumInfo(),
+    CompositionEffectSourceParameter={},
+    CompositionEllipseGeometry={},
+    CompositionGeometricClip={},
+    CompositionGeometry={},
+    CompositionGetValueStatus=EnumInfo(),
+    CompositionGradientBrush={},
+    CompositionGradientExtendMode=EnumInfo(),
+    CompositionGraphicsDevice={},
+    CompositionLight={},
+    CompositionLinearGradientBrush={},
+    CompositionLineGeometry={},
+    CompositionMappingMode=EnumInfo(),
+    CompositionMaskBrush={},
+    CompositionMipmapSurface={},
+    CompositionNineGridBrush={},
+    CompositionObject={},
+    CompositionPath={},
+    CompositionPathGeometry={},
+    CompositionProjectedShadow={},
+    CompositionProjectedShadowCaster={},
+    CompositionProjectedShadowCasterCollection={},
+    CompositionProjectedShadowReceiver={},
+    CompositionProjectedShadowReceiverUnorderedCollection={},
+    CompositionPropertySet={},
+    CompositionRadialGradientBrush={},
+    CompositionRectangleGeometry={},
+    CompositionRoundedRectangleGeometry={},
+    CompositionScopedBatch={},
+    CompositionShadow={},
+    CompositionShape={},
+    CompositionShapeCollection={},
+    CompositionSpriteShape={},
+    CompositionStretch=EnumInfo(),
+    CompositionStrokeCap=EnumInfo(),
+    CompositionStrokeDashArray={},
+    CompositionStrokeLineJoin=EnumInfo(),
+    CompositionSurfaceBrush={},
+    CompositionTransform={},
+    CompositionViewBox={},
+    CompositionVirtualDrawingSurface={},
+    CompositionVisualSurface={},
+    Compositor={
+        "CreateSpringVector3Animation": CALL(),
+    },
+    ContainerVisual={},
+    CubicBezierEasingFunction={},
+    DistantLight={},
+    DropShadow={},
+    ElasticEasingFunction={},
+    ExponentialEasingFunction={},
+    ExpressionAnimation={
+        "__base__": "CompositionAnimation",
+    },
+    ImplicitAnimationCollection={},
+    InitialValueExpressionCollection={},
+    InsetClip={},
+    KeyFrameAnimation={
+        "__base__": "CompositionAnimation",
+    },
+    LayerVisual={},
+    LinearEasingFunction={},
+    NaturalMotionAnimation={
+        "__base__": "CompositionAnimation",
+    },
+    PathKeyFrameAnimation={},
+    PointLight={},
+    PowerEasingFunction={},
+    QuaternionKeyFrameAnimation={},
+    RectangleClip={},
+    RedirectVisual={},
+    RenderingDeviceReplacedEventArgs={},
+    ScalarKeyFrameAnimation={},
+    ScalarNaturalMotionAnimation={},
+    ShapeVisual={},
+    SineEasingFunction={},
+    SpotLight={},
+    SpringScalarNaturalMotionAnimation={},
+    SpringVector2NaturalMotionAnimation={},
+    SpringVector3NaturalMotionAnimation={
+        "__base__": "Vector3NaturalMotionAnimation",
+        "DampingRatio": GETSET("float"),
+        "Period": GETSET("TimeSpan"),
+    },
+    SpriteVisual={},
+    StepEasingFunction={},
+    Vector2KeyFrameAnimation={},
+    Vector2NaturalMotionAnimation={},
+    Vector3KeyFrameAnimation={},
+    Vector3NaturalMotionAnimation={
+        "__base__": "NaturalMotionAnimation",
+        "InitialValue": GETSET("Vector3", cvt="cvt_vector3_opt"),
+        "FinalValue": GETSET("Vector3", cvt="cvt_vector3_opt"),
+        "InitialVelocity": GETSET("Vector3", cvt="cvt_vector3"),
+    },
+    Vector4KeyFrameAnimation={},
+    Visual={},
+    VisualCollection={},
+    VisualUnorderedCollection={},
+)
+
 MICROSOFT_UI_XAML = dict(
     Visibility=EnumInfo("Visible", "Collapsed"),
     DependencyObject={},
     FrameworkElement={
         "__base__": "UIElement",
-        "DataContext": GET(ANY)
+        "DataContext": GET(ANY),
     },
     RoutedEventArgs={"OriginalSource": GET(ANY)},
     UIElement={
         "__base__": "DependencyObject",
         "Visibility": GETSET("Visibility"),
+        # Strictly should be ICompositionAnimationBase, but who's counting?
+        "StartAnimation": CALL(animation="::winrt::Microsoft::UI::Composition::CompositionAnimation"),
+        "StopAnimation": CALL(animation="::winrt::Microsoft::UI::Composition::CompositionAnimation"),
     },
     Window={
         "Activate": CALL(),
@@ -191,14 +340,14 @@ MICROSOFT_UI_XAML_CONTROLS = dict(
     Button={"__base__": "ContentControl"},
     CalendarDatePicker={
         "__base__": "Control",
-        "Date": GETSET("DateTime", post=".try_as<DateTime>()"),
+        "Date": GETSET("DateTime", cvt="cvt_DateTime_opt"),
         "MaxDate": GETSET("DateTime"),
         "MinDate": GETSET("DateTime"),
         "SetDisplayDate": CALL(date="DateTime"),
     },
     CalendarDatePickerDateChangedEventArgs={
-        "NewDate": GET("DateTime", post=".try_as<DateTime>()"),
-        "OldDate": GET("DateTime", post=".try_as<DateTime>()"),
+        "NewDate": GET("DateTime", cvt="cvt_DateTime_opt"),
+        "OldDate": GET("DateTime", cvt="cvt_DateTime_opt"),
     },
     CalendarView={
         "__base__": "Control",
@@ -610,6 +759,7 @@ def info(ns, name, members):
 
 CONTROLS = [
     *(info("Microsoft.UI", k, v) for k, v in MICROSOFT_UI.items()),
+    *(info("Microsoft.UI.Composition", k, v) for k, v in MICROSOFT_UI_COMPOSITION.items()),
     *(info("Microsoft.UI.Xaml", k, v) for k, v in MICROSOFT_UI_XAML.items()),
     *(info("Microsoft.UI.Xaml.Controls", k, v) for k, v in MICROSOFT_UI_XAML_CONTROLS.items()),
 ]

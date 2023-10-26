@@ -16,6 +16,37 @@ namespace py = pybind11;
 template <typename T> struct arg_type { typedef const T &type; };
 template <> struct arg_type<winrt::hstring> { typedef const std::wstring &type; };
 
+struct cvt_DateTime_opt {
+    using T = winrt::Windows::Foundation::DateTime;
+    using RT = winrt::Windows::Foundation::IReference<T>;
+    std::optional<T> v;
+    cvt_DateTime_opt(py::object o) { if (o) { v = std::make_optional<T>(py::cast<T>(o)); } }
+    cvt_DateTime_opt(winrt::Windows::Foundation::IInspectable v) : v(v.try_as<T>()) { }
+    operator py::object () const { return v ? py::cast(*v) : py::none(); }
+    operator RT () const { return v ? winrt::box_value(*v).as<RT>() : nullptr; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime>> { typedef py::object type; };
+
+struct cvt_vector3 {
+    winrt::Windows::Foundation::Numerics::float3 v;
+    cvt_vector3(py::object o) { v.x = py::cast<float>(o[py::cast(0)]); v.y = py::cast<float>(o[py::cast(1)]); v.z = py::cast<float>(o[py::cast(2)]); }
+    cvt_vector3(const winrt::Windows::Foundation::Numerics::float3 &v) : v(v) { }
+    operator py::object () const { return py::make_tuple(v.x, v.y, v.z); }
+    operator winrt::Windows::Foundation::Numerics::float3 () const { return v; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::Numerics::float3> { typedef py::object type; };
+
+struct cvt_vector3_opt {
+    using T = winrt::Windows::Foundation::Numerics::float3;
+    using RT = winrt::Windows::Foundation::IReference<T>;
+    std::optional<T> v;
+    cvt_vector3_opt(py::object o) { if (o) { v = std::make_optional<T>(py::cast<float>(o[py::cast(0)]), py::cast<float>(o[py::cast(1)]), py::cast<float>(o[py::cast(2)])); } }
+    cvt_vector3_opt(winrt::Windows::Foundation::IInspectable v) : v(v.try_as<T>()) { }
+    operator py::object () const { return v ? py::make_tuple(v->x, v->y, v->z) : py::none(); }
+    operator RT () const { return v ? winrt::box_value(*v).as<RT>() : nullptr; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::Numerics::float3>> { typedef py::object type; };
+
 template <typename T> static std::wstring default_repr(const T&) {
     std::wstringstream s;
     s << "<" << typeid(T).name() << ">";
@@ -41,6 +72,48 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def("as_", [](const IInspectable& _self, const char *type) { return py::module_::import("_winui_Xaml_Controls").attr(type)(_self); })
     ;
 
+    py::enum_<Microsoft::UI::Composition::AnimationControllerProgressBehavior>(m, "Microsoft.UI.Composition.AnimationControllerProgressBehavior")
+    ;
+    py::enum_<Microsoft::UI::Composition::AnimationDelayBehavior>(m, "Microsoft.UI.Composition.AnimationDelayBehavior")
+    ;
+    py::enum_<Microsoft::UI::Composition::AnimationDirection>(m, "Microsoft.UI.Composition.AnimationDirection")
+    ;
+    py::enum_<Microsoft::UI::Composition::AnimationIterationBehavior>(m, "Microsoft.UI.Composition.AnimationIterationBehavior")
+    ;
+    py::enum_<Microsoft::UI::Composition::AnimationPropertyAccessMode>(m, "Microsoft.UI.Composition.AnimationPropertyAccessMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::AnimationStopBehavior>(m, "Microsoft.UI.Composition.AnimationStopBehavior")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionBackfaceVisibility>(m, "Microsoft.UI.Composition.CompositionBackfaceVisibility")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionBatchTypes>(m, "Microsoft.UI.Composition.CompositionBatchTypes")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionBitmapInterpolationMode>(m, "Microsoft.UI.Composition.CompositionBitmapInterpolationMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionBorderMode>(m, "Microsoft.UI.Composition.CompositionBorderMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionColorSpace>(m, "Microsoft.UI.Composition.CompositionColorSpace")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionCompositeMode>(m, "Microsoft.UI.Composition.CompositionCompositeMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionDropShadowSourcePolicy>(m, "Microsoft.UI.Composition.CompositionDropShadowSourcePolicy")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionEasingFunctionMode>(m, "Microsoft.UI.Composition.CompositionEasingFunctionMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionEffectFactoryLoadStatus>(m, "Microsoft.UI.Composition.CompositionEffectFactoryLoadStatus")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionGetValueStatus>(m, "Microsoft.UI.Composition.CompositionGetValueStatus")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionGradientExtendMode>(m, "Microsoft.UI.Composition.CompositionGradientExtendMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionMappingMode>(m, "Microsoft.UI.Composition.CompositionMappingMode")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionStretch>(m, "Microsoft.UI.Composition.CompositionStretch")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionStrokeCap>(m, "Microsoft.UI.Composition.CompositionStrokeCap")
+    ;
+    py::enum_<Microsoft::UI::Composition::CompositionStrokeLineJoin>(m, "Microsoft.UI.Composition.CompositionStrokeLineJoin")
+    ;
     py::enum_<Microsoft::UI::Xaml::Visibility>(m, "Microsoft.UI.Xaml.Visibility")
         .value("Visible", Microsoft::UI::Xaml::Visibility::Visible)
         .value("Collapsed", Microsoft::UI::Xaml::Visibility::Collapsed)
@@ -58,6 +131,435 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .value("Paused", Windows::Media::Playback::MediaPlaybackState::Paused)
     ;
 
+    py::class_<Microsoft::UI::Composition::AmbientLight, ::pywinui::holder<Microsoft::UI::Composition::AmbientLight>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AmbientLight")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AmbientLight>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::AmbientLight& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::AnimationController, ::pywinui::holder<Microsoft::UI::Composition::AnimationController>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AnimationController")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AnimationController>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::AnimationController& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::AnimationPropertyInfo, ::pywinui::holder<Microsoft::UI::Composition::AnimationPropertyInfo>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AnimationPropertyInfo")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AnimationPropertyInfo>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::AnimationPropertyInfo& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BackEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::BackEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BackEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BackEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BackEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BooleanKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::BooleanKeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BooleanKeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BooleanKeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BooleanKeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BounceEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::BounceEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BounceEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceScalarNaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceVector2NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceVector3NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CircleEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CircleEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CircleEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CircleEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CircleEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ColorKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::ColorKeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ColorKeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ColorKeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ColorKeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionAnimation, ::pywinui::holder<Microsoft::UI::Composition::CompositionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionAnimation& _self) { return default_repr(_self); } )
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::CompositionAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::CompositionAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::CompositionAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionAnimationGroup, ::pywinui::holder<Microsoft::UI::Composition::CompositionAnimationGroup>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionAnimationGroup")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionAnimationGroup>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionAnimationGroup& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionBackdropBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionBackdropBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBackdropBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBackdropBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionBackdropBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs, ::pywinui::holder<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBatchCompletedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionBatchCompletedEventArgs& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionCapabilities, ::pywinui::holder<Microsoft::UI::Composition::CompositionCapabilities>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionCapabilities")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionCapabilities>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionCapabilities& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionClip, ::pywinui::holder<Microsoft::UI::Composition::CompositionClip>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionClip")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionClip>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionClip& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionColorBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionColorBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionColorGradientStop, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorGradientStop>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorGradientStop")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorGradientStop>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionColorGradientStop& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionColorGradientStopCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorGradientStopCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorGradientStopCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorGradientStopCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionColorGradientStopCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionCommitBatch, ::pywinui::holder<Microsoft::UI::Composition::CompositionCommitBatch>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionCommitBatch")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionCommitBatch>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionCommitBatch& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionContainerShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionContainerShape>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionContainerShape")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionContainerShape>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionContainerShape& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionDrawingSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionDrawingSurface>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionDrawingSurface")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionDrawingSurface>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionDrawingSurface& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CompositionEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionEffectBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionEffectBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionEffectFactory, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectFactory>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectFactory")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectFactory>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionEffectFactory& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionEffectSourceParameter, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectSourceParameter>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectSourceParameter")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectSourceParameter>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionEffectSourceParameter& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionEllipseGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionEllipseGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEllipseGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEllipseGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionEllipseGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionGeometricClip, ::pywinui::holder<Microsoft::UI::Composition::CompositionGeometricClip>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGeometricClip")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGeometricClip>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionGeometricClip& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionGradientBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGradientBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGradientBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionGradientBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionGraphicsDevice, ::pywinui::holder<Microsoft::UI::Composition::CompositionGraphicsDevice>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGraphicsDevice")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGraphicsDevice>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionGraphicsDevice& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionLight, ::pywinui::holder<Microsoft::UI::Composition::CompositionLight>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLight")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLight>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionLight& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionLinearGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionLinearGradientBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLinearGradientBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLinearGradientBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionLinearGradientBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionLineGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionLineGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLineGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLineGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionLineGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionMaskBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionMaskBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionMaskBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionMaskBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionMaskBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionMipmapSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionMipmapSurface>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionMipmapSurface")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionMipmapSurface>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionMipmapSurface& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionNineGridBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionNineGridBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionNineGridBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionNineGridBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionNineGridBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionObject, ::pywinui::holder<Microsoft::UI::Composition::CompositionObject>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionObject")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionObject>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionObject& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionPath, ::pywinui::holder<Microsoft::UI::Composition::CompositionPath>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPath")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPath>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionPath& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionPathGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionPathGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPathGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPathGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionPathGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionProjectedShadow, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadow>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadow")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadow>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionProjectedShadow& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionProjectedShadowCaster, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowCaster>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowCaster")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowCaster>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionProjectedShadowCaster& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowCasterCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionProjectedShadowReceiver, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowReceiver")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionProjectedShadowReceiver& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowReceiverUnorderedCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionPropertySet, ::pywinui::holder<Microsoft::UI::Composition::CompositionPropertySet>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPropertySet")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPropertySet>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionPropertySet& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionRadialGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionRadialGradientBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRadialGradientBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRadialGradientBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionRadialGradientBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionRectangleGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionRectangleGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRectangleGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRectangleGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionRectangleGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRoundedRectangleGeometry")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionRoundedRectangleGeometry& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionScopedBatch, ::pywinui::holder<Microsoft::UI::Composition::CompositionScopedBatch>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionScopedBatch")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionScopedBatch>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionScopedBatch& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionShadow, ::pywinui::holder<Microsoft::UI::Composition::CompositionShadow>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShadow")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShadow>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionShadow& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionShape>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShape")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShape>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionShape& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionShapeCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionShapeCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShapeCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShapeCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionShapeCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionSpriteShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionSpriteShape>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionSpriteShape")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionSpriteShape>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionSpriteShape& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionStrokeDashArray, ::pywinui::holder<Microsoft::UI::Composition::CompositionStrokeDashArray>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionStrokeDashArray")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionStrokeDashArray>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionStrokeDashArray& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionSurfaceBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionSurfaceBrush>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionSurfaceBrush")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionSurfaceBrush>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionSurfaceBrush& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionTransform, ::pywinui::holder<Microsoft::UI::Composition::CompositionTransform>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionTransform")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionTransform>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionTransform& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionViewBox, ::pywinui::holder<Microsoft::UI::Composition::CompositionViewBox>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionViewBox")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionViewBox>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionViewBox& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionVirtualDrawingSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionVirtualDrawingSurface")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionVirtualDrawingSurface& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CompositionVisualSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionVisualSurface>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionVisualSurface")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionVisualSurface>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CompositionVisualSurface& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Compositor, ::pywinui::holder<Microsoft::UI::Composition::Compositor>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Compositor")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Compositor>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Compositor& _self) { return default_repr(_self); } )
+        .def("CreateSpringVector3Animation", [](Microsoft::UI::Composition::Compositor& _self) { return ::pywinui::call_and_hold([&]() { return _self.CreateSpringVector3Animation(); }); })
+    ;
+    py::class_<Microsoft::UI::Composition::ContainerVisual, ::pywinui::holder<Microsoft::UI::Composition::ContainerVisual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ContainerVisual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ContainerVisual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ContainerVisual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::CubicBezierEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CubicBezierEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CubicBezierEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CubicBezierEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::CubicBezierEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::DistantLight, ::pywinui::holder<Microsoft::UI::Composition::DistantLight>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.DistantLight")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::DistantLight>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::DistantLight& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::DropShadow, ::pywinui::holder<Microsoft::UI::Composition::DropShadow>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.DropShadow")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::DropShadow>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::DropShadow& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ElasticEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::ElasticEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ElasticEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ElasticEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ElasticEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ExponentialEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::ExponentialEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ExponentialEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ExponentialEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ExponentialEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ExpressionAnimation, ::pywinui::holder<Microsoft::UI::Composition::ExpressionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ExpressionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ExpressionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ExpressionAnimation& _self) { return default_repr(_self); } )
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::ExpressionAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::ExpressionAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::ExpressionAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::ImplicitAnimationCollection, ::pywinui::holder<Microsoft::UI::Composition::ImplicitAnimationCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ImplicitAnimationCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ImplicitAnimationCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ImplicitAnimationCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::InitialValueExpressionCollection, ::pywinui::holder<Microsoft::UI::Composition::InitialValueExpressionCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.InitialValueExpressionCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::InitialValueExpressionCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::InitialValueExpressionCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::InsetClip, ::pywinui::holder<Microsoft::UI::Composition::InsetClip>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.InsetClip")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::InsetClip>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::InsetClip& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::KeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.KeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::KeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::KeyFrameAnimation& _self) { return default_repr(_self); } )
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::KeyFrameAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::KeyFrameAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::KeyFrameAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::LayerVisual, ::pywinui::holder<Microsoft::UI::Composition::LayerVisual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.LayerVisual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::LayerVisual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::LayerVisual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::LinearEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::LinearEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.LinearEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::LinearEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::LinearEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::NaturalMotionAnimation& _self) { return default_repr(_self); } )
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::NaturalMotionAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::PathKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::PathKeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PathKeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PathKeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::PathKeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::PointLight, ::pywinui::holder<Microsoft::UI::Composition::PointLight>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PointLight")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PointLight>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::PointLight& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::PowerEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::PowerEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PowerEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PowerEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::PowerEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::QuaternionKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.QuaternionKeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::QuaternionKeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::RectangleClip, ::pywinui::holder<Microsoft::UI::Composition::RectangleClip>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RectangleClip")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RectangleClip>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::RectangleClip& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::RedirectVisual, ::pywinui::holder<Microsoft::UI::Composition::RedirectVisual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RedirectVisual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RedirectVisual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::RedirectVisual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs, ::pywinui::holder<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RenderingDeviceReplacedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ScalarKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::ScalarKeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ScalarKeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ScalarKeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ScalarKeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ScalarNaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ScalarNaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::ShapeVisual, ::pywinui::holder<Microsoft::UI::Composition::ShapeVisual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ShapeVisual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ShapeVisual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::ShapeVisual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::SineEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::SineEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SineEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SineEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SineEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::SpotLight, ::pywinui::holder<Microsoft::UI::Composition::SpotLight>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpotLight")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpotLight>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SpotLight& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringScalarNaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringVector2NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringVector3NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return default_repr(_self); } )
+        .def_property("DampingRatio", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.DampingRatio())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.DampingRatio())>::type v) { return _self.DampingRatio((v)); })
+        .def_property("Period", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.Period())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.Period())>::type v) { return _self.Period((v)); })
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+        .def_property("InitialValue", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3_opt(_self.InitialValue())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.InitialValue())>::type v) { return _self.InitialValue(cvt_vector3_opt(v)); })
+        .def_property("FinalValue", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3_opt(_self.FinalValue())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.FinalValue())>::type v) { return _self.FinalValue(cvt_vector3_opt(v)); })
+        .def_property("InitialVelocity", [](const Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3(_self.InitialVelocity())); }, [](Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.InitialVelocity())>::type v) { return _self.InitialVelocity(cvt_vector3(v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::SpriteVisual, ::pywinui::holder<Microsoft::UI::Composition::SpriteVisual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpriteVisual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpriteVisual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::SpriteVisual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::StepEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::StepEasingFunction>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.StepEasingFunction")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::StepEasingFunction>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::StepEasingFunction& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Vector2KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector2KeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector2KeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector2KeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Vector2KeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Vector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector2NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Vector2NaturalMotionAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Vector3KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector3KeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector3KeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector3KeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Vector3KeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Vector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector3NaturalMotionAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return default_repr(_self); } )
+        .def_property("InitialValue", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3_opt(_self.InitialValue())); }, [](Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.InitialValue())>::type v) { return _self.InitialValue(cvt_vector3_opt(v)); })
+        .def_property("FinalValue", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3_opt(_self.FinalValue())); }, [](Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.FinalValue())>::type v) { return _self.FinalValue(cvt_vector3_opt(v)); })
+        .def_property("InitialVelocity", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return ::pywinui::hold(cvt_vector3(_self.InitialVelocity())); }, [](Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.InitialVelocity())>::type v) { return _self.InitialVelocity(cvt_vector3(v)); })
+        .def_property_readonly("InitialValueExpressions", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.InitialValueExpressions())); })
+        .def_property("Target", [](const Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self) { return ::pywinui::hold((_self.Target())); }, [](Microsoft::UI::Composition::Vector3NaturalMotionAnimation& _self, typename arg_type<decltype(_self.Target())>::type v) { return _self.Target((v)); })
+    ;
+    py::class_<Microsoft::UI::Composition::Vector4KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector4KeyFrameAnimation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector4KeyFrameAnimation")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector4KeyFrameAnimation>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Vector4KeyFrameAnimation& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::Visual, ::pywinui::holder<Microsoft::UI::Composition::Visual>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Visual")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Visual>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::Visual& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::VisualCollection, ::pywinui::holder<Microsoft::UI::Composition::VisualCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.VisualCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::VisualCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::VisualCollection& _self) { return default_repr(_self); } )
+    ;
+    py::class_<Microsoft::UI::Composition::VisualUnorderedCollection, ::pywinui::holder<Microsoft::UI::Composition::VisualUnorderedCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.VisualUnorderedCollection")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::VisualUnorderedCollection>()); }))
+        .def("__repr__", [](const Microsoft::UI::Composition::VisualUnorderedCollection& _self) { return default_repr(_self); } )
+    ;
     py::class_<Microsoft::UI::Xaml::DependencyObject, ::pywinui::holder<Microsoft::UI::Xaml::DependencyObject>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.DependencyObject")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::DependencyObject>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::DependencyObject& _self) { return default_repr(_self); } )
@@ -66,7 +568,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::FrameworkElement>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::FrameworkElement& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::FrameworkElement& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::FrameworkElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::FrameworkElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::FrameworkElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::FrameworkElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::FrameworkElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::FrameworkElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::RoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::RoutedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.RoutedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::RoutedEventArgs>()); }))
@@ -76,7 +580,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<Microsoft::UI::Xaml::UIElement, ::pywinui::holder<Microsoft::UI::Xaml::UIElement>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.UIElement")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::UIElement>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::UIElement& _self) { return default_repr(_self); } )
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::UIElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::UIElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::UIElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::UIElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::UIElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::UIElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Window, ::pywinui::holder<Microsoft::UI::Xaml::Window>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Window")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Window>()); }))
@@ -107,12 +613,14 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AnnotatedScrollBar>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AnnotatedScrollBarDetailLabelRequestedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self) { return default_repr(_self); } )
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
         .def_property_readonly("ScrollOffset", [](const Microsoft::UI::Xaml::Controls::AnnotatedScrollBarDetailLabelRequestedEventArgs& _self) { return ::pywinui::hold((_self.ScrollOffset())); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AnnotatedScrollBarLabel, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AnnotatedScrollBarLabel>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AnnotatedScrollBarLabel")
@@ -127,8 +635,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AppBar>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBar& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::AppBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::AppBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBar& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBar& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AppBarButton, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AppBarButton>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AppBarButton")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AppBarButton>()); }))
@@ -138,21 +648,27 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AppBarElementContainer>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBarElementContainer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AppBarSeparator, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AppBarSeparator>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AppBarSeparator")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AppBarSeparator>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AppBarSeparator& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::AppBarSeparator& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarSeparator& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarSeparator& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarSeparator& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarSeparator& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::AppBarSeparator& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::AppBarSeparator& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AppBarToggleButton, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AppBarToggleButton>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AppBarToggleButton")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AppBarToggleButton>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::AppBarToggleButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::AutoSuggestBox, ::pywinui::holder<Microsoft::UI::Xaml::Controls::AutoSuggestBox>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.AutoSuggestBox")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::AutoSuggestBox>()); }))
@@ -187,20 +703,26 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Border>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Border& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Border& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Border& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Border& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Border& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Border& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Border& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Border& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::BreadcrumbBar, ::pywinui::holder<Microsoft::UI::Xaml::Controls::BreadcrumbBar>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.BreadcrumbBar")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::BreadcrumbBar>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::BreadcrumbBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::BreadcrumbBarItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::BreadcrumbBarItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.BreadcrumbBarItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::BreadcrumbBarItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::BreadcrumbBarItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::BreadcrumbBarItemClickedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::BreadcrumbBarItemClickedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.BreadcrumbBarItemClickedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::BreadcrumbBarItemClickedEventArgs>()); }))
@@ -212,36 +734,44 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Button>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Button& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Button& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Button& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Button& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Button& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Button& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Button& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::CalendarDatePicker, ::pywinui::holder<Microsoft::UI::Xaml::Controls::CalendarDatePicker>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.CalendarDatePicker")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CalendarDatePicker>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return default_repr(_self); } )
-        .def_property("Date", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.Date()).try_as<DateTime>()); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.Date())>::type v) { return _self.Date(v); })
-        .def_property("MaxDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.MaxDate())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.MaxDate())>::type v) { return _self.MaxDate(v); })
-        .def_property("MinDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.MinDate())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.MinDate())>::type v) { return _self.MinDate(v); })
+        .def_property("Date", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold(cvt_DateTime_opt(_self.Date())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.Date())>::type v) { return _self.Date(cvt_DateTime_opt(v)); })
+        .def_property("MaxDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.MaxDate())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.MaxDate())>::type v) { return _self.MaxDate((v)); })
+        .def_property("MinDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.MinDate())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.MinDate())>::type v) { return _self.MinDate((v)); })
         .def("SetDisplayDate", [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, DateTime date) { return ::pywinui::call_and_hold([&]() { return _self.SetDisplayDate(date); }); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::CalendarDatePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.CalendarDatePickerDateChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs& _self) { return default_repr(_self); } )
-        .def_property_readonly("NewDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs& _self) { return ::pywinui::hold((_self.NewDate()).try_as<DateTime>()); })
-        .def_property_readonly("OldDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs& _self) { return ::pywinui::hold((_self.OldDate()).try_as<DateTime>()); })
+        .def_property_readonly("NewDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs& _self) { return ::pywinui::hold(cvt_DateTime_opt(_self.NewDate())); })
+        .def_property_readonly("OldDate", [](const Microsoft::UI::Xaml::Controls::CalendarDatePickerDateChangedEventArgs& _self) { return ::pywinui::hold(cvt_DateTime_opt(_self.OldDate())); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::CalendarView, ::pywinui::holder<Microsoft::UI::Xaml::Controls::CalendarView>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.CalendarView")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CalendarView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::CalendarView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::CalendarView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::CalendarView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::CalendarView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::CalendarViewDayItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::CalendarViewDayItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.CalendarViewDayItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CalendarViewDayItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::CalendarViewDayItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::CalendarViewDayItemChangingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::CalendarViewDayItemChangingEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.CalendarViewDayItemChangingEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CalendarViewDayItemChangingEventArgs>()); }))
@@ -263,8 +793,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::CheckBox>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CheckBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::CheckBox& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::CheckBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::CheckBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::CheckBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::CheckBox& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::CheckBox& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ChoosingGroupHeaderContainerEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ChoosingGroupHeaderContainerEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ChoosingGroupHeaderContainerEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ChoosingGroupHeaderContainerEventArgs>()); }))
@@ -287,9 +819,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<Microsoft::UI::Xaml::Controls::ColorPicker, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ColorPicker>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ColorPicker")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ColorPicker>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return default_repr(_self); } )
-        .def_property("Color", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return ::pywinui::hold((_self.Color())); }, [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, typename arg_type<decltype(_self.Color())>::type v) { return _self.Color(v); })
+        .def_property("Color", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return ::pywinui::hold((_self.Color())); }, [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, typename arg_type<decltype(_self.Color())>::type v) { return _self.Color((v)); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ColorPicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ColorPicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ColumnDefinition, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ColumnDefinition>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ColumnDefinition")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ColumnDefinition>()); }))
@@ -307,8 +841,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ComboBoxItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ComboBoxItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ComboBoxItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ComboBoxTextSubmittedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ComboBoxTextSubmittedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ComboBoxTextSubmittedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ComboBoxTextSubmittedEventArgs>()); }))
@@ -333,21 +869,25 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<Microsoft::UI::Xaml::Controls::ContentControl, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ContentControl>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ContentControl")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ContentControl>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return default_repr(_self); } )
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ContentControl& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ContentControl& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ContentControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ContentControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ContentControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ContentControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ContentControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ContentDialog, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ContentDialog>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ContentDialog")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ContentDialog>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return default_repr(_self); } )
-        .def_property("CloseButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.CloseButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.CloseButtonText())>::type v) { return _self.CloseButtonText(v); })
-        .def_property("PrimaryButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.PrimaryButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.PrimaryButtonText())>::type v) { return _self.PrimaryButtonText(v); })
-        .def_property("SecondaryButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.SecondaryButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.SecondaryButtonText())>::type v) { return _self.SecondaryButtonText(v); })
-        .def_property("Title", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Title())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Title())>::type v) { return _self.Title(v); })
+        .def_property("CloseButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.CloseButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.CloseButtonText())>::type v) { return _self.CloseButtonText((v)); })
+        .def_property("PrimaryButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.PrimaryButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.PrimaryButtonText())>::type v) { return _self.PrimaryButtonText((v)); })
+        .def_property("SecondaryButtonText", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.SecondaryButtonText())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.SecondaryButtonText())>::type v) { return _self.SecondaryButtonText((v)); })
+        .def_property("Title", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Title())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Title())>::type v) { return _self.Title((v)); })
         .def("ShowAsync", [](Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::call_and_hold([&]() { return _self.ShowAsync(); }); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ContentDialog& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ContentDialog& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ContentDialogButtonClickDeferral, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ContentDialogButtonClickDeferral>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ContentDialogButtonClickDeferral")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ContentDialogButtonClickDeferral>()); }))
@@ -391,7 +931,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Control>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Control& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Control& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Control& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Control& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Control& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Control& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Control& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Control& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ControlTemplate, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ControlTemplate>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ControlTemplate")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ControlTemplate>()); }))
@@ -413,7 +955,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::DatePicker>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::DatePicker& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::DatePicker& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::DatePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::DatePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::DatePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::DatePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::DatePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::DatePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::DatePickerFlyout, ::pywinui::holder<Microsoft::UI::Xaml::Controls::DatePickerFlyout>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.DatePickerFlyout")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::DatePickerFlyout>()); }))
@@ -427,7 +971,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::DatePickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::DatePickerSelectedValueChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::DatePickerSelectedValueChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.DatePickerSelectedValueChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::DatePickerSelectedValueChangedEventArgs>()); }))
@@ -457,8 +1003,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Expander>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Expander& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Expander& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Expander& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Expander& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Expander& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Expander& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Expander& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ExpanderCollapsedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ExpanderCollapsedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ExpanderCollapsedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ExpanderCollapsedEventArgs>()); }))
@@ -480,8 +1028,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::FlipViewItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::FlipViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::FlipViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::Flyout, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Flyout>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Flyout")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Flyout>()); }))
@@ -491,8 +1041,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::FlyoutPresenter>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::FlyoutPresenter& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::FocusDisengagedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::FocusDisengagedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.FocusDisengagedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::FocusDisengagedEventArgs>()); }))
@@ -514,8 +1066,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Frame>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Frame& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Frame& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Frame& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Frame& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Frame& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::Frame& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::Frame& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::Grid, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Grid>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Grid")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Grid>()); }))
@@ -533,15 +1087,19 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::GridViewItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::GridViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::GridViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::GroupItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::GroupItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.GroupItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::GroupItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::GroupItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::GroupItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::GroupItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::GroupItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::GroupItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::GroupItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::GroupItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::GroupStyle, ::pywinui::holder<Microsoft::UI::Xaml::Controls::GroupStyle>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.GroupStyle")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::GroupStyle>()); }))
@@ -559,13 +1117,17 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Hub>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::Hub& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::Hub& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Hub& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Hub& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::Hub& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::Hub& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::Hub& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::Hub& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::HubSection, ::pywinui::holder<Microsoft::UI::Xaml::Controls::HubSection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.HubSection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::HubSection>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::HubSection& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::HubSection& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::HubSection& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::HubSection& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::HubSection& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::HubSection& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::HubSection& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::HubSection& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::HubSectionCollection, ::pywinui::holder<Microsoft::UI::Xaml::Controls::HubSectionCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.HubSectionCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::HubSectionCollection>()); }))
@@ -579,8 +1141,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::HyperlinkButton>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::HyperlinkButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::HyperlinkButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::IconElement, ::pywinui::holder<Microsoft::UI::Xaml::Controls::IconElement>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.IconElement")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::IconElement>()); }))
@@ -610,7 +1174,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::InfoBadge>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::InfoBadge& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::InfoBadge& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::InfoBadge& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::InfoBadge& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::InfoBadge& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::InfoBadge& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::InfoBadge& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::InfoBadge& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::InfoBadgeTemplateSettings, ::pywinui::holder<Microsoft::UI::Xaml::Controls::InfoBadgeTemplateSettings>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.InfoBadgeTemplateSettings")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::InfoBadgeTemplateSettings>()); }))
@@ -619,10 +1185,12 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<Microsoft::UI::Xaml::Controls::InfoBar, ::pywinui::holder<Microsoft::UI::Xaml::Controls::InfoBar>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.InfoBar")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::InfoBar>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return default_repr(_self); } )
-        .def_property("Message", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.Message())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.Message())>::type v) { return _self.Message(v); })
-        .def_property("IsOpen", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.IsOpen())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.IsOpen())>::type v) { return _self.IsOpen(v); })
+        .def_property("Message", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.Message())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.Message())>::type v) { return _self.Message((v)); })
+        .def_property("IsOpen", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.IsOpen())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.IsOpen())>::type v) { return _self.IsOpen((v)); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::InfoBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::InfoBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::InfoBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::InfoBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::InfoBarClosedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::InfoBarClosedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.InfoBarClosedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::InfoBarClosedEventArgs>()); }))
@@ -668,7 +1236,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemContainer>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ItemContainer& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ItemContainer& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ItemContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ItemContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ItemContainerGenerator, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ItemContainerGenerator>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ItemContainerGenerator")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemContainerGenerator>()); }))
@@ -678,7 +1248,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemsControl>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ItemsControl& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ItemsControl& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemsControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemsControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemsControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemsControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ItemsControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ItemsControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ItemsPanelTemplate, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ItemsPanelTemplate>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ItemsPanelTemplate")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemsPanelTemplate>()); }))
@@ -724,7 +1296,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemsView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ItemsView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ItemsView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemsView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemsView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ItemsView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ItemsView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ItemsView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ItemsView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ItemsViewItemInvokedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ItemsViewItemInvokedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ItemsViewItemInvokedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ItemsViewItemInvokedEventArgs>()); }))
@@ -766,8 +1340,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListBoxItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListBoxItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListBoxItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ListPickerFlyout, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ListPickerFlyout>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ListPickerFlyout")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListPickerFlyout>()); }))
@@ -777,7 +1353,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ListPickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ListView, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ListView>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ListView")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListView>()); }))
@@ -791,8 +1369,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListViewBaseHeaderItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ListViewHeaderItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ListViewHeaderItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ListViewHeaderItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListViewHeaderItem>()); }))
@@ -802,8 +1382,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListViewItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ListViewItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ListViewItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ListViewPersistenceHelper, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ListViewPersistenceHelper>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ListViewPersistenceHelper")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ListViewPersistenceHelper>()); }))
@@ -830,7 +1412,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self) { return default_repr(_self); } )
         .def_property_readonly("MediaPlayer", [](const Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self) { return ::pywinui::hold((_self.MediaPlayer())); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::MediaPlayerElement& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::MediaPlayerPresenter, ::pywinui::holder<Microsoft::UI::Xaml::Controls::MediaPlayerPresenter>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.MediaPlayerPresenter")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MediaPlayerPresenter>()); }))
@@ -840,7 +1424,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MediaTransportControls>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::MediaTransportControls& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::MediaTransportControls& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MediaTransportControls& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MediaTransportControls& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MediaTransportControls& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MediaTransportControls& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::MediaTransportControls& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::MediaTransportControls& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::MediaTransportControlsHelper, ::pywinui::holder<Microsoft::UI::Xaml::Controls::MediaTransportControlsHelper>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.MediaTransportControlsHelper")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MediaTransportControlsHelper>()); }))
@@ -850,13 +1436,17 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MenuBar>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::MenuBar& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::MenuBar& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuBar& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuBar& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::MenuBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::MenuBar& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::MenuBarItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::MenuBarItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.MenuBarItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MenuBarItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::MenuBarItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::MenuBarItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuBarItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuBarItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuBarItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuBarItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::MenuBarItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::MenuBarItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::MenuBarItemFlyout, ::pywinui::holder<Microsoft::UI::Xaml::Controls::MenuBarItemFlyout>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.MenuBarItemFlyout")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MenuBarItemFlyout>()); }))
@@ -874,7 +1464,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::MenuFlyoutItemBase& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::MenuFlyoutPresenter, ::pywinui::holder<Microsoft::UI::Xaml::Controls::MenuFlyoutPresenter>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.MenuFlyoutPresenter")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::MenuFlyoutPresenter>()); }))
@@ -892,8 +1484,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NavigationView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NavigationView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::NavigationView& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NavigationView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::NavigationView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::NavigationView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::NavigationView& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::NavigationView& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::NavigationViewBackRequestedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::NavigationViewBackRequestedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NavigationViewBackRequestedEventArgs>()); }))
@@ -911,8 +1505,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NavigationViewItemBase>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::NavigationViewItemBase& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::NavigationViewItemCollapsedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::NavigationViewItemCollapsedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.NavigationViewItemCollapsedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NavigationViewItemCollapsedEventArgs>()); }))
@@ -958,7 +1554,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NumberBox>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::NumberBox& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::NumberBox& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NumberBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NumberBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::NumberBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::NumberBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::NumberBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::NumberBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::NumberBoxValueChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::NumberBoxValueChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.NumberBoxValueChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::NumberBoxValueChangedEventArgs>()); }))
@@ -980,7 +1578,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PasswordBox>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::PasswordBox& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::PasswordBox& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PasswordBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PasswordBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PasswordBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PasswordBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::PasswordBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::PasswordBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::PasswordBoxPasswordChangingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::PasswordBoxPasswordChangingEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.PasswordBoxPasswordChangingEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PasswordBoxPasswordChangingEventArgs>()); }))
@@ -998,7 +1598,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PersonPicture>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::PersonPicture& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::PersonPicture& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PersonPicture& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PersonPicture& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PersonPicture& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PersonPicture& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::PersonPicture& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::PersonPicture& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::PersonPictureTemplateSettings, ::pywinui::holder<Microsoft::UI::Xaml::Controls::PersonPictureTemplateSettings>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.PersonPictureTemplateSettings")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PersonPictureTemplateSettings>()); }))
@@ -1016,14 +1618,18 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::PickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::PipsPager, ::pywinui::holder<Microsoft::UI::Xaml::Controls::PipsPager>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.PipsPager")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PipsPager>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::PipsPager& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::PipsPager& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PipsPager& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PipsPager& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PipsPager& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PipsPager& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::PipsPager& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::PipsPager& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::PipsPagerSelectedIndexChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::PipsPagerSelectedIndexChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.PipsPagerSelectedIndexChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PipsPagerSelectedIndexChangedEventArgs>()); }))
@@ -1041,8 +1647,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PivotItem>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PivotItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::PivotItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::PivotItem& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::PivotItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::PivotItem& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::PivotItem& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::PivotItem& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::PivotItemEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::PivotItemEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.PivotItemEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::PivotItemEventArgs>()); }))
@@ -1064,7 +1672,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ProgressRing>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ProgressRing& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ProgressRing& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ProgressRing& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ProgressRing& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ProgressRing& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ProgressRing& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ProgressRing& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ProgressRing& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ProgressRingTemplateSettings, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ProgressRingTemplateSettings>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ProgressRingTemplateSettings>()); }))
@@ -1074,14 +1684,18 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RadioButton>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RadioButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::RadioButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RadioButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RadioButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RadioButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::RadioButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::RadioButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RadioButtons, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RadioButtons>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RadioButtons")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RadioButtons>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RadioButtons& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RadioButtons& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RadioButtons& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RadioButtons& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RadioButtons& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RadioButtons& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RadioButtons& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RadioButtons& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RadioMenuFlyoutItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RadioMenuFlyoutItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RadioMenuFlyoutItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RadioMenuFlyoutItem>()); }))
@@ -1091,7 +1705,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RatingControl>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RatingControl& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RatingControl& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RatingControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RatingControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RatingControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RatingControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RatingControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RatingControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RatingItemFontInfo, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RatingItemFontInfo>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RatingItemFontInfo")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RatingItemFontInfo>()); }))
@@ -1109,8 +1725,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RefreshContainer>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::RefreshContainer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::RefreshContainer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RefreshInteractionRatioChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RefreshInteractionRatioChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RefreshInteractionRatioChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RefreshInteractionRatioChangedEventArgs>()); }))
@@ -1128,7 +1746,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RefreshVisualizer>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RefreshVisualizer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RelativePanel, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RelativePanel>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RelativePanel")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RelativePanel>()); }))
@@ -1142,7 +1762,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RichEditBox>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::RichEditBox& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::RichEditBox& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RichEditBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RichEditBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::RichEditBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::RichEditBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::RichEditBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::RichEditBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::RichEditBoxSelectionChangingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::RichEditBoxSelectionChangingEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.RichEditBoxSelectionChangingEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::RichEditBoxSelectionChangingEventArgs>()); }))
@@ -1208,14 +1830,18 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ScrollView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ScrollView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ScrollView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ScrollView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ScrollView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ScrollView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ScrollView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ScrollView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ScrollView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ScrollViewer, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ScrollViewer>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ScrollViewer")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ScrollViewer>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ScrollViewer& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ScrollViewer& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ScrollViewerView, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ScrollViewerView>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ScrollViewerView")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ScrollViewerView>()); }))
@@ -1241,7 +1867,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SemanticZoom>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::SemanticZoom& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::SemanticZoom& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SemanticZoom& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SemanticZoom& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SemanticZoom& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SemanticZoom& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::SemanticZoom& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::SemanticZoom& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::SemanticZoomLocation, ::pywinui::holder<Microsoft::UI::Xaml::Controls::SemanticZoomLocation>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.SemanticZoomLocation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SemanticZoomLocation>()); }))
@@ -1259,8 +1887,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SplitButton>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SplitButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::SplitButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SplitButton& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::SplitButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::SplitButton& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::SplitButton& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::SplitButton& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::SplitButtonClickEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::SplitButtonClickEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SplitButtonClickEventArgs>()); }))
@@ -1270,7 +1900,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SplitView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::SplitView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::SplitView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SplitView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SplitView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SplitView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SplitView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::SplitView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::SplitView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::SplitViewPaneClosingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::SplitViewPaneClosingEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.SplitViewPaneClosingEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SplitViewPaneClosingEventArgs>()); }))
@@ -1296,8 +1928,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SwipeControl>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::SwipeControl& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::SwipeControl& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::SwipeItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::SwipeItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.SwipeItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SwipeItem>()); }))
@@ -1323,7 +1957,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TabView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TabView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TabView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TabView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TabView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TabView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TabView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TabView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TabView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TabViewItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TabViewItem>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TabViewItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TabViewItem>()); }))
@@ -1353,8 +1989,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TeachingTip>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::TeachingTip& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::TeachingTip& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TeachingTipClosedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TeachingTipClosedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TeachingTipClosedEventArgs>()); }))
@@ -1375,9 +2013,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<Microsoft::UI::Xaml::Controls::TextBox, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TextBox>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TextBox")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TextBox>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return default_repr(_self); } )
-        .def_property("Text", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return ::pywinui::hold((_self.Text())); }, [](Microsoft::UI::Xaml::Controls::TextBox& _self, typename arg_type<decltype(_self.Text())>::type v) { return _self.Text(v); })
+        .def_property("Text", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return ::pywinui::hold((_self.Text())); }, [](Microsoft::UI::Xaml::Controls::TextBox& _self, typename arg_type<decltype(_self.Text())>::type v) { return _self.Text((v)); })
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TextBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TextBox& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TextBox& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TextBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TextBox& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TextBoxBeforeTextChangingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TextBoxBeforeTextChangingEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TextBoxBeforeTextChangingEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TextBoxBeforeTextChangingEventArgs>()); }))
@@ -1431,7 +2071,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TimePicker>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TimePicker& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TimePicker& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TimePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TimePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TimePicker& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TimePicker& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TimePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TimePicker& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TimePickerFlyout, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TimePickerFlyout>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TimePickerFlyout")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TimePickerFlyout>()); }))
@@ -1441,7 +2083,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TimePickerFlyoutPresenter& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TimePickerSelectedValueChangedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TimePickerSelectedValueChangedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TimePickerSelectedValueChangedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TimePickerSelectedValueChangedEventArgs>()); }))
@@ -1467,14 +2111,18 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ToggleSwitch>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ToggleSwitch& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ToggleSwitch& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ToggleSwitch& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ToggleSwitch& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ToggleSwitch& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ToggleSwitch& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ToggleSwitch& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ToggleSwitch& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ToolTip, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ToolTip>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ToolTip")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ToolTip>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ToolTip& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
-        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ToolTip& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::ToolTip& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::ToolTip& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::ToolTip& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
+        .def_property("Content", [](const Microsoft::UI::Xaml::Controls::ToolTip& _self) { return ::pywinui::hold((_self.Content())); }, [](Microsoft::UI::Xaml::Controls::ToolTip& _self, typename arg_type<decltype(_self.Content())>::type v) { return _self.Content((v)); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::ToolTipService, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ToolTipService>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ToolTipService")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::ToolTipService>()); }))
@@ -1484,7 +2132,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TreeView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TreeView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TreeView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TreeView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TreeView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TreeView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TreeView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TreeView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TreeView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::TreeViewCollapsedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TreeViewCollapsedEventArgs>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TreeViewCollapsedEventArgs>()); }))
@@ -1530,7 +2180,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::TwoPaneView>()); }))
         .def("__repr__", [](const Microsoft::UI::Xaml::Controls::TwoPaneView& _self) { return default_repr(_self); } )
         .def_property_readonly("DataContext", [](const Microsoft::UI::Xaml::Controls::TwoPaneView& _self) { return ::pywinui::hold((_self.DataContext())); })
-        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TwoPaneView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TwoPaneView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility(v); })
+        .def_property("Visibility", [](const Microsoft::UI::Xaml::Controls::TwoPaneView& _self) { return ::pywinui::hold((_self.Visibility())); }, [](Microsoft::UI::Xaml::Controls::TwoPaneView& _self, typename arg_type<decltype(_self.Visibility())>::type v) { return _self.Visibility((v)); })
+        .def("StartAnimation", [](Microsoft::UI::Xaml::Controls::TwoPaneView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StartAnimation(animation); }); })
+        .def("StopAnimation", [](Microsoft::UI::Xaml::Controls::TwoPaneView& _self, ::winrt::Microsoft::UI::Composition::CompositionAnimation animation) { return ::pywinui::call_and_hold([&]() { return _self.StopAnimation(animation); }); })
     ;
     py::class_<Microsoft::UI::Xaml::Controls::UIElementCollection, ::pywinui::holder<Microsoft::UI::Xaml::Controls::UIElementCollection>, ::winrt::Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.UIElementCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::UIElementCollection>()); }))

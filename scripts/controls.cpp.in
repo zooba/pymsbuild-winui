@@ -16,6 +16,37 @@ namespace py = pybind11;
 template <typename T> struct arg_type { typedef const T &type; };
 template <> struct arg_type<winrt::hstring> { typedef const std::wstring &type; };
 
+struct cvt_DateTime_opt {
+    using T = winrt::Windows::Foundation::DateTime;
+    using RT = winrt::Windows::Foundation::IReference<T>;
+    std::optional<T> v;
+    cvt_DateTime_opt(py::object o) { if (o) { v = std::make_optional<T>(py::cast<T>(o)); } }
+    cvt_DateTime_opt(winrt::Windows::Foundation::IInspectable v) : v(v.try_as<T>()) { }
+    operator py::object () const { return v ? py::cast(*v) : py::none(); }
+    operator RT () const { return v ? winrt::box_value(*v).as<RT>() : nullptr; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime>> { typedef py::object type; };
+
+struct cvt_vector3 {
+    winrt::Windows::Foundation::Numerics::float3 v;
+    cvt_vector3(py::object o) { v.x = py::cast<float>(o[py::cast(0)]); v.y = py::cast<float>(o[py::cast(1)]); v.z = py::cast<float>(o[py::cast(2)]); }
+    cvt_vector3(const winrt::Windows::Foundation::Numerics::float3 &v) : v(v) { }
+    operator py::object () const { return py::make_tuple(v.x, v.y, v.z); }
+    operator winrt::Windows::Foundation::Numerics::float3 () const { return v; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::Numerics::float3> { typedef py::object type; };
+
+struct cvt_vector3_opt {
+    using T = winrt::Windows::Foundation::Numerics::float3;
+    using RT = winrt::Windows::Foundation::IReference<T>;
+    std::optional<T> v;
+    cvt_vector3_opt(py::object o) { if (o) { v = std::make_optional<T>(py::cast<float>(o[py::cast(0)]), py::cast<float>(o[py::cast(1)]), py::cast<float>(o[py::cast(2)])); } }
+    cvt_vector3_opt(winrt::Windows::Foundation::IInspectable v) : v(v.try_as<T>()) { }
+    operator py::object () const { return v ? py::make_tuple(v->x, v->y, v->z) : py::none(); }
+    operator RT () const { return v ? winrt::box_value(*v).as<RT>() : nullptr; }
+};
+template <> struct arg_type<winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::Numerics::float3>> { typedef py::object type; };
+
 template <typename T> static std::wstring default_repr(const T&) {
     std::wstringstream s;
     s << "<" << typeid(T).name() << ">";
@@ -65,11 +96,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def("__repr__", [](const {{c.cppname}}& _self) { return default_repr(_self); } )
 {% for name, member in c.members.items() %}
 {% if member.kind == "getset" %}
-        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}()){{member.post}}); }, []({{c.cppname}}& _self, typename arg_type<decltype(_self.{{name}}())>::type v) { return _self.{{name}}(v); })
+        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.cvt}}(_self.{{name}}())); }, []({{c.cppname}}& _self, typename arg_type<decltype(_self.{{name}}())>::type v) { return _self.{{name}}({{member.cvt}}(v)); })
 {% elif member.kind == "field" %}
-        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}){{member.post}}); }, []({{c.cppname}}& _self, typename arg:type<{{member.type}}>::type v) { _self.{{name}} = v; })
+        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.cvt}}(_self.{{name}})); }, []({{c.cppname}}& _self, typename arg:type<{{member.type}}>::type v) { _self.{{name}} = {{member.cvt}}(v); })
 {% elif member.kind == "get" %}
-        .def_property_readonly("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}()){{member.post}}); })
+        .def_property_readonly("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.cvt}}(_self.{{name}}()){{member.post}}); })
 {% elif member.kind == "call" %}
         .def("{{name}}", []({{c.cppname}}& _self{{member.prototype}}) { return ::pywinui::call_and_hold([&]() { return _self.{{name}}({{member.argspec}}); }); })
 {% endif %}
