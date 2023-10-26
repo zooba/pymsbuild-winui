@@ -48,6 +48,8 @@ namespace winrt::{{namespace}}::implementation
 
         winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
         void PropertyChanged(winrt::event_token const& token);
+        void add_viewmodel(pybind11::object cls, pybind11::object vm);
+        pybind11::object as_viewmodel(pybind11::object o);
     private:
         winrt::event<PropertyChangedEventHandler> __propertyChanged;
         pybind11::object __pyobj;

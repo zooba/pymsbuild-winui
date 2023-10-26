@@ -19,8 +19,7 @@
         <py:Property Name="Path" Type="str" />
     </py:ViewModel>
     <py:ViewModel Name="ImageRepository">
-        <!--TODO <py:Property Name="Images" Type="ObservableCollection<ImageInfo>" />-->
-        <py:Property Name="Images" Type="list[PhotoViewer.ImageInfo]" />
+        <py:Property Name="Images" Type="list[object]" />
     </py:ViewModel>
     <py:Property Name="ImagesRepository" Type="PhotoViewer.ImageRepository" />
 
@@ -31,6 +30,11 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <ContentDialog x:Name="AboutDialog"
+            Title = "About Simple Photo Viewer"
+            Content = "Thank you //Build 2022"
+            CloseButtonText = "Ok" />
 
         <Border x:Name="CustomTitleBar" Height="30" Margin="-1,0" >
             <TextBlock VerticalAlignment="Center" 
@@ -77,7 +81,7 @@
             </ScrollViewer.Resources>
 
             <ItemsRepeater x:Name="ImagesRepeater"
-                           ItemsSource="{x:Bind ImagesRepository.Images}"
+                           ItemsSource="{x:Bind ImagesRepository.Images,Mode=OneWay}"
                            ItemTemplate="{StaticResource ImageInfoTemplate}"
                            Layout="{StaticResource RepeaterLayout}"/>
         </ScrollViewer>

@@ -21,6 +21,9 @@ class ImagesRepository:
 
     def _as_viewmodel(self, view, view_cls):
         r = view_cls()
-        # TODO: Observable
-        r.Images = [view.as_viewmodel(i) for i in self.images]
+        from _winui_Collections import ObservableVector
+        vec = ObservableVector()
+        for i in self.images:
+            vec.append(view.as_viewmodel(i))
+        r.Images = vec
         return r

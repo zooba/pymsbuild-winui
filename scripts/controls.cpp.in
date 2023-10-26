@@ -9,6 +9,7 @@ using namespace Windows::Media::Playback;
 using namespace Windows::UI;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Input;
 using namespace Microsoft::UI::Xaml::Navigation;
 namespace py = pybind11;
 
@@ -19,6 +20,18 @@ template <typename T> static std::wstring default_repr(const T&) {
     return s.str();
 }
 template <> static std::wstring default_repr(const IInspectable& _self) { return L"<" + std::wstring{winrt::get_class_name(_self)} + L">"; }
+
+template <typename T>
+static void default_on_complete(const IAsyncOperation<T> &op, AsyncStatus, py::object on_complete) {
+    py::gil_scoped_acquire _gil;
+    try {
+        on_complete(::pywinui::call_and_hold([&op]() { return op.GetResults(); }));
+    } catch (py::error_already_set &eas) {
+        eas.discard_as_unraisable(__func__);
+    } catch (const std::exception &) {
+        DebugBreak();
+    }
+}
 
 PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
 {% for typename, members in enums.items() %}
@@ -33,6 +46,16 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def("__repr__", [](const IInspectable& _self) { return default_repr(_self); } )
     ;
 
+
+{% for typename, members in operations.items() %}
+    py::class_<IAsyncOperation<{{typename}}>, ::pywinui::holder<IAsyncOperation<{{typename}}>>>(m, "Windows.Foundation.IAsyncOperation<{{typename}}")
+        .def("GetResults", [](const IAsyncOperation<{{typename}}> &_self) { return ::pywinui::hold(_self.GetResults()); })
+        .def("Completed", [](IAsyncOperation<{{typename}}> &_self, py::object on_complete) {
+            _self.Completed([on_complete](const IAsyncOperation<{{typename}}> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
+        })
+    ;
+{% endfor %}
+
 {% for typename, members in all_controls.items() %}
     py::class_<{{typename}}, ::pywinui::holder<{{typename}}>>(m, "{{members.get('__namespace__', 'Microsoft.UI.Xaml.Controls')}}.{{typename}}")
         .def("__repr__", [](const {{typename}}& _self) { return default_repr(_self); } )
@@ -44,7 +67,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
 {% elif member.kind == "get" %}
         .def_property_readonly("{{name}}", [](const {{typename}}& _self) { return {{member.pre}}(_self.{{name}}()){{member.post}}; })
 {% elif member.kind == "call" %}
-        .def("{{name}}", []({{typename}}& _self{{member.prototype}}) { return {{member.pre}}(_self.{{name}}({{member.argspec}}){{member.post}}); })
+        .def("{{name}}", []({{typename}}& _self{{member.prototype}}) { return ::pywinui::call_and_hold([&]() { return _self.{{name}}({{member.argspec}}); }); })
 {% endif %}
 {% endfor %}
     ;

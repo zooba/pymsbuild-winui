@@ -9,6 +9,7 @@ using namespace Windows::Media::Playback;
 using namespace Windows::UI;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
+using namespace Microsoft::UI::Xaml::Input;
 using namespace Microsoft::UI::Xaml::Navigation;
 namespace py = pybind11;
 
@@ -20,7 +21,24 @@ template <typename T> static std::wstring default_repr(const T&) {
 }
 template <> static std::wstring default_repr(const IInspectable& _self) { return L"<" + std::wstring{winrt::get_class_name(_self)} + L">"; }
 
+template <typename T>
+static void default_on_complete(const IAsyncOperation<T> &op, AsyncStatus, py::object on_complete) {
+    py::gil_scoped_acquire _gil;
+    try {
+        on_complete(::pywinui::call_and_hold([&op]() { return op.GetResults(); }));
+    } catch (py::error_already_set &eas) {
+        eas.discard_as_unraisable(__func__);
+    } catch (const std::exception &) {
+        DebugBreak();
+    }
+}
+
 PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
+    py::enum_<ContentDialogResult>(m, "ContentDialogResult")
+        .value("None", ContentDialogResult::None)
+        .value("Primary", ContentDialogResult::Primary)
+        .value("Secondary", ContentDialogResult::Secondary)
+    ;
     py::enum_<MediaPlaybackState>(m, "MediaPlaybackState")
         .value("None", MediaPlaybackState::None)
         .value("Opening", MediaPlaybackState::Opening)
@@ -31,6 +49,14 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
 
     py::class_<IInspectable, ::pywinui::holder<IInspectable>>(m, "Windows.Foundation.IInspectable")
         .def("__repr__", [](const IInspectable& _self) { return default_repr(_self); } )
+    ;
+
+
+    py::class_<IAsyncOperation<ContentDialogResult>, ::pywinui::holder<IAsyncOperation<ContentDialogResult>>>(m, "Windows.Foundation.IAsyncOperation<ContentDialogResult")
+        .def("GetResults", [](const IAsyncOperation<ContentDialogResult> &_self) { return ::pywinui::hold(_self.GetResults()); })
+        .def("Completed", [](IAsyncOperation<ContentDialogResult> &_self, py::object on_complete) {
+            _self.Completed([on_complete](const IAsyncOperation<ContentDialogResult> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
+        })
     ;
 
     py::class_<AnchorRequestedEventArgs, ::pywinui::holder<AnchorRequestedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.AnchorRequestedEventArgs")
@@ -93,7 +119,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     ;
     py::class_<AutoSuggestBoxTextChangedEventArgs, ::pywinui::holder<AutoSuggestBoxTextChangedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.AutoSuggestBoxTextChangedEventArgs")
         .def("__repr__", [](const AutoSuggestBoxTextChangedEventArgs& _self) { return default_repr(_self); } )
-        .def("CheckCurrent", [](AutoSuggestBoxTextChangedEventArgs& _self) { return (_self.CheckCurrent()); })
+        .def("CheckCurrent", [](AutoSuggestBoxTextChangedEventArgs& _self) { return ::pywinui::call_and_hold([&]() { return _self.CheckCurrent(); }); })
         .def_property_readonly("Reason", [](const AutoSuggestBoxTextChangedEventArgs& _self) { return (_self.Reason()); })
     ;
     py::class_<BitmapIcon, ::pywinui::holder<BitmapIcon>>(m, "Microsoft.UI.Xaml.Controls.BitmapIcon")
@@ -126,7 +152,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
         .def_property("Date", [](const CalendarDatePicker& _self) { return (_self.Date()).try_as<DateTime>(); }, [](CalendarDatePicker& _self, DateTime v) { return _self.Date(v); })
         .def_property("MaxDate", [](const CalendarDatePicker& _self) { return (_self.MaxDate()); }, [](CalendarDatePicker& _self, DateTime v) { return _self.MaxDate(v); })
         .def_property("MinDate", [](const CalendarDatePicker& _self) { return (_self.MinDate()); }, [](CalendarDatePicker& _self, DateTime v) { return _self.MinDate(v); })
-        .def("SetDisplayDate", [](CalendarDatePicker& _self, DateTime date) { return (_self.SetDisplayDate(date)); })
+        .def("SetDisplayDate", [](CalendarDatePicker& _self, DateTime date) { return ::pywinui::call_and_hold([&]() { return _self.SetDisplayDate(date); }); })
     ;
     py::class_<CalendarDatePickerDateChangedEventArgs, ::pywinui::holder<CalendarDatePickerDateChangedEventArgs>>(m, "Microsoft.UI.Xaml.Controls.CalendarDatePickerDateChangedEventArgs")
         .def("__repr__", [](const CalendarDatePickerDateChangedEventArgs& _self) { return default_repr(_self); } )
@@ -215,6 +241,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<ContentDialog, ::pywinui::holder<ContentDialog>>(m, "Microsoft.UI.Xaml.Controls.ContentDialog")
         .def("__repr__", [](const ContentDialog& _self) { return default_repr(_self); } )
         .def_property("Content", [](const ContentDialog& _self) { return (_self.Content()); }, [](ContentDialog& _self, IInspectable v) { return _self.Content(v); })
+        .def_property("CloseButtonText", [](const ContentDialog& _self) { return (_self.CloseButtonText()); }, [](ContentDialog& _self, std::wstring v) { return _self.CloseButtonText(v); })
+        .def_property("PrimaryButtonText", [](const ContentDialog& _self) { return (_self.PrimaryButtonText()); }, [](ContentDialog& _self, std::wstring v) { return _self.PrimaryButtonText(v); })
+        .def_property("SecondaryButtonText", [](const ContentDialog& _self) { return (_self.SecondaryButtonText()); }, [](ContentDialog& _self, std::wstring v) { return _self.SecondaryButtonText(v); })
+        .def_property("Title", [](const ContentDialog& _self) { return (_self.Title()); }, [](ContentDialog& _self, IInspectable v) { return _self.Title(v); })
+        .def("ShowAsync", [](ContentDialog& _self) { return ::pywinui::call_and_hold([&]() { return _self.ShowAsync(); }); })
     ;
     py::class_<ContentDialogButtonClickDeferral, ::pywinui::holder<ContentDialogButtonClickDeferral>>(m, "Microsoft.UI.Xaml.Controls.ContentDialogButtonClickDeferral")
         .def("__repr__", [](const ContentDialogButtonClickDeferral& _self) { return default_repr(_self); } )
@@ -537,10 +568,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     py::class_<MediaPlayer, ::pywinui::holder<MediaPlayer>>(m, "Windows.Media.Playback.MediaPlayer")
         .def("__repr__", [](const MediaPlayer& _self) { return default_repr(_self); } )
         .def_property_readonly("PlaybackSession", [](const MediaPlayer& _self) { return (_self.PlaybackSession()); })
-        .def("Pause", [](MediaPlayer& _self) { return (_self.Pause()); })
-        .def("Play", [](MediaPlayer& _self) { return (_self.Play()); })
-        .def("StepBackwardOneFrame", [](MediaPlayer& _self) { return (_self.StepBackwardOneFrame()); })
-        .def("StepForwardOneFrame", [](MediaPlayer& _self) { return (_self.StepForwardOneFrame()); })
+        .def("Pause", [](MediaPlayer& _self) { return ::pywinui::call_and_hold([&]() { return _self.Pause(); }); })
+        .def("Play", [](MediaPlayer& _self) { return ::pywinui::call_and_hold([&]() { return _self.Play(); }); })
+        .def("StepBackwardOneFrame", [](MediaPlayer& _self) { return ::pywinui::call_and_hold([&]() { return _self.StepBackwardOneFrame(); }); })
+        .def("StepForwardOneFrame", [](MediaPlayer& _self) { return ::pywinui::call_and_hold([&]() { return _self.StepForwardOneFrame(); }); })
     ;
     py::class_<MediaPlayerElement, ::pywinui::holder<MediaPlayerElement>>(m, "Microsoft.UI.Xaml.Controls.MediaPlayerElement")
         .def("__repr__", [](const MediaPlayerElement& _self) { return default_repr(_self); } )
@@ -690,6 +721,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
     ;
     py::class_<PivotItemEventArgs, ::pywinui::holder<PivotItemEventArgs>>(m, "Microsoft.UI.Xaml.Controls.PivotItemEventArgs")
         .def("__repr__", [](const PivotItemEventArgs& _self) { return default_repr(_self); } )
+    ;
+    py::class_<PointerRoutedEventArgs, ::pywinui::holder<PointerRoutedEventArgs>>(m, "Microsoft.UI.Xaml.Input.PointerRoutedEventArgs")
+        .def("__repr__", [](const PointerRoutedEventArgs& _self) { return default_repr(_self); } )
     ;
     py::class_<ProgressBar, ::pywinui::holder<ProgressBar>>(m, "Microsoft.UI.Xaml.Controls.ProgressBar")
         .def("__repr__", [](const ProgressBar& _self) { return default_repr(_self); } )

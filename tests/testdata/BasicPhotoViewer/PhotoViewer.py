@@ -7,23 +7,14 @@ SAMPLE_GALLERY = Path(__file__).absolute().parent / "Photos"
 class MainWindow:
     def __init__(self, view, viewmodels):
         self.view = view
-        self._viewmodels = viewmodels
-        #self.view.add_viewmodel(image_info.ImageInfo, viewmodels.ImageInfo)
-        #self.view.add_viewmodel(image_info.ImageRepository, viewmodels.ImageRepository)
-
-    # TODO: Move this into the view object and use registrations instead
-    def as_viewmodel(self, o):
-        if isinstance(o, image_info.ImageInfo):
-            return o._as_viewmodel(self, self._viewmodels.ImageInfo)
-        if isinstance(o, image_info.ImagesRepository):
-            return o._as_viewmodel(self, self._viewmodels.ImageRepository)
-        raise TypeError(f"Cannot view {type(o)}")
+        self.view.add_viewmodel(image_info.ImageInfo, viewmodels.ImageInfo)
+        self.view.add_viewmodel(image_info.ImagesRepository, viewmodels.ImageRepository)
 
     def SelectFolderClick(self, sender, e):
         repo = image_info.ImagesRepository()
         repo.get_images(SAMPLE_GALLERY)
         
-        self.view.ImagesRepository = self.as_viewmodel(repo)
+        self.view.ImagesRepository = self.view.as_viewmodel(repo)
 
         self.view.ImageCollectionInfoBar.Message = f"{len(repo.images)} images loaded."
         self.view.ImageCollectionInfoBar.IsOpen = True
@@ -38,12 +29,11 @@ class MainWindow:
             self.view.ImageCollectionInfoBar.IsOpen = False
 
     def AboutClick(self, sender, e):
-        self.view.show_dialog(
-            Title = "About Simple Photo Viewer",
-            Content = "Thank you //Build 2022",
-            CloseButtonText = "Ok",
-            XamlRoot = None #sender.XamlRoot if sender else None
-        )
+        op = self.view.AboutDialog.ShowAsync()
+        def update_bar(status):
+            self.view.ImageCollectionInfoBar.Message = f"Status {status}"
+            self.view.ImageCollectionInfoBar.IsOpen = True
+        op.Completed(update_bar)
 
     def OnElementPointerEntered(self, sender, e):
         # TODO: Animation

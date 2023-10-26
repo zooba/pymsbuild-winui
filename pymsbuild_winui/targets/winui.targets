@@ -106,6 +106,7 @@
     <ItemGroup>
       <_Src Include="$(GeneratedFilesDir)module.g.cpp" />
       <_Src Include="$(MSBuildThisFileDirectory)xaml_controls.cpp" />
+      <_Src Include="$(MSBuildThisFileDirectory)collections.cpp" />
       <ClCompile Include="@(_Src)">
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>false</IncludeInLayout>

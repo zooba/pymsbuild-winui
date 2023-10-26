@@ -14,7 +14,9 @@ RENDER_ENV = jinja2.Environment(
 
 class CALL:
     kind = "call"
-    def __init__(self, **kwargs):
+    def __init__(self, pre="", post="", **kwargs):
+        self.pre = pre
+        self.post = post
         self.args = list(kwargs.items())
         self.prototype = "".join(f", {v} {k}" for k, v in self.args)
         self.argspec = ", ".join(f"{k}" for k, v in self.args)
@@ -37,7 +39,12 @@ ANY = "IInspectable"
 STR = "std::wstring"
 
 ENUMS = dict(
+    ContentDialogResult=["None", "Primary", "Secondary"],
     MediaPlaybackState=["None", "Opening", "Buffering", "Playing", "Paused"],
+)
+
+OPERATIONS = dict(
+    ContentDialogResult={},
 )
 
 CONTROLS = dict(
@@ -129,7 +136,14 @@ CONTROLS = dict(
     CommandBarOverflowPresenter={},
     ContainerContentChangingEventArgs={},
     ContentControl={"Content": GETSET(ANY)},
-    ContentDialog={"__base__": "ContentControl"},
+    ContentDialog={
+        "__base__": "ContentControl",
+        "CloseButtonText": GETSET(STR),
+        "PrimaryButtonText": GETSET(STR),
+        "SecondaryButtonText": GETSET(STR),
+        "Title": GETSET(ANY),
+        "ShowAsync": CALL(),
+    },
     ContentDialogButtonClickDeferral={},
     ContentDialogButtonClickEventArgs={},
     ContentDialogClosedEventArgs={},
@@ -297,6 +311,7 @@ CONTROLS = dict(
     Pivot={},
     PivotItem={"__base__": "ContentControl"},
     PivotItemEventArgs={},
+    PointerRoutedEventArgs={"__namespace__":"Microsoft.UI.Xaml.Input"},
     ProgressBar={},
     ProgressBarTemplateSettings={},
     ProgressRing={},
@@ -433,6 +448,7 @@ CONTROLS = resolve_bases(CONTROLS)
 
 CONTEXT = dict(
     all_controls=CONTROLS,
+    operations=OPERATIONS,
     enums=ENUMS,
 )
 

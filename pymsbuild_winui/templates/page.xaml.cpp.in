@@ -17,8 +17,8 @@ namespace py = pybind11;
 PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 {% for vm in page.viewmodels %}
 {% set Cls = (namespace + '::' + vm.name) %}
-    py::class_<{{Cls}}, ::std::shared_ptr<{{Cls}}>>(m, "{{vm.name}}")
-        .def(py::init([]() { return ::std::make_shared<{{Cls}}>(); }))
+    py::class_<{{Cls}}, ::pywinui::holder<{{Cls}}>, ::winrt::Windows::Foundation::IInspectable>(m, "{{vm.name}}")
+        .def(py::init([]() { return ::pywinui::hold({{Cls}}(::winrt::make<{{namespace}}::implementation::{{vm.name}}>())); }))
 {% for p in vm.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
@@ -31,15 +31,17 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 
 {% set Cls = ('winrt::' + namespace + '::implementation::' + page.name) %}
     py::class_<{{Cls}}>(m, "{{page.name}}_View")
+        .def("add_viewmodel", &{{Cls}}::add_viewmodel)
+        .def("as_viewmodel", &{{Cls}}::as_viewmodel)
 {% for p in page.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
 {% else %}
-        .def_property("{{p.name}}", [](const {{Cls}} &c) { return c.{{p.name}}(); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
+        .def_property("{{p.name}}", [](const {{Cls}} &c) { return ::pywinui::hold(c.{{p.name}}()); }, []({{Cls}} &c, const decltype(c.{{p.name}}()) &v) { c.{{p.name}}(v); })
 {% endif %}
 {% endfor %}
 {% for c in page.controls %}
-        .def_property_readonly("{{c.name}}", []({{Cls}} &c) { return c.{{c.name}}(); })
+        .def_property_readonly("{{c.name}}", []({{Cls}} &c) { return ::pywinui::hold(c.{{c.name}}()); })
 {% endfor %}
     ;
 };
@@ -48,7 +50,11 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 namespace winrt::{{namespace}}::implementation
 {
 {% for vm in page.viewmodels %}
-    {{vm.name}}::{{vm.name}}() { }
+    {{vm.name}}::{{vm.name}}()
+{% for p in vm.properties %}
+{% if loop.first %}    :{% endif %} _{{p.name}}{::pywinui::init_value<{{p.type}}>()}{% if not loop.last %},{% endif %}
+{% endfor %} { }
+
     winrt::event_token {{vm.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
     void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
 
@@ -56,9 +62,7 @@ namespace winrt::{{namespace}}::implementation
     void {{vm.name}}::{{p.name}}(const {{p.type}} &value)
     {
         _{{p.name}} = value;
-        if (__propertyChanged) {
-            __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
-        }
+        if (__propertyChanged) __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
     }
 
 {% endfor %}
@@ -69,13 +73,25 @@ namespace winrt::{{namespace}}::implementation
         auto own_module = ::pybind11::module_::import("_{{namespace}}_{{page.name}}");
         auto module_ = ::pybind11::module_::import("{{namespace}}");
         auto cls = module_.attr("{{page.name}}");
-        __pyobj = cls(this, own_module);
-        Closed([this](IInspectable const&, WindowEventArgs const&) { __pyobj.release(); });
+        __pyobj = ::pybind11::dict();
+        __pyobj["viewmodels"] = ::pybind11::dict();
+        __pyobj["self"] = cls(this, own_module);
+        Closed([this](IInspectable const&, WindowEventArgs const&) {
+            __pyobj.release();
+        });
         InitializeComponent();
     }
 
     winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
     void {{page.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
+    void {{page.name}}::add_viewmodel(py::object cls, py::object vm) {
+        cls.attr("_as_viewmodel");
+        __pyobj["viewmodels"][cls] = vm;
+    }
+    py::object {{page.name}}::as_viewmodel(py::object o) {
+        py::object vm = __pyobj["viewmodels"][py::type::of(o)];
+        return o.attr("_as_viewmodel")(*this, vm);
+    }
 
 {% if page.properties +%}
     // Bindable property getter/setters
@@ -90,10 +106,8 @@ namespace winrt::{{namespace}}::implementation
     {
         // TODO: Detect whether type is comparable
         //if (_{{p.name}} != value) {
-            _{{p.name}} = value;
-            if (__propertyChanged) {
-                __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
-            }
+        _{{p.name}} = value;
+        if (__propertyChanged) __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
         //}
     }
 {% endfor %}
@@ -105,7 +119,7 @@ namespace winrt::{{namespace}}::implementation
     void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
     {
         try {
-            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+            __pyobj["self"].attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
         } catch (py::error_already_set &ex) {
             // TODO: Better error output
             const char *msg = ex.what();
