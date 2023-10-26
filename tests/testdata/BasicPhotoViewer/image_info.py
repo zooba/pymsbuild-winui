@@ -5,11 +5,9 @@ class ImageInfo:
         self.name = name
         self.path = path
 
-    def _as_viewmodel(self, view, view_cls):
-        r = view_cls()
-        r.Name = self.name
-        r.Path = str(self.path)
-        return r
+    def _init_viewmodel(self, view, viewmodel):
+        viewmodel.Name = self.name
+        viewmodel.Path = str(self.path)
 
 
 class ImagesRepository:
@@ -19,11 +17,9 @@ class ImagesRepository:
     def get_images(self, folder):
         self.images[:] = [ImageInfo(p.name, p) for p in Path(folder).glob("*.jpg")]
 
-    def _as_viewmodel(self, view, view_cls):
-        r = view_cls()
+    def _init_viewmodel(self, view, viewmodel):
         from _winui_Collections import ObservableVector
         vec = ObservableVector()
         for i in self.images:
-            vec.append(view.as_viewmodel(i))
-        r.Images = vec
-        return r
+            vec.append(view.wrap(i))
+        viewmodel.Images = vec

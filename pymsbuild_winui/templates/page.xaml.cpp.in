@@ -16,9 +16,11 @@ namespace py = pybind11;
 
 PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 {% for vm in page.viewmodels %}
-{% set Cls = (namespace + '::' + vm.name) %}
+{% set Cls = ('winrt::' + namespace + '::' + vm.name) %}
+{% set Impl = ('winrt::get_self<winrt::' + namespace + '::implementation::' + vm.name + '>') %}
     py::class_<{{Cls}}, ::pywinui::holder<{{Cls}}>, ::winrt::Windows::Foundation::IInspectable>(m, "{{vm.name}}")
         .def(py::init([]() { return ::pywinui::hold({{Cls}}(::winrt::make<{{namespace}}::implementation::{{vm.name}}>())); }))
+        .def_property_readonly("_id", [](const {{Cls}} &c) { return (intptr_t){{Impl}}(c); })
 {% for p in vm.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
@@ -31,8 +33,15 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 
 {% set Cls = ('winrt::' + namespace + '::implementation::' + page.name) %}
     py::class_<{{Cls}}>(m, "{{page.name}}_View")
-        .def("add_viewmodel", &{{Cls}}::add_viewmodel)
+        .def("Activate", [](const {{Cls}} &c) { c.Activate(); })
+        .def("Close", [](const {{Cls}} &c) { c.Close(); })
+        .def("SetTitleBar", [](const {{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &titleBar) { c.SetTitleBar(titleBar.as<UIElement>()); })
+        .def_property("ExtendsContentIntoTitleBar", [](const {{Cls}} &c) { return c.ExtendsContentIntoTitleBar(); }, []({{Cls}} &c, bool v) { c.ExtendsContentIntoTitleBar(v); })
+        .def_property_readonly("models", &{{Cls}}::_get_viewmodels)
+        .def("wrap", &{{Cls}}::wrap)
         .def("as_viewmodel", &{{Cls}}::as_viewmodel)
+        .def("unwrap", []({{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &o) { return c.unwrap(c.as_viewmodel(o)); })
+        .def("unwrap", &{{Cls}}::unwrap)
 {% for p in page.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
@@ -50,33 +59,59 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
 namespace winrt::{{namespace}}::implementation
 {
 {% for vm in page.viewmodels %}
-    {{vm.name}}::{{vm.name}}()
-{% for p in vm.properties %}
-{% if loop.first %}    :{% endif %} _{{p.name}}{::pywinui::init_value<{{p.type}}>()}{% if not loop.last %},{% endif %}
-{% endfor %} { }
-
+    {{vm.name}}::{{vm.name}}() : __propertyChanged{}{% for p in vm.properties %}, _{{p.name}}{::pywinui::init_value<{{p.type}}>()}{% endfor %} { }
     winrt::event_token {{vm.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
     void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
+    {{vm.name}}::~{{vm.name}}() { }
 
 {% for p in vm.properties %}
     void {{vm.name}}::{{p.name}}(const {{p.type}} &value)
     {
         _{{p.name}} = value;
-        if (__propertyChanged) __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
+        if (__propertyChanged) { py::gil_scoped_release _g; __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" }); }
     }
 
 {% endfor %}
 {% endfor %}
 
+    py::object {{page.name}}::wrap(py::object o) {
+        py::object vm = __viewmodels[py::type::of(o)]();
+        o.attr("_init_viewmodel")(this, vm);
+        __wrapped[vm.attr("_id")] = o;
+        return vm;
+    }
+
+    py::object {{page.name}}::as_viewmodel(const ::winrt::Windows::Foundation::IInspectable &o) {
+        if (!o) return py::none();
+{% for vm in page.viewmodels %}
+        std::optional<winrt::{{namespace}}::{{vm.name}}> {{vm.name}}_opt = o.try_as<winrt::{{namespace}}::{{vm.name}}>();
+        if ({{vm.name}}_opt) return py::cast(::pywinui::hold(*{{vm.name}}_opt));
+{% endfor %}
+        throw py::type_error("unrecognized object");
+    }
+
+    py::object {{page.name}}::unwrap(py::object o) {
+        try {
+            return __wrapped[o.attr("_id")];
+        } catch (py::error_already_set) {
+            PyErr_Clear();
+        }
+        
+        return py::none();
+    }
+
     {{page.name}}::{{page.name}}()
     {
-        auto own_module = ::pybind11::module_::import("_{{namespace}}_{{page.name}}");
-        auto module_ = ::pybind11::module_::import("{{namespace}}");
+        auto own_module = py::module_::import("_{{namespace}}_{{page.name}}");
+        auto module_ = py::module_::import("{{namespace}}");
         auto cls = module_.attr("{{page.name}}");
-        __pyobj = ::pybind11::dict();
-        __pyobj["viewmodels"] = ::pybind11::dict();
-        __pyobj["self"] = cls(this, own_module);
+        auto weakref = py::module_::import("weakref");
+        __viewmodels = py::dict();
+        __pyobj = cls(this, own_module);
+        __wrapped = weakref.attr("WeakValueDictionary")();
         Closed([this](IInspectable const&, WindowEventArgs const&) {
+            __wrapped.release();
+            __viewmodels.release();
             __pyobj.release();
         });
         InitializeComponent();
@@ -84,14 +119,6 @@ namespace winrt::{{namespace}}::implementation
 
     winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
     void {{page.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
-    void {{page.name}}::add_viewmodel(py::object cls, py::object vm) {
-        cls.attr("_as_viewmodel");
-        __pyobj["viewmodels"][cls] = vm;
-    }
-    py::object {{page.name}}::as_viewmodel(py::object o) {
-        py::object vm = __pyobj["viewmodels"][py::type::of(o)];
-        return o.attr("_as_viewmodel")(*this, vm);
-    }
 
 {% if page.properties +%}
     // Bindable property getter/setters
@@ -107,7 +134,7 @@ namespace winrt::{{namespace}}::implementation
         // TODO: Detect whether type is comparable
         //if (_{{p.name}} != value) {
         _{{p.name}} = value;
-        if (__propertyChanged) __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" });
+        if (__propertyChanged) { py::gil_scoped_release _g; __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" }); }
         //}
     }
 {% endfor %}
@@ -118,8 +145,9 @@ namespace winrt::{{namespace}}::implementation
 
     void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
     {
+        if (!__pyobj) return; // we are closing
         try {
-            __pyobj["self"].attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
         } catch (py::error_already_set &ex) {
             // TODO: Better error output
             const char *msg = ex.what();

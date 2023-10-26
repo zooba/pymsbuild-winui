@@ -11,6 +11,81 @@ RENDER_ENV = jinja2.Environment(
     trim_blocks=True,
 )
 
+# The BaseInfo and ControlInfo classes are passed into the jinja
+# environment when constructing the template. BaseInfo is typically
+# subclassed and instatiated directly in the namespace dicts, while
+# ControlInfos are specified as plain old dicts and converted later.
+
+class BaseInfo:
+    def __init__(self, namespace="", name=None, members=None):
+        self.name = name
+        self.namespace = namespace
+        self.members = members if members is not None else {}
+
+    def __repr__(self):
+        return f"<{self.fullname}>"
+
+    @property
+    def fullname(self):
+        return f"{self.namespace}.{self.name}" if self.namespace else self.name
+
+    @property
+    def cppname(self):
+        return self.fullname.replace(".", "::")
+
+    def make_info(self, namespace, name):
+        if not self.namespace:
+            self.namespace = namespace
+        self.name = name
+        return self
+
+
+class StructInfo(BaseInfo):
+    kind = "struct"
+
+    def __init__(self, namespace="", **members):
+        super().__init__(namespace, None, members)
+        
+
+class ControlInfo(BaseInfo):
+    kind = "control"
+
+    def __init__(self, namespace, name, members):
+        super().__init__(namespace, name, members)
+        try:
+            self.namespace = members.pop("__namespace__")
+        except KeyError:
+            pass
+        try:
+            self.bases = list(members.pop("__bases__"))
+        except KeyError:
+            try:
+                self.bases = [members.pop("__base__")]
+            except KeyError:
+                self.bases = []
+        self.basespec = ", ::winrt::Windows::Foundation::IInspectable"
+        if self.bases:
+            self.bases = [f"{namespace}.{b}" if "." not in b else b for b in self.bases]
+        #    self.basespec = "".join(f", {b.replace('.', '::')}" for b in self.bases)
+
+
+class EnumInfo(BaseInfo):
+    kind = "enum"
+    def __init__(self, *names, namespace=""):
+        super().__init__(namespace)
+        self.members = names
+
+
+class AsyncOpInfo(BaseInfo):
+    kind = "asyncop"
+    def __init__(self, type, namespace=""):
+        super().__init__(namespace)
+        self.result = type
+
+    def make_info(self, namespace, name):
+        # Keep the name we were originally provided
+        return super().make_info(namespace, self.result)
+
 
 class CALL:
     kind = "call"
@@ -38,16 +113,37 @@ class FIELD(GET):
 ANY = "IInspectable"
 STR = "std::wstring"
 
-ENUMS = dict(
-    ContentDialogResult=["None", "Primary", "Secondary"],
-    MediaPlaybackState=["None", "Opening", "Buffering", "Playing", "Paused"],
+
+MICROSOFT_UI = dict(
+    Color=StructInfo(
+        namespace="Windows.UI",
+        A=FIELD("uint8_t"),
+        R=FIELD("uint8_t"),
+        G=FIELD("uint8_t"),
+        B=FIELD("uint8_t"),
+    ),
 )
 
-OPERATIONS = dict(
-    ContentDialogResult={},
+MICROSOFT_UI_XAML = dict(
+    Visibility=EnumInfo("Visible", "Collapsed"),
+    DependencyObject={},
+    FrameworkElement={
+        "__base__": "UIElement",
+        "DataContext": GET(ANY)
+    },
+    RoutedEventArgs={"OriginalSource": GET(ANY)},
+    UIElement={
+        "__base__": "DependencyObject",
+        "Visibility": GETSET("Visibility"),
+    },
+    Window={
+        "Activate": CALL(),
+        "Close": CALL(),
+        "SetTitleBar": CALL(titleBar="UIElement"),
+    },
 )
 
-CONTROLS = dict(
+MICROSOFT_UI_XAML_CONTROLS = dict(
     AnchorRequestedEventArgs={
         "Anchor": GET("UIElement"),
         "AnchorCandidates": GET("std::vector<UIElement>"),
@@ -55,7 +151,9 @@ CONTROLS = dict(
     AnimatedIcon={},
     AnimatedIconSource={},
     AnimatedVisualPlayer={},
-    AnnotatedScrollBar={},
+    AnnotatedScrollBar={
+        "__base__": "Control",
+    },
     AnnotatedScrollBarDetailLabelRequestedEventArgs={
         "Content": GETSET(ANY),
         "ScrollOffset": GET("double"),
@@ -65,7 +163,7 @@ CONTROLS = dict(
     AppBar={"__base__": "ContentControl"},
     AppBarButton={},
     AppBarElementContainer={"__base__": "ContentControl"},
-    AppBarSeparator={},
+    AppBarSeparator={"__base__": "Control"},
     AppBarToggleButton={"__base__": "ContentControl"},
     AutoSuggestBox={},
     AutoSuggestBoxQuerySubmittedEventArgs={
@@ -81,8 +179,10 @@ CONTROLS = dict(
     },
     BitmapIcon={},
     BitmapIconSource={},
-    Border={},
-    BreadcrumbBar={},
+    Border={"__base__": "Microsoft.UI.Xaml.FrameworkElement"},
+    BreadcrumbBar={
+        "__base__": "Control",
+    },
     BreadcrumbBarItem={"__base__": "ContentControl"},
     BreadcrumbBarItemClickedEventArgs={
         "Index": GET("int"),
@@ -90,6 +190,7 @@ CONTROLS = dict(
     },
     Button={"__base__": "ContentControl"},
     CalendarDatePicker={
+        "__base__": "Control",
         "Date": GETSET("DateTime", post=".try_as<DateTime>()"),
         "MaxDate": GETSET("DateTime"),
         "MinDate": GETSET("DateTime"),
@@ -100,10 +201,11 @@ CONTROLS = dict(
         "OldDate": GET("DateTime", post=".try_as<DateTime>()"),
     },
     CalendarView={
+        "__base__": "Control",
         #"SelectedDates": GET("std::vector<DateTime>"),
         #"SetDisplayDate": CALL(date="DateTime"),
     },
-    CalendarViewDayItem={},
+    CalendarViewDayItem={"__base__": "Control"},
     CalendarViewDayItemChangingEventArgs={},
     CalendarViewSelectedDatesChangedEventArgs={},
     CandidateWindowBoundsChangedEventArgs={},
@@ -112,18 +214,12 @@ CONTROLS = dict(
     ChoosingGroupHeaderContainerEventArgs={},
     ChoosingItemContainerEventArgs={},
     CleanUpVirtualizedItemEventArgs={},
-    Color={
-        "__namespace__": "Windows.UI",
-        "A": FIELD("uint8_t"),
-        "R": FIELD("uint8_t"),
-        "G": FIELD("uint8_t"),
-        "B": FIELD("uint8_t"),
-    },
     ColorChangedEventArgs={
         "NewColor": GET("Color"),
         "OldColor": GET("Color"),
     },
     ColorPicker={
+        "__base__": "Control",
         "Color": GETSET("Color"),
     },
     ColumnDefinition={},
@@ -135,7 +231,10 @@ CONTROLS = dict(
     CommandBarFlyout={},
     CommandBarOverflowPresenter={},
     ContainerContentChangingEventArgs={},
-    ContentControl={"Content": GETSET(ANY)},
+    ContentControl={
+        "__base__": "Control",
+        "Content": GETSET(ANY),
+    },
     ContentDialog={
         "__base__": "ContentControl",
         "CloseButtonText": GETSET(STR),
@@ -150,17 +249,25 @@ CONTROLS = dict(
     ContentDialogClosingDeferral={},
     ContentDialogClosingEventArgs={},
     ContentDialogOpenedEventArgs={},
+    ContentDialogResult=EnumInfo("None", "Primary", "Secondary"),
+    ContentDialogResult_Op=AsyncOpInfo("ContentDialogResult"),
     ContentPresenter={},
     ContextMenuEventArgs={},
-    Control={},
+    Control={
+        "__base__": "Microsoft.UI.Xaml.FrameworkElement",
+    },
     ControlTemplate={},
     CoreWebView2InitializedEventArgs={},
     DataTemplateSelector={},
     DatePickedEventArgs={},
-    DatePicker={},
+    DatePicker={
+        "__base__": "Control",
+    },
     DatePickerFlyout={},
     DatePickerFlyoutItem={},
-    DatePickerFlyoutPresenter={},
+    DatePickerFlyoutPresenter={
+        "__base__": "Control",
+    },
     DatePickerSelectedValueChangedEventArgs={},
     DatePickerValueChangedEventArgs={},
     DragItemsCompletedEventArgs={},
@@ -188,8 +295,10 @@ CONTROLS = dict(
     GroupStyle={},
     GroupStyleSelector={},
     HasValidationErrorsChangedEventArgs={},
-    Hub={},
-    HubSection={},
+    Hub={
+        "__base__": "Control",
+    },
+    HubSection={"__base__": "Control"},
     HubSectionCollection={},
     HubSectionHeaderClickEventArgs={},
     HyperlinkButton={"__base__": "ContentControl"},
@@ -199,9 +308,12 @@ CONTROLS = dict(
     Image={},
     ImageIcon={},
     ImageIconSource={},
-    InfoBadge={},
+    InfoBadge={
+        "__base__": "Control",
+    },
     InfoBadgeTemplateSettings={},
     InfoBar={
+        "__base__": "Control",
         "Message": GETSET(STR),
         "IsOpen": GETSET("bool"),
     },
@@ -215,9 +327,13 @@ CONTROLS = dict(
     ItemCollectionTransitionCompletedEventArgs={},
     ItemCollectionTransitionProgress={},
     ItemCollectionTransitionProvider={},
-    ItemContainer={},
+    ItemContainer={
+        "__base__": "Control",
+    },
     ItemContainerGenerator={},
-    ItemsControl={},
+    ItemsControl={
+        "__base__": "Control",
+    },
     ItemsPanelTemplate={},
     ItemsPickedEventArgs={},
     ItemsPresenter={},
@@ -228,7 +344,9 @@ CONTROLS = dict(
     ItemsRepeaterScrollHost={},
     ItemsSourceView={},
     ItemsStackPanel={},
-    ItemsView={},
+    ItemsView={
+        "__base__": "Control",
+    },
     ItemsViewItemInvokedEventArgs={},
     ItemsViewSelectionChangedEventArgs={},
     ItemsWrapGrid={},
@@ -240,17 +358,18 @@ CONTROLS = dict(
     ListBox={},
     ListBoxItem={"__base__": "ContentControl"},
     ListPickerFlyout={},
-    ListPickerFlyoutPresenter={},
+    ListPickerFlyoutPresenter={"__base__": "Control"},
     ListView={},
     ListViewBase={},
     ListViewBaseHeaderItem={"__base__": "ContentControl"},
     ListViewHeaderItem={},
     ListViewItem={"__base__": "ContentControl"},
     ListViewPersistenceHelper={},
+    MediaPlaybackState=EnumInfo("None", "Opening", "Buffering", "Playing", "Paused", namespace="Windows.Media.Playback"),
     MediaPlaybackSession={
         "__namespace__": "Windows.Media.Playback",
         "NaturalDuration": GET("TimeSpan"),
-        "PlaybackState": GET("MediaPlaybackState"),
+        "PlaybackState": GET("Windows.Media.Playback.MediaPlaybackState"),
         "Position": GET("TimeSpan"),  # technically GETSET but cannot cast yet
     },
     MediaPlayer={
@@ -262,17 +381,26 @@ CONTROLS = dict(
         "StepForwardOneFrame": CALL(),
     },
     MediaPlayerElement={
+        "__base__": "Control",
         "MediaPlayer": GET("MediaPlayer"),
     },
     MediaPlayerPresenter={},
-    MediaTransportControls={},
+    MediaTransportControls={
+        "__base__": "Control",
+    },
     MediaTransportControlsHelper={},
-    MenuBar={},
-    MenuBarItem={},
+    MenuBar={
+        "__base__": "Control",
+    },
+    MenuBarItem={
+        "__base__": "Control",
+    },
     MenuBarItemFlyout={},
     MenuFlyout={},
     MenuFlyoutItem={},
-    MenuFlyoutItemBase={},
+    MenuFlyoutItemBase={
+        "__base__": "Control",
+    },
     MenuFlyoutPresenter={},
     MenuFlyoutSeparator={},
     MenuFlyoutSubItem={},
@@ -291,21 +419,29 @@ CONTROLS = dict(
     NavigationViewTemplateSettings={},
     NonVirtualizingLayout={},
     NonVirtualizingLayoutContext={},
-    NumberBox={},
+    NumberBox={
+        "__base__": "Control",
+    },
     NumberBoxValueChangedEventArgs={},
     Page={},
     Panel={},
     ParallaxView={},
-    PasswordBox={},
+    PasswordBox={
+        "__base__": "Control",
+    },
     PasswordBoxPasswordChangingEventArgs={},
     PathIcon={},
     PathIconSource={},
-    PersonPicture={},
+    PersonPicture={
+        "__base__": "Control",
+    },
     PersonPictureTemplateSettings={},
     PickerConfirmedEventArgs={},
     PickerFlyout={},
     PickerFlyoutPresenter={"__base__": "ContentControl"},
-    PipsPager={},
+    PipsPager={
+        "__base__": "Control",
+    },
     PipsPagerSelectedIndexChangedEventArgs={},
     PipsPagerTemplateSettings={},
     Pivot={},
@@ -314,12 +450,18 @@ CONTROLS = dict(
     PointerRoutedEventArgs={"__namespace__":"Microsoft.UI.Xaml.Input"},
     ProgressBar={},
     ProgressBarTemplateSettings={},
-    ProgressRing={},
+    ProgressRing={
+        "__base__": "Control",
+    },
     ProgressRingTemplateSettings={},
     RadioButton={"__base__": "ContentControl"},
-    RadioButtons={},
+    RadioButtons={
+        "__base__": "Control",
+    },
     RadioMenuFlyoutItem={},
-    RatingControl={},
+    RatingControl={
+        "__base__": "Control",
+    },
     RatingItemFontInfo={},
     RatingItemImageInfo={},
     RatingItemInfo={},
@@ -327,15 +469,18 @@ CONTROLS = dict(
     RefreshInteractionRatioChangedEventArgs={},
     RefreshRequestedEventArgs={},
     RefreshStateChangedEventArgs={},
-    RefreshVisualizer={},
+    RefreshVisualizer={
+        "__base__": "Control",
+    },
     RelativePanel={},
     RevealListViewItemPresenter={},
-    RichEditBox={},
+    RichEditBox={
+        "__base__": "Control",
+    },
     RichEditBoxSelectionChangingEventArgs={},
     RichEditBoxTextChangingEventArgs={},
     RichTextBlock={},
     RichTextBlockOverflow={},
-    RoutedEventArgs={},
     RowDefinition={},
     RowDefinitionCollection={},
     ScrollContentPresenter={},
@@ -347,20 +492,28 @@ CONTROLS = dict(
     ScrollingZoomAnimationStartingEventArgs={},
     ScrollingZoomCompletedEventArgs={},
     ScrollingZoomOptions={},
-    ScrollView={},
-    ScrollViewer={"__base__": "ContentControl"},
+    ScrollView={
+        "__base__": "Control",
+    },
+    ScrollViewer={
+        "__base__": "ContentControl"
+    },
     ScrollViewerView={},
     ScrollViewerViewChangedEventArgs={},
     ScrollViewerViewChangingEventArgs={},
     SectionsInViewChangedEventArgs={},
     SelectionChangedEventArgs={},
-    SemanticZoom={},
+    SemanticZoom={
+        "__base__": "Control",
+    },
     SemanticZoomLocation={},
     SemanticZoomViewChangedEventArgs={},
     Slider={},
     SplitButton={"__base__": "ContentControl"},
     SplitButtonClickEventArgs={},
-    SplitView={},
+    SplitView={
+        "__base__": "Control",
+    },
     SplitViewPaneClosingEventArgs={},
     StackLayout={},
     StackPanel={},
@@ -372,7 +525,9 @@ CONTROLS = dict(
     SwipeItems={},
     SymbolIcon={},
     SymbolIconSource={},
-    TabView={},
+    TabView={
+        "__base__": "Control",
+    },
     TabViewItem={},
     TabViewItemTemplateSettings={},
     TabViewTabCloseRequestedEventArgs={},
@@ -384,7 +539,10 @@ CONTROLS = dict(
     TeachingTipClosingEventArgs={},
     TeachingTipTemplateSettings={},
     TextBlock={},
-    TextBox={},
+    TextBox={
+        "__base__": "Control",
+        "Text": GETSET(STR),
+    },
     TextBoxBeforeTextChangingEventArgs={},
     TextBoxSelectionChangingEventArgs={},
     TextBoxTextChangingEventArgs={},
@@ -397,18 +555,24 @@ CONTROLS = dict(
     TextControlCuttingToClipboardEventArgs={},
     TextControlPasteEventArgs={},
     TimePickedEventArgs={},
-    TimePicker={},
+    TimePicker={
+        "__base__": "Control",
+    },
     TimePickerFlyout={},
-    TimePickerFlyoutPresenter={},
+    TimePickerFlyoutPresenter={"__base__": "Control"},
     TimePickerSelectedValueChangedEventArgs={},
     TimePickerValueChangedEventArgs={},
     ToggleMenuFlyoutItem={},
     ToggleSplitButton={},
     ToggleSplitButtonIsCheckedChangedEventArgs={},
-    ToggleSwitch={},
+    ToggleSwitch={
+        "__base__": "Control",
+    },
     ToolTip={"__base__": "ContentControl"},
     ToolTipService={},
-    TreeView={},
+    TreeView={
+        "__base__": "Control",
+    },
     TreeViewCollapsedEventArgs={},
     TreeViewDragItemsCompletedEventArgs={},
     TreeViewDragItemsStartingEventArgs={},
@@ -419,10 +583,11 @@ CONTROLS = dict(
     TreeViewList={},
     TreeViewNode={},
     TreeViewSelectionChangedEventArgs={},
-    TwoPaneView={},
+    TwoPaneView={
+        "__base__": "Control",
+    },
     UIElementCollection={},
     UniformGridLayout={},
-    UserControl={},
     VariableSizedWrapGrid={},
     Viewbox={},
     VirtualizingLayout={},
@@ -434,22 +599,48 @@ CONTROLS = dict(
     XamlControlsResources={},
 )
 
-def resolve_bases(d):
-    resolved = {}
-    for k, v in CONTROLS.items():
-        base = v.get("__base__")
-        while base:
-            v = {**CONTROLS[base], **v}
-            v.pop("__base__", None)
-            base = CONTROLS[base].get("__base__")
-        resolved[k] = v
-    return resolved
-CONTROLS = resolve_bases(CONTROLS)
+def info(ns, name, members):
+    try:
+        make_info = members.make_info
+    except AttributeError:
+        return ControlInfo(ns, name, members)
+    else:
+        return make_info(ns, name)
+
+
+CONTROLS = [
+    *(info("Microsoft.UI", k, v) for k, v in MICROSOFT_UI.items()),
+    *(info("Microsoft.UI.Xaml", k, v) for k, v in MICROSOFT_UI_XAML.items()),
+    *(info("Microsoft.UI.Xaml.Controls", k, v) for k, v in MICROSOFT_UI_XAML_CONTROLS.items()),
+]
+
+def resolve_bases(controls):
+    derived = {}
+    todo = []
+    for c in controls:
+        if c.kind == "control":
+            for b in c.bases:
+                derived.setdefault(b, set()).add(c)
+                todo.append(c)
+
+    while todo:
+        b = todo.pop(0)
+        try:
+            subs = derived[b.fullname]
+        except KeyError:
+            continue
+        new = {c2 for c in subs for c2 in derived.get(c.fullname, ())}
+        if new - subs:
+            subs.update(new)
+            todo.append(b)
+
+    for c in controls:
+        for sub in derived.get(c.fullname, ()):
+            sub.members.update(c.members)
+resolve_bases(CONTROLS)
 
 CONTEXT = dict(
     all_controls=CONTROLS,
-    operations=OPERATIONS,
-    enums=ENUMS,
 )
 
 with open(OUTPUT, "w", encoding="ascii") as f:

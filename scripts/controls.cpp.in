@@ -13,6 +13,8 @@ using namespace Microsoft::UI::Xaml::Input;
 using namespace Microsoft::UI::Xaml::Navigation;
 namespace py = pybind11;
 
+template <typename T> struct arg_type { typedef const T &type; };
+template <> struct arg_type<winrt::hstring> { typedef const std::wstring &type; };
 
 template <typename T> static std::wstring default_repr(const T&) {
     std::wstringstream s;
@@ -34,43 +36,46 @@ static void default_on_complete(const IAsyncOperation<T> &op, AsyncStatus, py::o
 }
 
 PYBIND11_EMBEDDED_MODULE(_winui_Xaml_Controls, m) {
-{% for typename, members in enums.items() %}
-    py::enum_<{{typename}}>(m, "{{typename}}")
-{% for name in members %}
-        .value("{{name}}", {{typename}}::{{name}})
-{% endfor %}
-    ;
-{% endfor %}
-
     py::class_<IInspectable, ::pywinui::holder<IInspectable>>(m, "Windows.Foundation.IInspectable")
         .def("__repr__", [](const IInspectable& _self) { return default_repr(_self); } )
+        .def("as_", [](const IInspectable& _self, const char *type) { return py::module_::import("_winui_Xaml_Controls").attr(type)(_self); })
     ;
 
-
-{% for typename, members in operations.items() %}
-    py::class_<IAsyncOperation<{{typename}}>, ::pywinui::holder<IAsyncOperation<{{typename}}>>>(m, "Windows.Foundation.IAsyncOperation<{{typename}}")
-        .def("GetResults", [](const IAsyncOperation<{{typename}}> &_self) { return ::pywinui::hold(_self.GetResults()); })
-        .def("Completed", [](IAsyncOperation<{{typename}}> &_self, py::object on_complete) {
-            _self.Completed([on_complete](const IAsyncOperation<{{typename}}> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
-        })
+{% for c in all_controls %}
+{% if c.kind == "enum" %}
+    py::enum_<{{c.cppname}}>(m, "{{c.fullname}}")
+{% for name in c.members %}
+        .value("{{name}}", {{c.cppname}}::{{name}})
+{% endfor %}
     ;
+{% endif %}
 {% endfor %}
 
-{% for typename, members in all_controls.items() %}
-    py::class_<{{typename}}, ::pywinui::holder<{{typename}}>>(m, "{{members.get('__namespace__', 'Microsoft.UI.Xaml.Controls')}}.{{typename}}")
-        .def("__repr__", [](const {{typename}}& _self) { return default_repr(_self); } )
-{% for name, member in members.items() %}
+{% for c in all_controls %}
+{% if c.kind == "asyncop" %}
+    py::class_<IAsyncOperation<{{c.cppname}}>, ::pywinui::holder<IAsyncOperation<{{c.cppname}}>>>(m, "Windows.Foundation.IAsyncOperation<{{c.fullname}}")
+        .def("GetResults", [](const IAsyncOperation<{{c.cppname}}> &_self) { return ::pywinui::hold(_self.GetResults()); })
+        .def("Completed", [](IAsyncOperation<{{c.cppname}}> &_self, py::object on_complete) {
+            _self.Completed([on_complete](const IAsyncOperation<{{c.cppname}}> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
+        })
+    ;
+{% elif c.kind == "control" %}
+    py::class_<{{c.cppname}}, ::pywinui::holder<{{c.cppname}}>{{c.basespec}}>(m, "{{c.fullname}}")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<{{c.cppname}}>()); }))
+        .def("__repr__", [](const {{c.cppname}}& _self) { return default_repr(_self); } )
+{% for name, member in c.members.items() %}
 {% if member.kind == "getset" %}
-        .def_property("{{name}}", [](const {{typename}}& _self) { return {{member.pre}}(_self.{{name}}()){{member.post}}; }, []({{typename}}& _self, {{member.type}} v) { return _self.{{name}}(v); })
+        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}()){{member.post}}); }, []({{c.cppname}}& _self, typename arg_type<decltype(_self.{{name}}())>::type v) { return _self.{{name}}(v); })
 {% elif member.kind == "field" %}
-        .def_property("{{name}}", [](const {{typename}}& _self) { return {{member.pre}}(_self.{{name}}){{member.post}}; }, []({{typename}}& _self, {{member.type}} v) { _self.{{name}} = v; })
+        .def_property("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}){{member.post}}); }, []({{c.cppname}}& _self, typename arg:type<{{member.type}}>::type v) { _self.{{name}} = v; })
 {% elif member.kind == "get" %}
-        .def_property_readonly("{{name}}", [](const {{typename}}& _self) { return {{member.pre}}(_self.{{name}}()){{member.post}}; })
+        .def_property_readonly("{{name}}", [](const {{c.cppname}}& _self) { return ::pywinui::hold({{member.pre}}(_self.{{name}}()){{member.post}}); })
 {% elif member.kind == "call" %}
-        .def("{{name}}", []({{typename}}& _self{{member.prototype}}) { return ::pywinui::call_and_hold([&]() { return _self.{{name}}({{member.argspec}}); }); })
+        .def("{{name}}", []({{c.cppname}}& _self{{member.prototype}}) { return ::pywinui::call_and_hold([&]() { return _self.{{name}}({{member.argspec}}); }); })
 {% endif %}
 {% endfor %}
     ;
+{% endif %}
 {% endfor %}
 }
 
