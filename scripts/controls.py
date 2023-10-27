@@ -21,6 +21,10 @@ class BaseInfo:
         self.name = name
         self.namespace = namespace
         self.members = members if members is not None else {}
+        if namespace and isinstance(self.members, dict):
+            for m in self.members.values():
+                if not getattr(m, "namespace", ...):
+                    m.namespace = namespace
 
     def __repr__(self):
         return f"<{self.fullname}>"
@@ -36,6 +40,10 @@ class BaseInfo:
     def make_info(self, namespace, name):
         if not self.namespace:
             self.namespace = namespace
+            if isinstance(self.members, dict):
+                for m in self.members.values():
+                    if not getattr(m, "namespace", ...):
+                        m.namespace = namespace
         self.name = name
         return self
 
@@ -63,7 +71,7 @@ class ControlInfo(BaseInfo):
                 self.bases = [members.pop("__base__")]
             except KeyError:
                 self.bases = []
-        self.basespec = ", ::winrt::Windows::Foundation::IInspectable"
+        self.basespec = ", Windows::Foundation::IInspectable"
         if self.bases:
             self.bases = [f"{namespace}.{b}" if "." not in b else b for b in self.bases]
         #    self.basespec = "".join(f", {b.replace('.', '::')}" for b in self.bases)
@@ -91,15 +99,47 @@ class CALL:
     kind = "call"
     def __init__(self, cvt="", **kwargs):
         self.cvt = cvt
-        self.args = list(kwargs.items())
-        self.prototype = "".join(f", {v} {k}" for k, v in self.args)
-        self.argspec = ", ".join(f"{k}" for k, v in self.args)
+        self.namespace = None
+        self._args = list(kwargs.items())
+
+    @property
+    def args(self):
+        return [ARG.make(n, t, self.namespace) for n, t in self._args]
+
+class ARG:
+    kind = "arg"
+    def __init__(self, type, *, name=None):
+        type = type.replace("::", ".")
+        self.namespace, _, self.type = type.rpartition(".")
+        self.name = name
+
+    @property
+    def fulltype(self):
+        return f"{self.namespace}.{self.type}"
+
+    @property
+    def cpptype(self):
+        return self.fulltype.replace('.', '::')
+
+    @classmethod
+    def make(cls, n, t, namespace):
+        if not isinstance(t, cls):
+            t = cls(t)
+        t.name = n
+        if not t.namespace:
+            t.namespace = namespace
+        return t
 
 class GET:
     kind = "get"
     def __init__(self, type, cvt=""):
-        self.type = type
+        type = type.replace("::", ".")
+        self.namespace, _, self.type = type.rpartition(".")
         self.cvt = cvt
+
+    @property
+    def cpptype(self):
+        return f"{self.namespace}::{self.type}".replace(".", "::")
 
 class GETSET(GET):
     kind = "getset"
@@ -142,6 +182,7 @@ MICROSOFT_UI_COMPOSITION = dict(
     ColorKeyFrameAnimation={},
     CompositionAnimation={
         "__base__": "CompositionObject",
+        "__implements__": ["Microsoft::UI::Composition::ICompositionAnimationBase"],
         "InitialValueExpressions": GET("InitialValueExpressionCollection"),
         "Target": GETSET(STR),
     },
@@ -282,8 +323,8 @@ MICROSOFT_UI_XAML = dict(
         "__base__": "DependencyObject",
         "Visibility": GETSET("Visibility"),
         # Strictly should be ICompositionAnimationBase, but who's counting?
-        "StartAnimation": CALL(animation="::winrt::Microsoft::UI::Composition::CompositionAnimation"),
-        "StopAnimation": CALL(animation="::winrt::Microsoft::UI::Composition::CompositionAnimation"),
+        "StartAnimation": CALL(animation="Microsoft.UI.Composition.CompositionAnimation"),
+        "StopAnimation": CALL(animation="Microsoft.UI.Composition.CompositionAnimation"),
     },
     Window={
         "Activate": CALL(),
@@ -340,14 +381,14 @@ MICROSOFT_UI_XAML_CONTROLS = dict(
     Button={"__base__": "ContentControl"},
     CalendarDatePicker={
         "__base__": "Control",
-        "Date": GETSET("DateTime", cvt="cvt_DateTime_opt"),
-        "MaxDate": GETSET("DateTime"),
-        "MinDate": GETSET("DateTime"),
-        "SetDisplayDate": CALL(date="DateTime"),
+        "Date": GETSET("IReference<Windows.Foundation.DateTime>"),
+        "MaxDate": GETSET("Windows.Foundation.DateTime"),
+        "MinDate": GETSET("Windows.Foundation.DateTime"),
+        "SetDisplayDate": CALL(date="Windows.Foundation.DateTime"),
     },
     CalendarDatePickerDateChangedEventArgs={
-        "NewDate": GET("DateTime", cvt="cvt_DateTime_opt"),
-        "OldDate": GET("DateTime", cvt="cvt_DateTime_opt"),
+        "NewDate": GET("IReference<Windows.Foundation.DateTime>"),
+        "OldDate": GET("IReference<Windows.Foundation.DateTime>"),
     },
     CalendarView={
         "__base__": "Control",
@@ -364,12 +405,12 @@ MICROSOFT_UI_XAML_CONTROLS = dict(
     ChoosingItemContainerEventArgs={},
     CleanUpVirtualizedItemEventArgs={},
     ColorChangedEventArgs={
-        "NewColor": GET("Color"),
-        "OldColor": GET("Color"),
+        "NewColor": GET("Windows.Foundation.Color"),
+        "OldColor": GET("Windows.Foundation.Color"),
     },
     ColorPicker={
         "__base__": "Control",
-        "Color": GETSET("Color"),
+        "Color": GETSET("Windows.Foundation.Color"),
     },
     ColumnDefinition={},
     ColumnDefinitionCollection={},
