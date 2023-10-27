@@ -37,15 +37,30 @@
 #include <pybind11\embed.h>
 
 namespace pywinui {
+    template <typename T>
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IUnknown, T>, T> init_value() { return nullptr; }
+    template <typename T>
+    std::enable_if_t<!std::is_base_of_v<winrt::Windows::Foundation::IUnknown, T>, T> init_value() { return T{}; }
+
     template <typename T> struct holder {
-        T v;
-        holder(T v) : v(v) { }
-        holder(T *v) : v(*v) { }
-        inline T *get() const { return (T *)&v; }
+        struct inner { T obj{}; inner() : obj{init_value<T>()} {}; };
+        ::std::unique_ptr<inner> _p;
+        holder(T t) : _p{::std::make_unique<inner>()} { _p->obj = t; }
+        holder(T *t) : _p{::std::make_unique<inner>()} { _p->obj = *t; }
+        inline T *get() const { return &_p->obj; }
     };
 
-    template <typename T, typename U = std::conditional<std::is_base_of<winrt::Windows::Foundation::IInspectable, T>::value, holder<T>, T>::type>
-    U hold(const T& t) { return U(t); }
+    template <typename T>
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, holder<T>> hold(const T& t) { return holder<T>(t); }
+    template <typename T>
+    std::enable_if_t<!std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, T> hold(const T& t) { return t; }
+
+    template <typename F, typename R=typename std::invoke_result_t<F>>
+    std::enable_if_t<!std::is_void_v<R> && !std::is_base_of_v<winrt::Windows::Foundation::IInspectable, R>, R> call_and_hold(F &&fn) { return std::invoke(std::forward<F>(fn)); }
+    template <typename F, typename R=typename std::invoke_result_t<F>>
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IInspectable, R>, holder<R>> call_and_hold(F &&fn) { return holder<R>(std::invoke(std::forward<F>(fn))); }
+    template <typename F, typename R=typename std::invoke_result_t<F>>
+    std::enable_if_t<std::is_void_v<R>, void> call_and_hold(F &&fn) { std::invoke(std::forward<F>(fn)); }
 }
 
 PYBIND11_DECLARE_HOLDER_TYPE(T, ::pywinui::holder<T>, true);

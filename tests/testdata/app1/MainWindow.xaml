@@ -12,8 +12,8 @@
 
     <py:Property Name="MyProperty" Type="str" />
     <py:Property Name="Obj" Type="app::DayColor" IdlType="app.DayColor" />
-    <py:EventHandler Name="Calendar_DateChanged" Sender="CalendarDatePicker" EventArg="CalendarDatePickerDateChangedEventArgs" />
-    <py:EventHandler Name="Color_ColorChanged" Sender="ColorPicker" EventArg="ColorChangedEventArgs" />
+    <py:EventHandler Name="Calendar_DateChanged" Sender="CalendarDatePicker" EventArgs="CalendarDatePickerDateChangedEventArgs" />
+    <py:EventHandler Name="Color_ColorChanged" Sender="ColorPicker" EventArgs="ColorChangedEventArgs" />
 
     <py:ViewModel Name="DayColor">
       <py:Property Name="Day" Type="datetime" />

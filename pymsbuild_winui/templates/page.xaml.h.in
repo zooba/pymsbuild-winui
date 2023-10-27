@@ -3,7 +3,7 @@
 #include <{{page.name}}.g.h>
 
 {% for vm in page.viewmodels %}
-#include "{{vm.name}}.g.h"
+#include <{{vm.name}}.g.h>
 {% endfor %}
 
 namespace winrt::{{namespace}}::implementation
@@ -17,9 +17,10 @@ namespace winrt::{{namespace}}::implementation
     struct {{m.name}} : {{m.name}}T<{{m.name}}>
     {
         {{m.name}}();
+        ~{{m.name}}();
 {% for prop in m.properties %}
         {{prop.type}} {{prop.name}}() const { return _{{prop.name}}; }
-        void {{prop.name}}({{prop.type}} value);
+        void {{prop.name}}(const {{prop.type}} &value);
 {% endfor %}
 
         winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
@@ -46,11 +47,18 @@ namespace winrt::{{namespace}}::implementation
         void {{h.name}}({{h.sender}}, {{h.eventarg}});
 {% endfor %}
 
+        pybind11::object _get_viewmodels() { return __viewmodels; }
+        pybind11::object wrap(pybind11::object o);
+        pybind11::object as_viewmodel(const ::winrt::Windows::Foundation::IInspectable &o);
+        pybind11::object unwrap(pybind11::object o);
+
         winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
         void PropertyChanged(winrt::event_token const& token);
     private:
         winrt::event<PropertyChangedEventHandler> __propertyChanged;
         pybind11::object __pyobj;
+        pybind11::object __viewmodels;
+        pybind11::object __wrapped;
 
 {% for prop in page.properties %}
         {{prop.type}} _{{prop.name}};

@@ -41,6 +41,8 @@ PROPERTY_TYPE_MAP = {
     "timedelta": "winrt::Windows::Foundation::TimeSpan",
     "str": "winrt::hstring",
     "float": "double",
+    "object": "winrt::Windows::Foundation::IInspectable",
+    "list": "winrt::Windows::Foundation::Collections::IVector",
     "UUID": "GUID",
 }
 
@@ -60,9 +62,37 @@ PROPERTY_IDLTYPE_MAP = {
     "double": "Double",
     "bool": "Boolean",
     "GUID": "Guid",
+    "winrt::Windows::Foundation::IInspectable": "IInspectable",
     "winrt::Windows::Foundation::DateTime": "Windows.Foundation.DateTime",
     "winrt::Windows::Foundation::TimeSpan": "Windows.Foundation.TimeSpan",
+    "winrt::Windows::Foundation::Collections::IVector": "Windows.Foundation.Collections.IVector",
 }
+
+def _map_property_type(type):
+    type, _, generic = type.strip().partition("[")
+    if generic:
+        generics = ','.join(_map_property_type(g) for g in generic.rstrip("]").split(","))
+    else:
+        generics = []
+    try:
+        type = PROPERTY_TYPE_MAP[type]
+    except LookupError:
+        type = type.replace(".", "::")
+        if "::" in type and not type.startswith("winrt::"):
+            type = f"winrt::{type}"
+    return f"{type}<{generics}>" if generics else type
+
+def _map_idl_type(property_type):
+    type, _, generic = property_type.strip().partition("<")
+    if generic:
+        generics = ','.join(_map_idl_type(g) for g in generic.rstrip(">").split(","))
+    else:
+        generics = []
+    try:
+        type = PROPERTY_IDLTYPE_MAP[type]
+    except LookupError:
+        type = type.replace("::", ".").removeprefix("winrt.")
+    return f"{type}<{generics}>" if generics else type
 
 
 class ParsedProperty:
@@ -87,12 +117,8 @@ class ParsedViewModel:
     def _property(self, e):
         p = ParsedProperty()
         p.name = e.attrib["Name"]
-        p.type = e.attrib["Type"]
-        p.type = PROPERTY_TYPE_MAP.get(p.type, p.type)
-        try:
-            p.idltype = e.attrib["IdlType"]
-        except KeyError:
-            p.idltype = PROPERTY_IDLTYPE_MAP.get(p.type)
+        p.type = _map_property_type(e.attrib["Type"])
+        p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
         self.properties.append(p)
 
 
@@ -117,25 +143,15 @@ class ParsedPage:
     def _property(self, e):
         p = ParsedProperty()
         p.name = e.attrib["Name"]
-        p.type = e.attrib["Type"]
-        p.type = PROPERTY_TYPE_MAP.get(p.type, p.type)
-        try:
-            p.idltype = e.attrib["IdlType"]
-        except KeyError:
-            p.idltype = PROPERTY_IDLTYPE_MAP.get(p.type)
+        p.type = _map_property_type(e.attrib["Type"])
+        p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
         self.properties.append(p)
 
     def _handler(self, e):
         h = ParsedEventHandler()
         h.name = e.attrib["Name"]
-        try:
-            h.sender = e.attrib["Sender"]
-        except KeyError:
-            h.sender = "Control"
-        try:
-            h.eventarg = e.attrib["EventArg"]
-        except KeyError:
-            h.eventarg = "RoutedEventArgs"
+        h.sender = e.attrib.get("Sender", "IInspectable")
+        h.eventarg = e.attrib.get("EventArgs", "RoutedEventArgs")
         self.handlers.append(h)
         self.types.add(h.sender)
         self.types.add(h.eventarg)
@@ -224,7 +240,6 @@ class Parser:
             h_file=f"{self.app.basename}.h",
             idl_file=f"{self.app.basename.rpartition('.')[0]}.idl",
             manifest_file=f"app.manifest",
-            pch_file=f"pch.h",
         )
 
     def open_page_files(self, page, force=False):
@@ -235,7 +250,7 @@ class Parser:
             idl_file=f"{page.basename.rpartition('.')[0]}.idl",
         )
 
-    def render_app(self, cpp_file, h_file, idl_file, manifest_file, pch_file):
+    def render_app(self, cpp_file, h_file, idl_file, manifest_file):
         context = {
             "app": self.app,
             "page": self.pages[0],
@@ -247,13 +262,12 @@ class Parser:
             ("app.xaml.h.in", h_file),
             ("app.idl.in", idl_file),
             ("app.manifest.in", manifest_file),
-            ("pch.h.in", pch_file),
         ]:
             if file:
                 for s in RENDER_ENV.get_template(tmpl).generate(context):
                     file.write(s)
-        
-        
+
+
     def render_page(self, page, cpp_file, h_file, idl_file):
         if not isinstance(page, ParsedPage):
             page = [p for p in self.pages if p.basename == page][0]
