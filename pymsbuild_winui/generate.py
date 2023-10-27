@@ -100,7 +100,6 @@ class ParsedProperty:
         self.type = None
         self.idltype = None
         self.name = None
-        self.hold = False
 
 
 class ParsedEventHandler:
