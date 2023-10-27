@@ -1,3 +1,4 @@
 pybind11
---pre pymsbuild
+pymsbuild>=1.0.0b7
 pytest
+jinja2
