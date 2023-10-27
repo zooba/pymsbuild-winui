@@ -1,0 +1,4 @@
+pybind11
+pymsbuild>=1.0.0b7
+pytest
+jinja2
