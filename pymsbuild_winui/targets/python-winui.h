@@ -11,6 +11,8 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Media.Playback.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
+#include <winrt/Windows.ApplicationModel.Contacts.h>
+#include <winrt/Windows.ApplicationModel.DataTransfer.h>
 #include <winrt/Microsoft.UI.h>
 #include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Xaml.h>
@@ -23,6 +25,7 @@
 #include <winrt/Microsoft.UI.Xaml.Navigation.h>
 #include <winrt/Microsoft.UI.Xaml.Shapes.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
+#include <winrt/Windows.UI.Xaml.Interop.h>  // for TypeName
 #include <wil/cppwinrt_helpers.h>
 
 #define PY_SSIZE_T_CLEAN

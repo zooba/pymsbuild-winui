@@ -1,1 +1,2 @@
-/pymsbuild_winui/targets/xaml_controls.cpp linguist-generated=true
+/pymsbuild_winui/targets/_winui_*.cpp linguist-generated=true
+/pymsbuild_winui/targets/_winui_Windows_Foundation.cpp linguist-generated=false

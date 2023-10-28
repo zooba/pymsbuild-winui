@@ -11,8 +11,8 @@
     <py:EventHandler Name="SelectFolderClick" />
     <py:EventHandler Name="AboutClick" />
     <py:EventHandler Name="ImageClick" />
-    <py:EventHandler Name="OnElementPointerEntered" EventArgs="Microsoft::UI::Xaml::Input::PointerRoutedEventArgs" />
-    <py:EventHandler Name="OnElementPointerExited" EventArgs="Microsoft::UI::Xaml::Input::PointerRoutedEventArgs" />
+    <py:EventHandler Name="OnElementPointerEntered" EventArgs="Microsoft.UI.Xaml.Input.PointerRoutedEventArgs" />
+    <py:EventHandler Name="OnElementPointerExited" EventArgs="Microsoft.UI.Xaml.Input.PointerRoutedEventArgs" />
 
     <py:ViewModel Name="ImageInfo">
         <py:Property Name="Name" Type="str" />

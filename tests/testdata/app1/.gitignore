@@ -1,1 +1,7 @@
+.vs/
 build/
+dist/
+out/
+*.idl
+*.h
+*.cpp

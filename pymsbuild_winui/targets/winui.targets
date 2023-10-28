@@ -105,8 +105,9 @@
   <Target Name="_IncludeSources">
     <ItemGroup>
       <_Src Include="$(GeneratedFilesDir)module.g.cpp" />
-      <_Src Include="$(MSBuildThisFileDirectory)xaml_controls.cpp" />
-      <_Src Include="$(MSBuildThisFileDirectory)collections.cpp" />
+      <_Src Include="$(MSBuildThisFileDirectory)winui_*.cpp" />
+      <_Src Include="$(MSBuildThisFileDirectory)_winui_*.cpp" />
+      <ClInclude Include="$(MSBuildThisFileDirectory)_winui.h" />
       <ClCompile Include="@(_Src)">
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>false</IncludeInLayout>

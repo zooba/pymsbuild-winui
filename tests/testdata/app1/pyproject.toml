@@ -1,0 +1,3 @@
+[build-system]
+requires = ['pymsbuild', 'pybind11', 'pymsbuild-winui']
+build-backend = "pymsbuild"
