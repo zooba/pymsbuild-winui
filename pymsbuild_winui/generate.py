@@ -25,6 +25,9 @@ RENDER_ENV = jinja2.Environment(
 )
 
 
+TARGETS = Path(__file__).absolute().parent / "targets"
+WINUI_MODULES = [f.stem for f in TARGETS.glob("_winui*.cpp")]
+
 def short_name(text):
     if text.startswith("{"):
         ns, _, tag = text.partition("}")
@@ -251,6 +254,7 @@ class Parser:
 
     def render_app(self, cpp_file, h_file, idl_file, manifest_file):
         context = {
+            "winui_modules": WINUI_MODULES,
             "app": self.app,
             "page": self.pages[0],
             "pages": self.pages,

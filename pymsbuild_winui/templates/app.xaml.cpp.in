@@ -16,7 +16,11 @@ using namespace {{namespace}}::implementation;
 
 void {{app.name}}::OnLaunched(LaunchActivatedEventArgs const&)
 {
-    ::pybind11::module_::import("_winui_Xaml_Controls");
+    ::pybind11::module_::import("_winui_Windows_Foundation");
+    ::pybind11::module_::import("_winui_Windows_Foundation_Collections");
+{% for n in winui_modules %}
+    ::pybind11::module_::import("{{n}}");
+{% endfor %}
 {% if page %}
 
     window = make<{{page.name}}>();

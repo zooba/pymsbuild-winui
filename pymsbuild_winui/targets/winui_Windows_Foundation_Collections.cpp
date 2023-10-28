@@ -1,12 +1,11 @@
 #include "pch.h"
-//#include "winrt_types.h"    // only until included in pch
+#include "_winui.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
-//using namespace pywinui::types;
 namespace py = pybind11;
 
-PYBIND11_EMBEDDED_MODULE(_winui_Collections, m) {
+PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation_Collections, m) {
     using Elem = ::Windows::Foundation::IInspectable;
     using Cls = ::Windows::Foundation::Collections::IVector<Elem>;
     py::class_<Cls, ::pywinui::holder<Cls>>(m, "ObservableVector")

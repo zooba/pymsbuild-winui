@@ -31,6 +31,7 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
     ;
 {% endfor %}
 
+
 {% set Cls = ('winrt::' + namespace + '::implementation::' + page.name) %}
     py::class_<{{Cls}}>(m, "{{page.name}}_View")
         .def("Activate", [](const {{Cls}} &c) { c.Activate(); })
@@ -38,11 +39,21 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
         .def("SetTitleBar", [](const {{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &titleBar) { c.SetTitleBar(titleBar.as<UIElement>()); })
         .def_property_readonly("Compositor", [](const {{Cls}} &c) { return ::pywinui::hold(c.Compositor()); })
         .def_property("ExtendsContentIntoTitleBar", [](const {{Cls}} &c) { return c.ExtendsContentIntoTitleBar(); }, []({{Cls}} &c, bool v) { c.ExtendsContentIntoTitleBar(v); })
+        .def_property_readonly("typename", [](const {{Cls}} &c) { return ::pywinui::hold(::winrt::xaml_typename<winrt::{{namespace}}::{{page.name}}>()); })
         .def_property_readonly("models", &{{Cls}}::_get_viewmodels)
         .def("wrap", &{{Cls}}::wrap)
         .def("as_viewmodel", &{{Cls}}::as_viewmodel)
         .def("unwrap", []({{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &o) { return c.unwrap(c.as_viewmodel(o)); })
         .def("unwrap", &{{Cls}}::unwrap)
+        .def("lookup_type", [](const {{Cls}}&, const char *type) {
+            std::string module_name{"_winui."};
+            module_name += type;
+            auto i = module_name.find_last_of('.');
+            std::string type_name{std::begin(module_name) + i + 1, std::end(module_name)};
+            module_name.erase(i);
+            std::replace(std::begin(module_name), std::end(module_name), '.', '_');
+            return py::module_::import(module_name.c_str()).attr(type_name.c_str());
+        })
 {% for p in page.properties %}
 {% if p.type == 'winrt::hstring' %}
         .def_property("{{p.name}}", [](const {{Cls}} &c) { return std::wstring_view{c.{{p.name}}()}; }, []({{Cls}} &c, const std::wstring_view &v) { winrt::hstring h{v}; c.{{p.name}}(h); })
