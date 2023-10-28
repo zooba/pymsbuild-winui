@@ -1,6 +1,6 @@
 import os
 from pymsbuild import *
-from pymsbuild_winui.pymsbuild import *
+from pymsbuild_winui import *
 
 METADATA = {"Metadata-Version": "2.1", "Name": "BasicPhotoViewer", "Version": "1.0"}
 

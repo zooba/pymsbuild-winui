@@ -153,7 +153,7 @@ class ParsedPage:
         h = ParsedEventHandler()
         h.name = e.attrib["Name"]
         h.sender = e.attrib.get("Sender", "IInspectable")
-        h.eventarg = e.attrib.get("EventArgs", "RoutedEventArgs")
+        h.eventarg = _map_property_type(e.attrib.get("EventArgs", "RoutedEventArgs"))
         self.handlers.append(h)
         self.types.add(h.sender)
         self.types.add(h.eventarg)
