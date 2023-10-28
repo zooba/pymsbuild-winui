@@ -11,11 +11,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation, m) {
         .def("as_", [](const IInspectable& _self, const char *type) {
             std::string module_name{"_winui."};
             module_name += type;
-            auto i = module_name.find_last_of('.');
-            std::string type_name{std::begin(module_name) + i + 1, std::end(module_name)};
-            module_name.erase(i);
+            module_name.erase(module_name.find_last_of('.'));
             std::replace(std::begin(module_name), std::end(module_name), '.', '_');
-            return py::module_::import(module_name.c_str()).attr(type_name.c_str())(_self);
+            return py::module_::import(module_name.c_str()).attr(type)(_self);
         })
     ;
 

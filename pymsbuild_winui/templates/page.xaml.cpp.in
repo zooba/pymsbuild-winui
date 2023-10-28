@@ -45,14 +45,12 @@ PYBIND11_EMBEDDED_MODULE(_{{namespace}}_{{page.name}}, m) {
         .def("as_viewmodel", &{{Cls}}::as_viewmodel)
         .def("unwrap", []({{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &o) { return c.unwrap(c.as_viewmodel(o)); })
         .def("unwrap", &{{Cls}}::unwrap)
-        .def("lookup_type", [](const {{Cls}}&, const char *type) {
+        .def("lookup_type", [](const {{Cls}}&, const char *type) -> py::object {
             std::string module_name{"_winui."};
             module_name += type;
-            auto i = module_name.find_last_of('.');
-            std::string type_name{std::begin(module_name) + i + 1, std::end(module_name)};
-            module_name.erase(i);
+            module_name.erase(module_name.find_last_of('.'));
             std::replace(std::begin(module_name), std::end(module_name), '.', '_');
-            return py::module_::import(module_name.c_str()).attr(type_name.c_str());
+            return py::module_::import(module_name.c_str()).attr(type);
         })
 {% for p in page.properties %}
 {% if p.type == 'winrt::hstring' %}
@@ -114,6 +112,7 @@ namespace winrt::{{namespace}}::implementation
 
     {{page.name}}::{{page.name}}()
     {
+        InitializeComponent();
         auto own_module = py::module_::import("_{{namespace}}_{{page.name}}");
         auto module_ = py::module_::import("{{namespace}}");
         auto cls = module_.attr("{{page.name}}");
@@ -126,7 +125,6 @@ namespace winrt::{{namespace}}::implementation
             __viewmodels.release();
             __pyobj.release();
         });
-        InitializeComponent();
     }
 
     winrt::event_token {{page.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
