@@ -48,9 +48,9 @@ namespace winrt::{{namespace}}::implementation
 {% endfor %}
 
         pybind11::object _get_viewmodels() { return __viewmodels; }
-        pybind11::object wrap(pybind11::object o);
+        pybind11::object wrap(const pybind11::handle &o);
         pybind11::object as_viewmodel(const ::winrt::Windows::Foundation::IInspectable &o);
-        pybind11::object unwrap(pybind11::object o);
+        pybind11::object unwrap(const pybind11::object &o);
 
         winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
         void PropertyChanged(winrt::event_token const& token);

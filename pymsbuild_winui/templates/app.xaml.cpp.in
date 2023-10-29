@@ -13,13 +13,14 @@ using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Navigation;
 using namespace {{namespace}};
 using namespace {{namespace}}::implementation;
+namespace py = pybind11;
 
 void {{app.name}}::OnLaunched(LaunchActivatedEventArgs const&)
 {
-    ::pybind11::module_::import("_winui_Windows_Foundation");
-    ::pybind11::module_::import("_winui_Windows_Foundation_Collections");
+    py::module_::import("_winui_Windows_Foundation");
+    py::module_::import("_winui_Windows_Foundation_Collections");
 {% for n in winui_modules %}
-    ::pybind11::module_::import("{{n}}");
+    py::module_::import("{{n}}");
 {% endfor %}
 {% if page %}
 
@@ -30,3 +31,6 @@ void {{app.name}}::OnLaunched(LaunchActivatedEventArgs const&)
     #error "No page set as default!"
 {% endif %}
 }
+
+PYBIND11_EMBEDDED_MODULE({{namespace}}_winui, m) {
+};
