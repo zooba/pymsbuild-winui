@@ -18,7 +18,4 @@ class ImagesRepository:
         self.images[:] = [ImageInfo(p.name, p) for p in Path(folder).glob("*.jpg")]
 
     def _init_viewmodel(self, view, viewmodel):
-        vec = view.lookup_type("Windows.Foundation.Collections.ObservableVector")()
-        for i in self.images:
-            vec.append(view.wrap(i))
-        viewmodel.Images = vec
+        viewmodel.Images = view.wrap(self.images)

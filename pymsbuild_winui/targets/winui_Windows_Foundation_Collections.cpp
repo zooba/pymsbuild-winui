@@ -8,7 +8,7 @@ namespace py = pybind11;
 PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation_Collections, m) {
     using Elem = ::Windows::Foundation::IInspectable;
     using Cls = ::Windows::Foundation::Collections::IVector<Elem>;
-    py::class_<Cls, ::pywinui::holder<Cls>>(m, "Windows.Foundation.Collections.ObservableVector")
+    py::class_<Cls, ::pywinui::holder<Cls>>(m, "Windows.Foundation.Collections.IVector")
         .def(py::init([]() { return ::pywinui::hold<Cls>(winrt::single_threaded_vector<Elem>()); }))
         .def("append", [](Cls &c, const Elem &e) { c.Append(e); })
         .def("clear", [](Cls &c) { c.Clear(); })
