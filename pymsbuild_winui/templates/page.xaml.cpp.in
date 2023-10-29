@@ -55,7 +55,7 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
         .def_property("{{p.name}}", [](const {{Cls}} &_self) { return cvt_out(_self.{{p.name}}()); }, [](typename {{Cls}} &_self, typename cvt<decltype(_self.{{p.name}}())>::arg_t v) { cvt<decltype(_self.{{p.name}}())>::param_t cvt_v{v}; py::gil_scoped_release _g; _self.{{p.name}}(cvt_v); })
 {% endfor %}
 {% for c in page.controls %}
-        .def_property_readonly("{{c.name}}", [](const {{Cls}} &_self) { return cvt_out(_self.{{c.name}}()); })
+        .def_property_readonly("{{c.name}}", []({{Cls}} &_self) { return cvt_out(_self.{{c.name}}()); })
 {% endfor %}
     ;
 };
