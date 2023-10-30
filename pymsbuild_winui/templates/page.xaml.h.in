@@ -16,19 +16,17 @@ namespace winrt::{{namespace}}::implementation
 {% for m in page.viewmodels %}
     struct {{m.name}} : {{m.name}}T<{{m.name}}>
     {
-        {{m.name}}();
-        ~{{m.name}}();
+        {{m.name}}() { }
 {% for prop in m.properties %}
-        {{prop.type}} {{prop.name}}() const { return _{{prop.name}}; }
+        {{prop.type}} {{prop.name}}() const;
         void {{prop.name}}(const {{prop.type}} &value);
+        static DependencyProperty {{prop.name}}Property() { return _{{prop.name}}Property; }
 {% endfor %}
 
-        winrt::event_token PropertyChanged(PropertyChangedEventHandler const& value);
-        void PropertyChanged(winrt::event_token const& token);
     private:
-        winrt::event<PropertyChangedEventHandler> __propertyChanged;
 {% for prop in m.properties %}
-        {{prop.type}} _{{prop.name}};
+        static DependencyProperty _{{prop.name}}Property;
+        static void _on{{prop.name}}Changed(const DependencyObject &, const DependencyPropertyChangedEventArgs &);
 {% endfor %}
     };
 

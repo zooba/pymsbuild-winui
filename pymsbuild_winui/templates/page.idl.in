@@ -3,11 +3,12 @@ namespace {{namespace}}
 {
 {% for m in page.viewmodels %}
     [default_interface]
-    runtimeclass {{m.name}} : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    runtimeclass {{m.name}} : Microsoft.UI.Xaml.DependencyObject
     {
         {{m.name}}();
 {% for p in m.properties %}
 {% if p.idltype %}
+        static Microsoft.UI.Xaml.DependencyProperty {{p.name}}Property { get; };
         {{p.idltype}} {{p.name}};
 {% endif %}
 {% endfor %}

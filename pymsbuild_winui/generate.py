@@ -121,6 +121,7 @@ class ParsedViewModel:
         p.name = e.attrib["Name"]
         p.type = _map_property_type(e.attrib["Type"])
         p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
+        p.default = e.attrib.get("Default", "nullptr")
         self.properties.append(p)
 
 
@@ -147,6 +148,7 @@ class ParsedPage:
         p.name = e.attrib["Name"]
         p.type = _map_property_type(e.attrib["Type"])
         p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
+        p.default = e.attrib.get("Default", "nullptr")
         self.properties.append(p)
 
     def _handler(self, e):

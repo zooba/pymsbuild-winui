@@ -54,14 +54,14 @@ namespace pywinui {
     };
 
     template <typename T>
-    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, holder<T>> hold(const T& t) { return holder<T>(t); }
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IUnknown, T>, holder<T>> hold(const T& t) { return holder<T>(t); }
     template <typename T>
-    std::enable_if_t<!std::is_base_of_v<winrt::Windows::Foundation::IInspectable, T>, T> hold(const T& t) { return t; }
+    std::enable_if_t<!std::is_base_of_v<winrt::Windows::Foundation::IUnknown, T>, T> hold(const T& t) { return t; }
 
     template <typename F, typename R=typename std::invoke_result_t<F>>
-    std::enable_if_t<!std::is_void_v<R> && !std::is_base_of_v<winrt::Windows::Foundation::IInspectable, R>, R> call_and_hold(F &&fn) { return std::invoke(std::forward<F>(fn)); }
+    std::enable_if_t<!std::is_void_v<R> && !std::is_base_of_v<winrt::Windows::Foundation::IUnknown, R>, R> call_and_hold(F &&fn) { return std::invoke(std::forward<F>(fn)); }
     template <typename F, typename R=typename std::invoke_result_t<F>>
-    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IInspectable, R>, holder<R>> call_and_hold(F &&fn) { return holder<R>(std::invoke(std::forward<F>(fn))); }
+    std::enable_if_t<std::is_base_of_v<winrt::Windows::Foundation::IUnknown, R>, holder<R>> call_and_hold(F &&fn) { return holder<R>(std::invoke(std::forward<F>(fn))); }
     template <typename F, typename R=typename std::invoke_result_t<F>>
     std::enable_if_t<std::is_void_v<R>, void> call_and_hold(F &&fn) { std::invoke(std::forward<F>(fn)); }
 }

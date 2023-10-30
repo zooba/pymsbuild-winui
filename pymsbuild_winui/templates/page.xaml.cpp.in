@@ -22,6 +22,7 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
     py::class_<{{Cls}}, ::pywinui::holder<{{Cls}}>, ::winrt::Windows::Foundation::IInspectable>(m, "{{vm.name}}")
         .def(py::init([]() { py::gil_scoped_release _g; return ::pywinui::hold({{Cls}}(::winrt::make<{{namespace}}::implementation::{{vm.name}}>())); }))
         .def_property_readonly("_id", [](const {{Cls}} &_self) { return (intptr_t){{Impl}}(_self); })
+        .def_property_readonly("DispatcherQueue", [](const {{Cls}} &_self) { return ::pywinui::hold(_self.DispatcherQueue()); })
 {% for p in vm.properties %}
         .def_property("{{p.name}}", [](const {{Cls}} &_self) { return cvt_out(_self.{{p.name}}()); }, [](typename {{Cls}} &_self, typename cvt<decltype(_self.{{p.name}}())>::arg_t v) { cvt<decltype(_self.{{p.name}}())>::param_t cvt_v{v}; py::gil_scoped_release _g; _self.{{p.name}}(cvt_v); })
 {% endfor %}
@@ -36,6 +37,7 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
         .def("Close", [](const {{Cls}} &c) { c.Close(); })
         .def("SetTitleBar", [](const {{Cls}} &c, const ::winrt::Windows::Foundation::IInspectable &titleBar) { c.SetTitleBar(titleBar.as<UIElement>()); })
         .def_property_readonly("Compositor", [](const {{Cls}} &c) { return ::pywinui::hold(c.Compositor()); })
+        .def_property_readonly("DispatcherQueue", [](const {{Cls}} &c) { return ::pywinui::hold(c.DispatcherQueue()); })
         .def_property("ExtendsContentIntoTitleBar", [](const {{Cls}} &c) { return c.ExtendsContentIntoTitleBar(); }, []({{Cls}} &c, bool v) { c.ExtendsContentIntoTitleBar(v); })
 
         .def_property_readonly("typename", [](const {{Cls}} &c) { return ::pywinui::hold(::winrt::xaml_typename<winrt::{{namespace}}::{{page.name}}>()); })
@@ -64,16 +66,22 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
 namespace winrt::{{namespace}}::implementation
 {
 {% for vm in page.viewmodels %}
-    {{vm.name}}::{{vm.name}}() : __propertyChanged{}{% for p in vm.properties %}, _{{p.name}}{::pywinui::init_value<{{p.type}}>()}{% endfor %} { }
-    winrt::event_token {{vm.name}}::PropertyChanged(PropertyChangedEventHandler const& handler) { return __propertyChanged.add(handler); }
-    void {{vm.name}}::PropertyChanged(winrt::event_token const& token) { __propertyChanged.remove(token); }
-    {{vm.name}}::~{{vm.name}}() { }
-
 {% for p in vm.properties %}
-    void {{vm.name}}::{{p.name}}(const {{p.type}} &value)
+    DependencyProperty {{vm.name}}::_{{p.name}}Property = DependencyProperty::Register(
+        L"{{p.name}}", winrt::xaml_typename<{{p.type}}>(), winrt::xaml_typename<{{namespace}}::{{vm.name}}>(),
+        PropertyMetadata{ {{p.default}}, PropertyChangedCallback{ &{{vm.name}}::_on{{p.name}}Changed } }
+    );
+
+    {{p.type}} {{vm.name}}::{{p.name}}() const { return winrt::unbox_value<{{p.type}}>(GetValue(_{{p.name}}Property)); }
+    void {{vm.name}}::{{p.name}}(const {{p.type}} &value) { SetValue(_{{p.name}}Property, winrt::box_value(value)); }
+
+    void {{vm.name}}::_on{{p.name}}Changed(const DependencyObject &d, const DependencyPropertyChangedEventArgs&)
     {
-        _{{p.name}} = value;
-        if (__propertyChanged) { __propertyChanged(*this, PropertyChangedEventArgs{ L"{{p.name}}" }); }
+        ::winrt::{{namespace}}::{{vm.name}} self = d.try_as<::winrt::{{namespace}}::{{vm.name}}>();
+        if (self) {
+            auto self_ = winrt::get_self<{{vm.name}}>(self);
+            // TODO: Call something
+        }
     }
 
 {% endfor %}
@@ -138,7 +146,18 @@ namespace winrt::{{namespace}}::implementation
         __viewmodels = py::dict();
         __pyobj = cls(this, own_module);
         __wrapped = weakref.attr("WeakValueDictionary")();
-        Closed([this](IInspectable const&, WindowEventArgs const&) {
+        Closed([this](IInspectable const&, WindowEventArgs const& e) {
+            try {
+                __pyobj.attr("Closed")(__pyobj, ::pywinui::hold(e));
+                if (e.Handled()) {
+                    return;
+                }
+            } catch (py::error_already_set) {
+                PyErr_Clear();
+            }
+{#{% for p in page.properties %}
+            {{p.name}}(::pywinui::init_value<{{p.type}}>());
+{% endfor %}#}
             __wrapped.release();
             __viewmodels.release();
             __pyobj.release();

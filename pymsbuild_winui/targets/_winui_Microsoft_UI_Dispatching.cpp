@@ -95,29 +95,43 @@ template <> struct cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation
 };
 
 
-PYBIND11_EMBEDDED_MODULE(_winui_Windows_Media_Playback, m) {
-    py::enum_<Windows::Media::Playback::MediaPlaybackState>(m, "Windows.Media.Playback.MediaPlaybackState")
-        .value("None", Windows::Media::Playback::MediaPlaybackState::None)
-        .value("Opening", Windows::Media::Playback::MediaPlaybackState::Opening)
-        .value("Buffering", Windows::Media::Playback::MediaPlaybackState::Buffering)
-        .value("Playing", Windows::Media::Playback::MediaPlaybackState::Playing)
-        .value("Paused", Windows::Media::Playback::MediaPlaybackState::Paused)
+PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Dispatching, m) {
+    py::enum_<Microsoft::UI::Dispatching::DispatcherQueuePriority>(m, "Microsoft.UI.Dispatching.DispatcherQueuePriority")
+        .value("Normal", Microsoft::UI::Dispatching::DispatcherQueuePriority::Normal)
+        .value("High", Microsoft::UI::Dispatching::DispatcherQueuePriority::High)
+        .value("Low", Microsoft::UI::Dispatching::DispatcherQueuePriority::Low)
     ;
 
-    py::class_<Windows::Media::Playback::MediaPlaybackSession, ::pywinui::holder<Windows::Media::Playback::MediaPlaybackSession>, Windows::Foundation::IInspectable>(m, "Windows.Media.Playback.MediaPlaybackSession")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Windows::Media::Playback::MediaPlaybackSession>()); }))
-        .def("__repr__", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return default_repr(cvt<Windows::Media::Playback::MediaPlaybackSession>(_self)); } )
-        .def_property_readonly("NaturalDuration", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt_out(_self.NaturalDuration()); })
-        .def_property_readonly("PlaybackState", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt_out(_self.PlaybackState()); })
-        .def_property_readonly("Position", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt_out(_self.Position()); })
+    py::class_<Microsoft::UI::Dispatching::DispatcherQueue, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueue>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Dispatching.DispatcherQueue")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Dispatching::DispatcherQueue>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Dispatching::DispatcherQueue>(_self)); } )
+        .def_property_readonly("HasThreadAccess", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::cself_t _self) { return cvt_out(_self.HasThreadAccess()); })
+        .def("CreateTimer", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::self_t _self) {return cvt_out(_self.CreateTimer()); })
+        .def("TryEnqueue", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::self_t _self, typename cvt<Microsoft::UI::Dispatching::DispatcherQueuePriority>::arg_t priority, typename cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>::arg_t callback) {cvt<Microsoft::UI::Dispatching::DispatcherQueuePriority>::param_t cvt_priority{ priority }; cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>::param_t cvt_callback{ callback }; return cvt_out(_self.TryEnqueue(cvt_priority, cvt_callback)); })
     ;
-    py::class_<Windows::Media::Playback::MediaPlayer, ::pywinui::holder<Windows::Media::Playback::MediaPlayer>, Windows::Foundation::IInspectable>(m, "Windows.Media.Playback.MediaPlayer")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Windows::Media::Playback::MediaPlayer>()); }))
-        .def("__repr__", [](typename cvt<Windows::Media::Playback::MediaPlayer>::cself_t _self) { return default_repr(cvt<Windows::Media::Playback::MediaPlayer>(_self)); } )
-        .def_property_readonly("PlaybackSession", [](typename cvt<Windows::Media::Playback::MediaPlayer>::cself_t _self) { return cvt_out(_self.PlaybackSession()); })
-        .def("Pause", [](typename cvt<Windows::Media::Playback::MediaPlayer>::self_t _self) {static_assert(ensure_void<decltype(&Windows::Media::Playback::MediaPlayer::Pause)>::value, "return value is not void"); _self.Pause(); })
-        .def("Play", [](typename cvt<Windows::Media::Playback::MediaPlayer>::self_t _self) {static_assert(ensure_void<decltype(&Windows::Media::Playback::MediaPlayer::Play)>::value, "return value is not void"); _self.Play(); })
-        .def("StepBackwardOneFrame", [](typename cvt<Windows::Media::Playback::MediaPlayer>::self_t _self) {static_assert(ensure_void<decltype(&Windows::Media::Playback::MediaPlayer::StepBackwardOneFrame)>::value, "return value is not void"); _self.StepBackwardOneFrame(); })
-        .def("StepForwardOneFrame", [](typename cvt<Windows::Media::Playback::MediaPlayer>::self_t _self) {static_assert(ensure_void<decltype(&Windows::Media::Playback::MediaPlayer::StepForwardOneFrame)>::value, "return value is not void"); _self.StepForwardOneFrame(); })
+    py::class_<Microsoft::UI::Dispatching::DispatcherQueueHandler, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueueHandler>>(m, "Microsoft.UI.Dispatching.DispatcherQueueHandler")
+        .def(py::init([](py::object callable) {static_assert(ensure_Invoke_void<decltype(&::winrt::get_abi<Microsoft::UI::Dispatching::DispatcherQueueHandler>(nullptr)->Invoke)>::value, "return value is not void"); Microsoft::UI::Dispatching::DispatcherQueueHandler inst{[callable]() {py::gil_scoped_acquire _g; callable();} }; return ::pywinui::hold(inst); }))
+    ;
+    py::class_<Microsoft::UI::Dispatching::DispatcherQueueTimer, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueueTimer>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Dispatching.DispatcherQueueTimer")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Dispatching::DispatcherQueueTimer>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>(_self)); } )
+        .def_property("Interval", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.Interval()); }, [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, typename cvt<decltype(_self.Interval())>::arg_t v) { cvt<decltype(_self.Interval())>::param_t cvt_v{v}; _self.Interval(cvt_v); })
+        .def_property("IsRepeating", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.IsRepeating()); }, [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, typename cvt<decltype(_self.IsRepeating())>::arg_t v) { cvt<decltype(_self.IsRepeating())>::param_t cvt_v{v}; _self.IsRepeating(cvt_v); })
+        .def_property_readonly("IsRunning", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.IsRunning()); })
+        .def("Start", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Start)>::value, "return value is not void"); _self.Start(); })
+        .def("Stop", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Stop)>::value, "return value is not void"); _self.Stop(); })
+        .def("Tick", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, py::object handler) {
+            _self.Tick([handler](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::arg_t sender, typename cvt<Windows::Foundation::IInspectable>::arg_t args) {
+                py::gil_scoped_acquire _g;
+                cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::param_t cvt_sender{ sender };
+                cvt<Windows::Foundation::IInspectable>::param_t cvt_args{ args };
+                try {
+                    handler(cvt_sender, cvt_args);
+                } catch (py::error_already_set &eas) {
+                    AllocConsole();
+                    eas.discard_as_unraisable("Microsoft.UI.Dispatching.DispatcherQueueTimer.Tick");
+                }
+            });
+        })
     ;
 }

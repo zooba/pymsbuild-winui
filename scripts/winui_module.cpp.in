@@ -23,6 +23,20 @@ template <> struct cvt<{{c.cppname}}>  {
 {% endfor %}
 };
 
+{% elif c.kind == "callback" %}
+{#struct {{c.backing_name}} {
+    ~{{c.backing_name}}() { py::gil_scoped_acquire _g; callbacks.release(); }
+    py::object callbacks;
+};
+
+template<> struct cvt<{{c.cppname}}> {
+    typedef {{c.cppname}} natural_t;
+    typedef const natural_t& cself_t;
+    typedef natural_t& self_t;
+    
+    typedef py::object arg_t;
+};
+#}
 {% endif %}
 {% endfor %}
 
@@ -45,6 +59,22 @@ PYBIND11_EMBEDDED_MODULE({{module}}, m) {
             _self.Completed([on_complete](const IAsyncOperation<{{c.cppname}}> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
         })
     ;
+{% elif c.kind == "callback" %}
+    py::class_<{{c.cppname}}, ::pywinui::holder<{{c.cppname}}>>(m, "{{c.fullname}}")
+        .def(py::init([](py::object callable) {
+            {%- if c.void == True %}static_assert(ensure_Invoke_void<decltype(&::winrt::get_abi<{{c.cppname}}>(nullptr)->Invoke)>::value, "return value is not void"); {% endif %}
+            {{-c.cppname}} inst{[callable](
+                {%- for a in c.args %}typename cvt<{{a.cpptype}}>::arg_t {{a.name}}{{'' if loop.last else ', '}}{% endfor -%}
+            ) {
+                {{-''}}py::gil_scoped_acquire _g;{{' '}}
+                {%- for a in c.args %}cvt<{{a.cpptype}}>::param_t cvt_{{a.name}}{ {{-a.name-}} }; {% endfor %}
+                {%- if not c.void %}return cvt_out({% endif -%}
+                callable({% for a in c.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor %})
+                {%- if not c.void %}){% endif %};{{''-}}
+            } };{{' '-}}
+            return ::pywinui::hold(inst);{{' '-}}
+        }))
+    ;
 {% elif c.kind == "runtimeclass" %}
     py::class_<{{c.cppname}}, ::pywinui::holder<{{c.cppname}}>{{c.basespec}}>(m, "{{c.fullname}}")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<{{c.cppname}}>()); }))
@@ -64,10 +94,19 @@ PYBIND11_EMBEDDED_MODULE({{module}}, m) {
             {%- for a in member.args %}, typename cvt<{{a.cpptype}}>::arg_t {{a.name}}{% endfor -%}
             ) {
             {%- for a in member.args %}cvt<{{a.cpptype}}>::param_t cvt_{{a.name}}{ {{a.name}} }; {% endfor %}
-            {%- if member.void %}ensure_void<decltype(_self.{{name}}({%- for a in member.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor -%}))> ensure; (void)ensure;
-            {%- else %}return cvt_out{% endif -%}
-            (_self.{{name}}({% for a in member.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor %})); })
+            {%- if member.void == True %}static_assert(ensure_void<decltype(&{{c.cppname}}::{{name}})>::value, "return value is not void"); {% endif -%}
+            {%- if not member.void %}return cvt_out({% endif -%}
+            _self.{{name}}({% for a in member.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor %})
+            {%- if not member.void %}){% endif %}; })
 {% endif %}
+{% elif member.kind == "event" %}
+        .def("{{name}}", [](typename cvt<{{c.cppname}}>::self_t _self, py::object handler) { {{''-}}
+            _self.{{name}}([handler]({% for a in member.args %}typename cvt<{{a.cpptype}}>::arg_t {{a.name}}{{'' if loop.last else ', '}}{% endfor %}) { {{''-}}
+                py::gil_scoped_acquire _g; {{''-}}
+                {% for a in member.args %}cvt<{{a.cpptype}}>::param_t cvt_{{a.name}}{ {{a.name}} }; {% endfor -%}
+                try { handler({% for a in member.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor %}); } catch (py::error_already_set &eas) { AllocConsole(); eas.discard_as_unraisable("{{c.fullname}}.{{name}}"); }{{''-}}
+            });{{' '-}}
+        })
 {% endif %}
 {% endfor %}
     ;

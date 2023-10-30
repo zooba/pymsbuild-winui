@@ -135,8 +135,23 @@ template <> struct cvt<Numerics::float4> {
 template <typename T>
 auto cvt_out(T v) { return cvt<T>(v).ret(); }
 
-template <typename T>
-struct ensure_void { static_assert(std::is_void_v<T>, "function has a return value"); };
+template <typename T> struct ensure_void {};
+
+template <> struct ensure_void<void> : std::true_type { };
+template <> struct ensure_void<void(void)> : std::true_type { };
+template <> struct ensure_void<void(void) const> : std::true_type { };
+
+template <typename... Args> struct ensure_void<void(Args...)> : std::true_type { };
+template <typename... Args> struct ensure_void<void(Args...) const> : std::true_type { };
+template <typename... Args> struct ensure_void<void(*)(Args...)> : std::true_type { };
+
+template <typename U, typename T> struct ensure_void<U T::*> : ensure_void<U> { };
+
+template <typename T>       struct ensure_Invoke_void { };
+template <>                 struct ensure_Invoke_void<int32_t(*)(void) noexcept> : std::true_type { };
+template <typename... Args> struct ensure_Invoke_void<int32_t(*)(Args...) noexcept> : std::true_type { };
+template <typename... Args> struct ensure_Invoke_void<int32_t(*)(Args..., void**) noexcept> : std::false_type { };
+
 
 template <typename T> static std::wstring default_repr(const T&) {
     std::wstringstream s;
