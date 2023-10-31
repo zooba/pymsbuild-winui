@@ -186,7 +186,6 @@ class ParsedPage:
         self.properties = []
         self.handlers = []
         self.viewmodels = []
-        self.viewmodelcollections = []
         self.controls = []
         self.types = set()
 
