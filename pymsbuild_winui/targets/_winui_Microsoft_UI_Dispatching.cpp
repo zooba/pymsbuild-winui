@@ -120,18 +120,6 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Dispatching, m) {
         .def_property_readonly("IsRunning", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.IsRunning()); })
         .def("Start", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Start)>::value, "return value is not void"); _self.Start(); })
         .def("Stop", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Stop)>::value, "return value is not void"); _self.Stop(); })
-        .def("Tick", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, py::object handler) {
-            _self.Tick([handler](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::arg_t sender, typename cvt<Windows::Foundation::IInspectable>::arg_t args) {
-                py::gil_scoped_acquire _g;
-                cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::param_t cvt_sender{ sender };
-                cvt<Windows::Foundation::IInspectable>::param_t cvt_args{ args };
-                try {
-                    handler(cvt_sender, cvt_args);
-                } catch (py::error_already_set &eas) {
-                    AllocConsole();
-                    eas.discard_as_unraisable("Microsoft.UI.Dispatching.DispatcherQueueTimer.Tick");
-                }
-            });
-        })
+        .def("Tick", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, py::object handler) { _self.Tick([handler](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::arg_t sender, typename cvt<Windows::Foundation::IInspectable>::arg_t args) { py::gil_scoped_acquire _g; cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::param_t cvt_sender{ sender }; cvt<Windows::Foundation::IInspectable>::param_t cvt_args{ args }; try { handler(cvt_sender, cvt_args); } catch (py::error_already_set &eas) { AllocConsole(); eas.discard_as_unraisable("Microsoft.UI.Dispatching.DispatcherQueueTimer.Tick"); }}); })
     ;
 }

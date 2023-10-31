@@ -1,4 +1,5 @@
 import jinja2
+import os
 import sys
 
 from pathlib import Path
@@ -1253,6 +1254,30 @@ for m, types in MODULES.items():
         module_types=types,
     )
 
-    with open(OUTPUT / (safe_name + ".cpp"), "w", encoding="ascii") as f:
+    DEST = OUTPUT / (safe_name + ".cpp")
+    if "-f" in sys.argv:
+        read_f, write_f = None, open(DEST, "w", encoding="ascii")
+        tell = 0
+        with open(DEST, "w", encoding="ascii") as f:
+            for s in RENDER_ENV.get_template("winui_module.cpp.in").generate(CONTEXT):
+                f.write(s)
+    else:
+        read_f, write_f = open(DEST, "rb"), None
+        chunks = []
         for s in RENDER_ENV.get_template("winui_module.cpp.in").generate(CONTEXT):
-            f.write(s)
+            s = s.encode("ascii").replace(b"\n", b"\r\n")
+            if read_f:
+                if read_f.read(len(s)) == s:
+                    chunks.append(s)
+                else:
+                    read_f.close()
+                    read_f = None
+                    write_f = open(DEST, "wb")
+                    for c in chunks:
+                        write_f.write(c)
+            if write_f:
+                write_f.write(s)
+        if write_f:
+            tell = write_f.tell()
+            write_f.close()
+            os.truncate(DEST, tell)
