@@ -4,42 +4,6 @@
 #include "pch.h"
 #include "_winui.h"
 
-{% for c in all_types %}
-{% if c.kind == "runtimeclass" and "__implements__" in c.members %}
-template <> struct cvt<{{c.cppname}}>  {
-    typedef {{c.cppname}} natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<{{c.cppname}}> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-{% for intf in c.members["__implements__"] %}
-    operator {{intf}} () const { return value ? value->as<{{intf}}>() : nullptr; }
-{% endfor %}
-};
-
-{% elif c.kind == "callback" %}
-{#struct {{c.backing_name}} {
-    ~{{c.backing_name}}() { py::gil_scoped_acquire _g; callbacks.release(); }
-    py::object callbacks;
-};
-
-template<> struct cvt<{{c.cppname}}> {
-    typedef {{c.cppname}} natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    
-    typedef py::object arg_t;
-};
-#}
-{% endif %}
-{% endfor %}
-
 PYBIND11_EMBEDDED_MODULE({{module}}, m) {
 {% for c in module_types %}
 {% if c.kind == "enum" %}
@@ -53,11 +17,11 @@ PYBIND11_EMBEDDED_MODULE({{module}}, m) {
 
 {% for c in module_types %}
 {% if c.kind == "asyncop" %}
-    py::class_<IAsyncOperation<{{c.cppname}}>, ::pywinui::holder<IAsyncOperation<{{c.cppname}}>>>(m, "Windows.Foundation.IAsyncOperation<{{c.fullname}}")
-        .def("GetResults", [](const IAsyncOperation<{{c.cppname}}> &_self) { return ::pywinui::hold(_self.GetResults()); })
-        .def("Completed", [](IAsyncOperation<{{c.cppname}}> &_self, py::object on_complete) {
-            _self.Completed([on_complete](const IAsyncOperation<{{c.cppname}}> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
-        })
+{% set optype="IAsyncOperation<" + c.cppname + ">" %}
+    py::class_<{{optype}}, ::pywinui::holder<{{optype}}>>(m, "Windows.Foundation.IAsyncOperation<{{c.fullname}}>")
+        .def("__repr__", [](typename cvt<{{optype}}>::cself_t _self) { return cvt<{{optype}}>(_self).repr(); })
+        .def("GetResults", [](typename cvt<{{optype}}>::cself_t _self) { return cvt_out(_self.GetResults()); })
+        .def("Completed", [](typename cvt<{{optype}}>::self_t _self, py::object on_complete) { _self.Completed(asyncop_completer<{{c.cppname}}>(on_complete)); })
     ;
 {% elif c.kind == "callback" %}
     py::class_<{{c.cppname}}, ::pywinui::holder<{{c.cppname}}>>(m, "{{c.fullname}}")
@@ -74,11 +38,12 @@ PYBIND11_EMBEDDED_MODULE({{module}}, m) {
             } };{{' '-}}
             return ::pywinui::hold(inst);{{' '-}}
         }))
+        .def("__repr__", [](typename cvt<{{c.cppname}}>::cself_t _self) { return cvt<{{c.cppname}}>(_self).repr(); })
     ;
 {% elif c.kind == "runtimeclass" %}
     py::class_<{{c.cppname}}, ::pywinui::holder<{{c.cppname}}>{{c.basespec}}>(m, "{{c.fullname}}")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<{{c.cppname}}>()); }))
-        .def("__repr__", [](typename cvt<{{c.cppname}}>::cself_t _self) { return default_repr(cvt<{{c.cppname}}>(_self)); } )
+        .def("__repr__", [](typename cvt<{{c.cppname}}>::cself_t _self) { return cvt<{{c.cppname}}>(_self).repr(); })
 {% for name, member in c.members.items() %}
 {% if member.kind == "getset" %}
         .def_property("{{name}}", [](typename cvt<{{c.cppname}}>::cself_t _self) { return cvt_out(_self.{{name}}()); }, [](typename cvt<{{c.cppname}}>::self_t _self, typename cvt<decltype(_self.{{name}}())>::arg_t v) { cvt<decltype(_self.{{name}}())>::param_t cvt_v{v}; _self.{{name}}(cvt_v); })
@@ -101,11 +66,7 @@ PYBIND11_EMBEDDED_MODULE({{module}}, m) {
 {% endif %}
 {% elif member.kind == "event" %}
         .def("{{name}}", [](typename cvt<{{c.cppname}}>::self_t _self, py::object handler) { {{''-}}
-            _self.{{name}}([handler]({% for a in member.args %}typename cvt<{{a.cpptype}}>::arg_t {{a.name}}{{'' if loop.last else ', '}}{% endfor %}) { {{''-}}
-                py::gil_scoped_acquire _g; {{''-}}
-                {% for a in member.args %}cvt<{{a.cpptype}}>::param_t cvt_{{a.name}}{ {{a.name}} }; {% endfor -%}
-                try { handler({% for a in member.args %}cvt_{{a.name}}{{'' if loop.last else ', '}}{% endfor %}); } catch (py::error_already_set &eas) { AllocConsole(); eas.discard_as_unraisable("{{c.fullname}}.{{name}}"); }{{''-}}
-            });{{' '-}}
+            _self.{{name}}(event_handler<{% for a in member.args %}{{a.cpptype}}{{'' if loop.last else ', '}}{% endfor %}>(handler));
         })
 {% endif %}
 {% endfor %}

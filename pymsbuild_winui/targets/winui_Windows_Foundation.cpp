@@ -5,9 +5,29 @@
 #include "pch.h"
 #include "_winui.h"
 
+std::wstring default_winrt_repr(const IInspectable &value) {
+    if (!value)
+        return L"None";
+    std::wstringstream s;
+    s << L"<" << std::wstring{winrt::get_class_name(value)};
+    auto str{value.try_as<winrt::Windows::Foundation::IStringable>()};
+    if (str) {
+        s << L"(" << std::wstring{str.ToString()} << L")";
+    }
+    s << L">";
+    return s.str();
+}
+
+
+std::wstring cvt<winrt::hstring>::repr() {
+    // TODO: Full escaping
+    return L"\"" + std::wstring{value} + L"\"";
+}
+
+
 PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation, m) {
     py::class_<IInspectable, ::pywinui::holder<IInspectable>>(m, "Windows.Foundation.IInspectable")
-        .def("__repr__", [](const IInspectable& _self) { return default_repr(_self); } )
+        .def("__repr__", [](const IInspectable& _self) { return default_winrt_repr(_self); })
         .def("as_", [](const IInspectable& _self, const char *type) {
             std::string module_name{"_winui."};
             module_name += type;
@@ -19,15 +39,14 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation, m) {
 
     py::class_<Deferral, ::pywinui::holder<Deferral>, IInspectable>(m, "Windows.Foundation.Deferral")
         .def(py::init([](const IInspectable &unk) { return ::pywinui::hold(unk.as<Deferral>()); }))
-        .def("__repr__", [](const Deferral &_self) { return default_repr(_self); } )
+        .def("__repr__", [](const Deferral &_self) { return default_winrt_repr(_self); })
         .def("Complete", [](Deferral &_self) { _self.Complete(); })
     ;
 
     py::class_<IAsyncOperation<winrt::hstring>, ::pywinui::holder<IAsyncOperation<winrt::hstring>>>(m, "Windows.Foundation.IAsyncOperation<winrt.hstring")
+        .def("__repr__", [](const IAsyncOperation<winrt::hstring> &_self) { return default_winrt_repr(_self); })
         .def("GetResults", [](const IAsyncOperation<winrt::hstring> &_self) { return ::pywinui::hold(_self.GetResults()); })
-        .def("Completed", [](IAsyncOperation<winrt::hstring> &_self, py::object on_complete) {
-            _self.Completed([on_complete](const IAsyncOperation<winrt::hstring> &op, AsyncStatus status) { default_on_complete(op, status, on_complete); });
-        })
+        .def("Completed", [](IAsyncOperation<winrt::hstring> &_self, py::object on_complete) { _self.Completed(asyncop_completer<winrt::hstring>(on_complete)); })
     ;
 
 }

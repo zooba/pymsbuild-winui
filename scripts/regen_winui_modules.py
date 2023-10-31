@@ -4,6 +4,7 @@ import sys
 
 from pathlib import Path
 
+FORCE = "-f" in sys.argv
 ROOT = Path(__file__).absolute().parent
 OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets"
 
@@ -243,7 +244,7 @@ collect(
         "IsRunning": GET("bool"),
         "Start": CALL(void=True),
         "Stop": CALL(void=True),
-        "Tick": EVENT(sender="DispatcherQueueTimer",args=ANY),
+        "Tick": EVENT(sender="DispatcherQueueTimer", args=ANY),
     },
 )
 
@@ -1240,11 +1241,54 @@ def resolve_bases(all_types):
     for c in all_types:
         for sub in derived.get(c.fullname, ()):
             sub.members.update(c.members)
+
+
+def maybe_write_template(template, context, dest, force=False):
+    read_f = write_f = None
+    if not force:
+        try:
+            read_f = open(dest, "rb")
+        except FileNotFoundError:
+            pass
+    if not read_f:
+        write_f = open(dest, "wb")
+
+    chunks = []
+    for s in template.generate(context):
+        s = s.encode("ascii").replace(b"\n", b"\r\n")
+        if read_f:
+            if read_f.read(len(s)) == s:
+                chunks.append(s)
+            else:
+                read_f.close()
+                read_f = None
+                write_f = open(dest, "wb")
+                for c in chunks:
+                    write_f.write(c)
+                chunks = None
+        if write_f:
+            write_f.write(s)
+    if write_f:
+        tell = write_f.tell()
+        write_f.close()
+        os.truncate(dest, tell)
+        print("Updated", dest)
+
+
+
 resolve_bases(ALL_TYPES)
 
 MODULES = {}
 for c in ALL_TYPES:
     MODULES.setdefault(c.namespace, []).append(c)
+
+
+maybe_write_template(
+    RENDER_ENV.get_template("winui_converters.h.in"),
+    dict(all_types=ALL_TYPES),
+    OUTPUT / "_winui_converters.h",
+    FORCE,
+)
 
 for m, types in MODULES.items():
     safe_name = f"_winui_{m.replace('.', '_')}"
@@ -1255,29 +1299,9 @@ for m, types in MODULES.items():
     )
 
     DEST = OUTPUT / (safe_name + ".cpp")
-    if "-f" in sys.argv:
-        read_f, write_f = None, open(DEST, "w", encoding="ascii")
-        tell = 0
-        with open(DEST, "w", encoding="ascii") as f:
-            for s in RENDER_ENV.get_template("winui_module.cpp.in").generate(CONTEXT):
-                f.write(s)
-    else:
-        read_f, write_f = open(DEST, "rb"), None
-        chunks = []
-        for s in RENDER_ENV.get_template("winui_module.cpp.in").generate(CONTEXT):
-            s = s.encode("ascii").replace(b"\n", b"\r\n")
-            if read_f:
-                if read_f.read(len(s)) == s:
-                    chunks.append(s)
-                else:
-                    read_f.close()
-                    read_f = None
-                    write_f = open(DEST, "wb")
-                    for c in chunks:
-                        write_f.write(c)
-            if write_f:
-                write_f.write(s)
-        if write_f:
-            tell = write_f.tell()
-            write_f.close()
-            os.truncate(DEST, tell)
+    maybe_write_template(
+        RENDER_ENV.get_template("winui_module.cpp.in"),
+        CONTEXT,
+        OUTPUT / (safe_name + ".cpp"),
+        FORCE,
+    )

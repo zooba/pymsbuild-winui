@@ -3,103 +3,13 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-
-template <> struct cvt<Microsoft::UI::Composition::CompositionAnimation>  {
-    typedef Microsoft::UI::Composition::CompositionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::CompositionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::ExpressionAnimation>  {
-    typedef Microsoft::UI::Composition::ExpressionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::ExpressionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::KeyFrameAnimation>  {
-    typedef Microsoft::UI::Composition::KeyFrameAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::KeyFrameAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::Vector3NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
+#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
 
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::RangeBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.RangeBase")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>(_self)); } )
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>(_self).repr(); })
         .def_property("LargeChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt_out(_self.LargeChange()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::self_t _self, typename cvt<decltype(_self.LargeChange())>::arg_t v) { cvt<decltype(_self.LargeChange())>::param_t cvt_v{v}; _self.LargeChange(cvt_v); })
         .def_property("Minimum", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt_out(_self.Minimum()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::self_t _self, typename cvt<decltype(_self.Minimum())>::arg_t v) { cvt<decltype(_self.Minimum())>::param_t cvt_v{v}; _self.Minimum(cvt_v); })
         .def_property("Maximum", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt_out(_self.Maximum()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::self_t _self, typename cvt<decltype(_self.Maximum())>::arg_t v) { cvt<decltype(_self.Maximum())>::param_t cvt_v{v}; _self.Maximum(cvt_v); })
@@ -113,7 +23,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
     ;
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::Selector, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::Selector>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.Selector")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::Selector>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>(_self)); } )
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>(_self).repr(); })
         .def_property("SelectedIndex", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return cvt_out(_self.SelectedIndex()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::self_t _self, typename cvt<decltype(_self.SelectedIndex())>::arg_t v) { cvt<decltype(_self.SelectedIndex())>::param_t cvt_v{v}; _self.SelectedIndex(cvt_v); })
         .def_property("SelectedItem", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return cvt_out(_self.SelectedItem()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::self_t _self, typename cvt<decltype(_self.SelectedItem())>::arg_t v) { cvt<decltype(_self.SelectedItem())>::param_t cvt_v{v}; _self.SelectedItem(cvt_v); })
         .def_property("SelectedValue", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return cvt_out(_self.SelectedValue()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::self_t _self, typename cvt<decltype(_self.SelectedValue())>::arg_t v) { cvt<decltype(_self.SelectedValue())>::param_t cvt_v{v}; _self.SelectedValue(cvt_v); })
@@ -129,7 +39,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
     ;
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.SelectorItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>(_self)); } )
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>(_self).repr(); })
         .def_property("IsSelected", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt_out(_self.IsSelected()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::self_t _self, typename cvt<decltype(_self.IsSelected())>::arg_t v) { cvt<decltype(_self.IsSelected())>::param_t cvt_v{v}; _self.IsSelected(cvt_v); })
         .def_property_readonly("DataContext", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt_out(_self.DataContext()); })
         .def_property("Visibility", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt_out(_self.Visibility()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::self_t _self, typename cvt<decltype(_self.Visibility())>::arg_t v) { cvt<decltype(_self.Visibility())>::param_t cvt_v{v}; _self.Visibility(cvt_v); })

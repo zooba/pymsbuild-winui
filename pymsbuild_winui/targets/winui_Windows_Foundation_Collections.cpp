@@ -16,6 +16,19 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation_Collections, m) {
         .def("__delitem__", [](Cls &c, uint32_t index) { c.RemoveAt(index); })
         .def("__getitem__", [](Cls &c, uint32_t index) { return c.GetAt(index); })
         .def("__len__", [](const Cls &c) { return c.Size(); })
+        .def("__repr__", [](const Cls &c) {
+            std::wstringstream s{L"["};
+            auto end = c.Size() - 1;
+            for (uint32_t i = 0; i <= end; ++i) {
+                cvt<Elem> v(c.GetAt(i));
+                s << v.repr();
+                if (i != end) {
+                    s << L", ";
+                }
+            }
+            s << L"]";
+            return s.str();
+        })
     ;
 
 }

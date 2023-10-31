@@ -3,97 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-
-template <> struct cvt<Microsoft::UI::Composition::CompositionAnimation>  {
-    typedef Microsoft::UI::Composition::CompositionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::CompositionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::ExpressionAnimation>  {
-    typedef Microsoft::UI::Composition::ExpressionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::ExpressionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::KeyFrameAnimation>  {
-    typedef Microsoft::UI::Composition::KeyFrameAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::KeyFrameAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
-template <> struct cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>  {
-    typedef Microsoft::UI::Composition::Vector3NaturalMotionAnimation natural_t;
-    typedef const natural_t& cself_t;
-    typedef natural_t& self_t;
-    typedef typename ::pywinui::holder<natural_t> py_t;
-    typedef typename IInspectable arg_t;
-    typedef cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation> param_t;
-    std::optional<natural_t> value;
-    cvt(arg_t t) : value(t.try_as<natural_t>()) { }
-    py_t ret() { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator py_t () const { return ::pywinui::holder<natural_t>(value.value_or(nullptr)); }
-    operator const natural_t & () const { return value.value_or(nullptr); }
-    operator Microsoft::UI::Composition::ICompositionAnimationBase () const { return value ? value->as<Microsoft::UI::Composition::ICompositionAnimationBase>() : nullptr; }
-};
-
+#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Dispatching, m) {
     py::enum_<Microsoft::UI::Dispatching::DispatcherQueuePriority>(m, "Microsoft.UI.Dispatching.DispatcherQueuePriority")
@@ -104,22 +14,24 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Dispatching, m) {
 
     py::class_<Microsoft::UI::Dispatching::DispatcherQueue, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueue>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Dispatching.DispatcherQueue")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Dispatching::DispatcherQueue>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Dispatching::DispatcherQueue>(_self)); } )
+        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::cself_t _self) { return cvt<Microsoft::UI::Dispatching::DispatcherQueue>(_self).repr(); })
         .def_property_readonly("HasThreadAccess", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::cself_t _self) { return cvt_out(_self.HasThreadAccess()); })
         .def("CreateTimer", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::self_t _self) {return cvt_out(_self.CreateTimer()); })
         .def("TryEnqueue", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueue>::self_t _self, typename cvt<Microsoft::UI::Dispatching::DispatcherQueuePriority>::arg_t priority, typename cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>::arg_t callback) {cvt<Microsoft::UI::Dispatching::DispatcherQueuePriority>::param_t cvt_priority{ priority }; cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>::param_t cvt_callback{ callback }; return cvt_out(_self.TryEnqueue(cvt_priority, cvt_callback)); })
     ;
     py::class_<Microsoft::UI::Dispatching::DispatcherQueueHandler, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueueHandler>>(m, "Microsoft.UI.Dispatching.DispatcherQueueHandler")
         .def(py::init([](py::object callable) {static_assert(ensure_Invoke_void<decltype(&::winrt::get_abi<Microsoft::UI::Dispatching::DispatcherQueueHandler>(nullptr)->Invoke)>::value, "return value is not void"); Microsoft::UI::Dispatching::DispatcherQueueHandler inst{[callable]() {py::gil_scoped_acquire _g; callable();} }; return ::pywinui::hold(inst); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>::cself_t _self) { return cvt<Microsoft::UI::Dispatching::DispatcherQueueHandler>(_self).repr(); })
     ;
     py::class_<Microsoft::UI::Dispatching::DispatcherQueueTimer, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueueTimer>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Dispatching.DispatcherQueueTimer")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Dispatching::DispatcherQueueTimer>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return default_repr(cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>(_self)); } )
+        .def("__repr__", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>(_self).repr(); })
         .def_property("Interval", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.Interval()); }, [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, typename cvt<decltype(_self.Interval())>::arg_t v) { cvt<decltype(_self.Interval())>::param_t cvt_v{v}; _self.Interval(cvt_v); })
         .def_property("IsRepeating", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.IsRepeating()); }, [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, typename cvt<decltype(_self.IsRepeating())>::arg_t v) { cvt<decltype(_self.IsRepeating())>::param_t cvt_v{v}; _self.IsRepeating(cvt_v); })
         .def_property_readonly("IsRunning", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::cself_t _self) { return cvt_out(_self.IsRunning()); })
         .def("Start", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Start)>::value, "return value is not void"); _self.Start(); })
         .def("Stop", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Dispatching::DispatcherQueueTimer::Stop)>::value, "return value is not void"); _self.Stop(); })
-        .def("Tick", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, py::object handler) { _self.Tick([handler](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::arg_t sender, typename cvt<Windows::Foundation::IInspectable>::arg_t args) { py::gil_scoped_acquire _g; cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::param_t cvt_sender{ sender }; cvt<Windows::Foundation::IInspectable>::param_t cvt_args{ args }; try { handler(cvt_sender, cvt_args); } catch (py::error_already_set &eas) { AllocConsole(); eas.discard_as_unraisable("Microsoft.UI.Dispatching.DispatcherQueueTimer.Tick"); }}); })
+        .def("Tick", [](typename cvt<Microsoft::UI::Dispatching::DispatcherQueueTimer>::self_t _self, py::object handler) { _self.Tick(event_handler<Microsoft::UI::Dispatching::DispatcherQueueTimer, Windows::Foundation::IInspectable>(handler));
+        })
     ;
 }
