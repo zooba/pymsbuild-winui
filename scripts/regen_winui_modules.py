@@ -1,8 +1,10 @@
 import jinja2
+import os
 import sys
 
 from pathlib import Path
 
+FORCE = "-f" in sys.argv
 ROOT = Path(__file__).absolute().parent
 OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets"
 
@@ -77,7 +79,15 @@ class StructInfo(BaseInfo):
 
     def __init__(self, namespace="", **members):
         super().__init__(namespace, None, members)
-        
+
+
+class CallbackInfo(BaseInfo):
+    kind = "callback"
+
+    @property
+    def backing_name(self):
+        return f"_Callback_{self.fullname}".replace(".", "_")
+
 
 class TypeInfo(BaseInfo):
     kind = "runtimeclass"
@@ -124,6 +134,19 @@ class AsyncOpInfo(BaseInfo):
         return super().make_info(namespace, self.result)
 
 
+class CallbackInfo(BaseInfo):
+    kind = "callback"
+    def __init__(self, void=False, **kwargs):
+        super().__init__()
+        self.void = void
+        self.namespace = None
+        self._args = list(kwargs.items())
+
+    @property
+    def args(self):
+        return [ARG.make(n, t, self.namespace) for n, t in self._args]
+
+
 class CALL:
     kind = "call"
     def __init__(self, cvt="", void=False, **kwargs):
@@ -137,6 +160,7 @@ class CALL:
     @property
     def args(self):
         return [ARG.make(n, t, self.namespace) for n, t in self._args]
+
 
 class ARG:
     kind = "arg"
@@ -161,6 +185,7 @@ class ARG:
             t.namespace = namespace
         return t
 
+
 class GET:
     kind = "get"
     def __init__(self, type, cvt=""):
@@ -184,6 +209,10 @@ class FIELD(GET):
     kind = "field"
 
 
+class EVENT(CALL):
+    kind = "event"
+
+
 ANY = "Windows.Foundation.IInspectable"
 STR = "winrt::hstring"
 LIST_OBJ = "Windows.Foundation.Collections.IVector<IInspectable>"
@@ -198,6 +227,25 @@ collect(
         G=FIELD("uint8_t"),
         B=FIELD("uint8_t"),
     ),
+)
+
+collect(
+    "Microsoft.UI.Dispatching",
+    DispatcherQueue={
+        "HasThreadAccess": GET("bool"),
+        "CreateTimer": CALL(),
+        "TryEnqueue": CALL(priority="DispatcherQueuePriority", callback="DispatcherQueueHandler"),
+    },
+    DispatcherQueueHandler=CallbackInfo(void=True),
+    DispatcherQueuePriority=EnumInfo("Normal", "High", "Low"),
+    DispatcherQueueTimer={
+        "Interval": GETSET("TimeSpan"),
+        "IsRepeating": GETSET("bool"),
+        "IsRunning": GET("bool"),
+        "Start": CALL(void=True),
+        "Stop": CALL(void=True),
+        "Tick": EVENT(sender="DispatcherQueueTimer", args=ANY),
+    },
 )
 
 collect(
@@ -395,6 +443,7 @@ collect(
         "Close": CALL(void=True),
         "SetTitleBar": CALL(titleBar="UIElement", void=True),
     },
+    WindowEventArgs={"Handled": GETSET("bool")},
 )
 
 collect(
@@ -628,10 +677,10 @@ collect(
         "CanGoBack": GET("bool"),
         "CanGoForward": GET("bool"),
         "GetNavigationState": CALL(),
-        "GoBack": CALL(void=True),
+        "GoBack": CALL(void="unchecked"),
         "GoForward": CALL(void=True),
         "Navigate": CALL(sourcePageType="Windows.UI.Xaml.Interop.TypeName", parameter=ANY),
-        "SetNavigationState": CALL(navigationState=STR, suppressNavigate="bool", void=True),
+        "SetNavigationState": CALL(navigationState=STR, suppressNavigate="bool", void="unchecked"),
     },
     Grid={},
     GridView={"__base__": "ListViewBase"},
@@ -794,7 +843,11 @@ collect(
     },
     #MenuBarItemFlyout={},
     MenuFlyout={
-        "ShowAt": CALL(targetElement="Microsoft.UI.Xaml.UIElement", point="Windows.Foundation.Point", void=True),
+        "ShowAt": CALL(
+            targetElement="Microsoft.UI.Xaml.UIElement",
+            point="Windows.Foundation.Point",
+            void="unchecked",
+        ),
     },
     #MenuFlyoutItem={},
     #MenuFlyoutItemBase={"__base__": "Control"},
@@ -1144,7 +1197,6 @@ collect(
     #VirtualizingLayoutContext={},
     VirtualizingPanel={"__base__": "Panel"},
     VirtualizingStackPanel={},
-    string_Op=AsyncOpInfo(STR),
     WebView2={
         "__base__": "Microsoft.UI.Xaml.FrameworkElement",
         "CanGoBack": GET("bool"),
@@ -1189,11 +1241,54 @@ def resolve_bases(all_types):
     for c in all_types:
         for sub in derived.get(c.fullname, ()):
             sub.members.update(c.members)
+
+
+def maybe_write_template(template, context, dest, force=False):
+    read_f = write_f = None
+    if not force:
+        try:
+            read_f = open(dest, "rb")
+        except FileNotFoundError:
+            pass
+    if not read_f:
+        write_f = open(dest, "wb")
+
+    chunks = []
+    for s in template.generate(context):
+        s = s.encode("ascii").replace(b"\n", b"\r\n")
+        if read_f:
+            if read_f.read(len(s)) == s:
+                chunks.append(s)
+            else:
+                read_f.close()
+                read_f = None
+                write_f = open(dest, "wb")
+                for c in chunks:
+                    write_f.write(c)
+                chunks = None
+        if write_f:
+            write_f.write(s)
+    if write_f:
+        tell = write_f.tell()
+        write_f.close()
+        os.truncate(dest, tell)
+        print("Updated", dest)
+
+
+
 resolve_bases(ALL_TYPES)
 
 MODULES = {}
 for c in ALL_TYPES:
     MODULES.setdefault(c.namespace, []).append(c)
+
+
+maybe_write_template(
+    RENDER_ENV.get_template("winui_converters.h.in"),
+    dict(all_types=ALL_TYPES),
+    OUTPUT / "_winui_converters.h",
+    FORCE,
+)
 
 for m, types in MODULES.items():
     safe_name = f"_winui_{m.replace('.', '_')}"
@@ -1203,6 +1298,10 @@ for m, types in MODULES.items():
         module_types=types,
     )
 
-    with open(OUTPUT / (safe_name + ".cpp"), "w", encoding="ascii") as f:
-        for s in RENDER_ENV.get_template("winui_module.cpp.in").generate(CONTEXT):
-            f.write(s)
+    DEST = OUTPUT / (safe_name + ".cpp")
+    maybe_write_template(
+        RENDER_ENV.get_template("winui_module.cpp.in"),
+        CONTEXT,
+        OUTPUT / (safe_name + ".cpp"),
+        FORCE,
+    )

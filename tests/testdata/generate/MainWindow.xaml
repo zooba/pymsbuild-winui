@@ -10,7 +10,17 @@
     mc:Ignorable="d py">
 
     <py:Property Name="MyProperty" Type="int32_t" />
+    <py:Property Name="MyProperty2" Type="str" Default="Hello" />
+    <py:Property Name="MyProperty3" Type="str">
+        <py:Property.Default>
+            Default value
+        </py:Property.Default>
+    </py:Property>
+    <py:Property Name="MyProperty4" Type="str">
+        <py:Property.Default xml:space="preserve"> With spaces </py:Property.Default>
+    </py:Property>
     <py:EventHandler Name="myButton_Click" />
+    <py:EventHandler Name="myButton2_Click" Sender="Button" EventArgs="MadeUpEventArgs" />
 
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>

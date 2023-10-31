@@ -19,7 +19,7 @@
         <py:Property Name="Path" Type="str" />
     </py:ViewModel>
     <py:ViewModel Name="ImageRepository">
-        <py:Property Name="Images" Type="list[object]" />
+        <py:Property Name="Images" Type="list[ImageInfo]" />
     </py:ViewModel>
     <py:Property Name="ImagesRepository" Type="PhotoViewer.ImageRepository" />
 

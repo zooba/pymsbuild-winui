@@ -18,4 +18,4 @@ class ImagesRepository:
         self.images[:] = [ImageInfo(p.name, p) for p in Path(folder).glob("*.jpg")]
 
     def _init_viewmodel(self, view, viewmodel):
-        viewmodel.Images = view.wrap(self.images)
+        viewmodel.Images.replace_all(map(view.wrap, self.images))

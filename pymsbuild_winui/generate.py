@@ -6,6 +6,7 @@ import sys
 QN = ET.QName
 
 NS = {
+    "xml": "http://www.w3.org/XML/1998/namespace",
     "": "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
     "x": "http://schemas.microsoft.com/winfx/2006/xaml",
     "d": "http://schemas.microsoft.com/expression/blend/2008",
@@ -71,6 +72,14 @@ PROPERTY_IDLTYPE_MAP = {
     "winrt::Windows::Foundation::Collections::IVector": "Windows.Foundation.Collections.IVector",
 }
 
+PROPERTYTYPE_TREAT_ELEMENT_AS_OBJECT = {
+    "winrt::Windows::Foundation::Collections::IVector",
+}
+
+IDLTYPE_TREAT_ELEMENT_AS_OBJECT = {
+    "Windows.Foundation.Collections.IVector",
+}
+
 def _map_property_type(type):
     type, _, generic = type.strip().partition("[")
     if generic:
@@ -83,6 +92,8 @@ def _map_property_type(type):
         type = type.replace(".", "::")
         if "::" in type and not type.startswith("winrt::"):
             type = f"winrt::{type}"
+    if type in PROPERTYTYPE_TREAT_ELEMENT_AS_OBJECT and generics:
+        generics = ",".join("winrt::Windows::Foundation::IInspectable" for _ in generics.split(","))
     return f"{type}<{generics}>" if generics else type
 
 def _map_idl_type(property_type):
@@ -95,14 +106,53 @@ def _map_idl_type(property_type):
         type = PROPERTY_IDLTYPE_MAP[type]
     except LookupError:
         type = type.replace("::", ".").removeprefix("winrt.")
+    if generics and type in IDLTYPE_TREAT_ELEMENT_AS_OBJECT:
+        generics = ",".join("IInspectable" for _ in generics.split(","))
     return f"{type}<{generics}>" if generics else type
 
 
+def _map_default_value(prop_type, value):
+    if not value:
+        return "nullptr"
+    if prop_type == "winrt::hstring":
+        if value.startswith(('"', "'")) and value.endswith(p[0]):
+            value = value[1:-1]
+        # TODO: Full escaping
+        value = (value
+            .replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+        )
+        return '"{}"'.format(value)
+    return value
+
+
 class ParsedProperty:
-    def __init__(self):
+    def __init__(self, e=None):
         self.type = None
         self.idltype = None
         self.name = None
+        if e is not None:
+            self.name = e.attrib["Name"]
+            self.type = _map_property_type(e.attrib["Type"])
+            self.idltype = e.attrib.get("IdlType", _map_idl_type(self.type))
+            try:
+                default = e.attrib["Default"]
+            except LookupError:
+                default = e.find("py:Property.Default", NS)
+                if default is not None:
+                    if default.attrib.get(QN(NS["xml"], "space")) == "preserve":
+                        default = default.text
+                    else:
+                        default = default.text.strip()
+            self.default = _map_default_value(self.type, default)
+
+    @property
+    def elemtype(self):
+        if not self.idltype.startswith("Windows.Foundation.Collections.IVector<"):
+            return None
+        return self.type.partition("<")[2].removesuffix(">")
 
 
 class ParsedEventHandler:
@@ -117,10 +167,7 @@ class ParsedViewModel:
         self.properties = []
 
     def _property(self, e):
-        p = ParsedProperty()
-        p.name = e.attrib["Name"]
-        p.type = _map_property_type(e.attrib["Type"])
-        p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
+        p = ParsedProperty(e)
         self.properties.append(p)
 
 
@@ -142,11 +189,17 @@ class ParsedPage:
         self.controls = []
         self.types = set()
 
+    @property
+    def all_elemtypes(self):
+        return {
+            p.elemtype: p
+            for vm in [self, *self.viewmodels]
+            for p in vm.properties
+            if p.elemtype
+        }.values()
+
     def _property(self, e):
-        p = ParsedProperty()
-        p.name = e.attrib["Name"]
-        p.type = _map_property_type(e.attrib["Type"])
-        p.idltype = e.attrib.get("IdlType", _map_idl_type(p.type))
+        p = ParsedProperty(e)
         self.properties.append(p)
 
     def _handler(self, e):
