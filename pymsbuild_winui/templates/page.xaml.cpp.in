@@ -19,12 +19,16 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
 {% for vm in page.viewmodels %}
 {% set Cls = ('winrt::' + namespace + '::' + vm.name) %}
 {% set Impl = ('winrt::get_self<winrt::' + namespace + '::implementation::' + vm.name + '>') %}
-    py::class_<{{Cls}}, ::pywinui::holder<{{Cls}}>, ::winrt::Windows::Foundation::IInspectable>(m, "{{vm.name}}")
+    py::class_<{{Cls}}, ::pywinui::holder<{{Cls}}>, ::winrt::Windows::Foundation::IInspectable>(m, "{{vm.name}}", py::module_local())
         .def(py::init([]() { py::gil_scoped_release _g; return ::pywinui::hold({{Cls}}(::winrt::make<{{namespace}}::implementation::{{vm.name}}>())); }))
         .def_property_readonly("_id", [](const {{Cls}} &_self) { return (intptr_t){{Impl}}(_self); })
         .def_property_readonly("DispatcherQueue", [](const {{Cls}} &_self) { return ::pywinui::hold(_self.DispatcherQueue()); })
 {% for p in vm.properties %}
+{% if not p.elemtype %}
         .def_property("{{p.name}}", [](const {{Cls}} &_self) { return cvt_out(_self.{{p.name}}()); }, [](typename {{Cls}} &_self, typename cvt<decltype(_self.{{p.name}}())>::arg_t v) { cvt<decltype(_self.{{p.name}}())>::param_t cvt_v{v}; py::gil_scoped_release _g; _self.{{p.name}}(cvt_v); })
+{% else %}
+        .def_property_readonly("{{p.name}}", [](const {{Cls}} &_self) { return cvt_out(_self.{{p.name}}()); })
+{% endif %}
 {% endfor %}
     ;
 {% endfor %}
@@ -66,6 +70,14 @@ PYBIND11_EMBEDDED_MODULE({{namespace}}_{{page.name}}_winui, m) {
 namespace winrt::{{namespace}}::implementation
 {
 {% for vm in page.viewmodels %}
+    {{vm.name}}::{{vm.name}}() {
+{% for p in vm.properties %}
+{% if p.elemtype %}
+        {{p.name}}(winrt::single_threaded_observable_vector<IInspectable>());
+{% endif %}
+{% endfor %}
+    }
+
 {% for p in vm.properties %}
     DependencyProperty {{vm.name}}::_{{p.name}}Property = DependencyProperty::Register(
         L"{{p.name}}", winrt::xaml_typename<{{p.type}}>(), winrt::xaml_typename<{{namespace}}::{{vm.name}}>(),
@@ -94,27 +106,12 @@ namespace winrt::{{namespace}}::implementation
         } catch (py::error_already_set) {
             PyErr_Clear();
         }
-        if (vm) {
-            o.attr("_init_viewmodel")(this, vm);
-            __wrapped[vm.attr("_id")] = o;
-            return vm;
+        if (!vm) {
+            throw py::type_error("no viewmodel for specified type");
         }
-
-        py::iterator o_iter{};
-        try {
-            o_iter = py::iter(o);
-        } catch (py::type_error) {
-            PyErr_Clear();
-        }
-        if (o_iter) {
-            auto vec = winrt::single_threaded_vector<winrt::Windows::Foundation::IInspectable>();
-            while (o_iter != py::iterator::sentinel()) {
-                vec.Append(py::cast<winrt::Windows::Foundation::IInspectable>(wrap(*o_iter)));
-                ++o_iter;
-            }
-            return py::cast(::pywinui::hold((winrt::Windows::Foundation::IInspectable)vec));
-        }
-        throw py::type_error("no viewmodel for specified type");
+        o.attr("_init_viewmodel")(this, vm);
+        __wrapped[vm.attr("_id")] = o;
+        return vm;
     }
 
     py::object {{page.name}}::as_viewmodel(const ::winrt::Windows::Foundation::IInspectable &o) {
@@ -138,6 +135,11 @@ namespace winrt::{{namespace}}::implementation
 
     {{page.name}}::{{page.name}}()
     {
+{% for p in page.properties %}
+{% if p.elemtype %}
+        {{p.name}}(winrt::single_threaded_observable_vector<IInspectable>());
+{% endif %}
+{% endfor %}
         InitializeComponent();
         auto own_module = py::module_::import("{{namespace}}_{{page.name}}_winui");
         auto module_ = py::module_::import("{{namespace}}");
@@ -155,9 +157,6 @@ namespace winrt::{{namespace}}::implementation
             } catch (py::error_already_set) {
                 PyErr_Clear();
             }
-{#{% for p in page.properties %}
-            {{p.name}}(::pywinui::init_value<{{p.type}}>());
-{% endfor %}#}
             __wrapped.release();
             __viewmodels.release();
             __pyobj.release();

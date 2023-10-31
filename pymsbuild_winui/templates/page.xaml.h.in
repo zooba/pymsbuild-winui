@@ -16,7 +16,7 @@ namespace winrt::{{namespace}}::implementation
 {% for m in page.viewmodels %}
     struct {{m.name}} : {{m.name}}T<{{m.name}}>
     {
-        {{m.name}}() { }
+        {{m.name}}();
 {% for prop in m.properties %}
         {{prop.type}} {{prop.name}}() const;
         void {{prop.name}}(const {{prop.type}} &value);

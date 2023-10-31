@@ -9,8 +9,21 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation_Collections, m) {
     using Elem = ::Windows::Foundation::IInspectable;
     using Cls = ::Windows::Foundation::Collections::IVector<Elem>;
     py::class_<Cls, ::pywinui::holder<Cls>>(m, "Windows.Foundation.Collections.IVector")
-        .def(py::init([]() { return ::pywinui::hold<Cls>(winrt::single_threaded_vector<Elem>()); }))
+        .def(py::init([]() { return ::pywinui::hold<Cls>(winrt::single_threaded_observable_vector<Elem>()); }))
         .def("append", [](Cls &c, const Elem &e) { c.Append(e); })
+        .def("extend", [](Cls &c, py::object iterable) {
+            for (auto it = py::iter(iterable); it != py::iterator::sentinel(); ++it) {
+                c.Append(py::cast<Elem>(*it));
+            }
+        })
+        .def("replace_all", [](Cls &c, py::object iterable) {
+            std::vector<Elem> tmp;
+            for (auto it = py::iter(iterable); it != py::iterator::sentinel(); ++it) {
+                tmp.emplace_back(py::cast<Elem>(*it));
+            }
+            py::gil_scoped_release _g;
+            c.ReplaceAll(tmp);
+        })
         .def("clear", [](Cls &c) { c.Clear(); })
         .def("insert", [](Cls &c, uint32_t index, const Elem &e) { c.InsertAt(index, e); })
         .def("__delitem__", [](Cls &c, uint32_t index) { c.RemoveAt(index); })
