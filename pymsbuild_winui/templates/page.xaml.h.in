@@ -42,7 +42,7 @@ namespace winrt::{{namespace}}::implementation
 {% endfor %}
 
 {% for h in page.handlers %}
-        void {{h.name}}({{h.sender}}, {{h.eventarg}});
+        void {{h.name}}(const ::winrt::Windows::Foundation::IInspectable&, const {{h.eventarg}}&);
 {% endfor %}
 
         pybind11::object _get_viewmodels() { return __viewmodels; }

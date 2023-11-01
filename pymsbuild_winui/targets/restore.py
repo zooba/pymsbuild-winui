@@ -12,6 +12,7 @@ from urllib.request import urlopen
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", metavar="PATH", type=pathlib.Path, default=".", required=False, help="Output directory")
+parser.add_argument("--verbose", action="store_true", help="Display non-failure messages")
 parser.add_argument("--force", action="store_true", help="Always redownload files")
 args = parser.parse_args()
 
@@ -65,10 +66,12 @@ for p, v in PACKAGES:
         if args.force:
             shutil.rmtree(dest)
         else:
-            print(dest, "exists - skipping download")
+            if args.verbose:
+                print("[pymsbuild-winui] Found", p, "at", dest, "- skipping download")
             continue
     url = get_package_url(p, v)
-    print("Downloading from", url)
+    if args.verbose:
+        print("[pymsbuild-winui] Downloading", p, "from", url)
     for name, contents in read_package(url):
         d = dest / name
         d.parent.mkdir(parents=True, exist_ok=True)

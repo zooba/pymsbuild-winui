@@ -11,6 +11,7 @@
     <WindowsAppSDKWinUI>true</WindowsAppSDKWinUI>
     <WindowsPackageType>None</WindowsPackageType>
     <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
+    <PreferredToolArchitecture Condition="$(PreferredToolArchitecture) == ''">x64</PreferredToolArchitecture>
 
     <WindowsAppSDKSelfContained Condition="$(WindowsAppSDKSelfContained) == '' and $(IncludeAppRuntime) == ''">true</WindowsAppSDKSelfContained>
     <WindowsAppSDKSelfContained Condition="$(WindowsAppSDKSelfContained) == '' and $(IncludeAppRuntime) != ''">$(IncludeAppRuntime)</WindowsAppSDKSelfContained>

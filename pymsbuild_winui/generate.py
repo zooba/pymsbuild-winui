@@ -5,11 +5,14 @@ import xml.etree.ElementTree as ET
 
 from pathlib import Path, PurePath
 
+from ._controldata import *
+
 QN = ET.QName
 
 NS = {
     "xml": "http://www.w3.org/XML/1998/namespace",
     "": "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+    "_": "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
     "x": "http://schemas.microsoft.com/winfx/2006/xaml",
     "d": "http://schemas.microsoft.com/expression/blend/2008",
     "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
@@ -41,46 +44,6 @@ def short_name(text):
             return tag
     return text
 
-
-PROPERTY_TYPE_MAP = {
-    "datetime": "winrt::Windows::Foundation::DateTime",
-    "timedelta": "winrt::Windows::Foundation::TimeSpan",
-    "str": "winrt::hstring",
-    "float": "double",
-    "object": "winrt::Windows::Foundation::IInspectable",
-    "list": "winrt::Windows::Foundation::Collections::IVector",
-    "UUID": "GUID",
-}
-
-
-PROPERTY_IDLTYPE_MAP = {
-    "uint8_t": "UInt8",
-    "uint16_t": "UInt16",
-    "uint32_t": "UInt32",
-    "uint64_t": "UInt64",
-    "int16_t": "Int16",
-    "int32_t": "Int32",
-    "int64_t": "Int64",
-    "wchar_t": "Char",
-    "std::wstring": "String",
-    "winrt::hstring": "String",
-    "float": "Single",
-    "double": "Double",
-    "bool": "Boolean",
-    "GUID": "Guid",
-    "winrt::Windows::Foundation::IInspectable": "IInspectable",
-    "winrt::Windows::Foundation::DateTime": "Windows.Foundation.DateTime",
-    "winrt::Windows::Foundation::TimeSpan": "Windows.Foundation.TimeSpan",
-    "winrt::Windows::Foundation::Collections::IVector": "Windows.Foundation.Collections.IVector",
-}
-
-PROPERTYTYPE_TREAT_ELEMENT_AS_OBJECT = {
-    "winrt::Windows::Foundation::Collections::IVector",
-}
-
-IDLTYPE_TREAT_ELEMENT_AS_OBJECT = {
-    "Windows.Foundation.Collections.IVector",
-}
 
 def _map_property_type(type):
     type, _, generic = type.strip().partition("[")
@@ -208,7 +171,28 @@ class ParsedPage:
         h = ParsedEventHandler()
         h.name = e.attrib["Name"]
         h.sender = e.attrib.get("Sender", "IInspectable")
-        h.eventarg = _map_property_type(e.attrib.get("EventArgs", "RoutedEventArgs"))
+        h.eventarg = _map_property_type(e.attrib.get("EventArgs", "Microsoft.UI.Xaml.RoutedEventArgs"))
+        self.handlers.append(h)
+        self.types.add(h.sender)
+        self.types.add(h.eventarg)
+
+    def _control_handler(self, e, n):
+        if any(h.name == e.attrib[n] for h in self.handlers):
+            return
+        try:
+            sender, eventarg = KNOWN_EVENTS[short_name(e.tag), n]
+        except LookupError:
+            return
+        h = ParsedEventHandler()
+        h.name = e.attrib[n]
+        if "." not in sender:
+            sender = f"Microsoft.UI.Xaml.Controls.{sender}"
+        if not eventarg:
+            eventarg = "Microsoft.UI.Xaml.RoutedEventArgs"
+        elif "." not in eventarg:
+            eventarg = f"Microsoft.UI.Xaml.Controls.{eventarg}"
+        h.sender = _map_property_type(sender)
+        h.eventarg = _map_property_type(eventarg)
         self.handlers.append(h)
         self.types.add(h.sender)
         self.types.add(h.eventarg)
@@ -267,6 +251,9 @@ class Parser:
             page._property(e)
         for e in root.findall("py:EventHandler", NS):
             page._handler(e)
+        for n in KNOWN_EVENT_NAMES:
+            for e in root.findall(f"*//_:*[@{n}]", NS):
+                page._control_handler(e, n)
         for e in root.findall("py:ViewModel", NS):
             page._viewmodel(e)
         for e in root.findall("**[@x:Name]", NS):

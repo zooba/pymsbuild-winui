@@ -3,7 +3,6 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Dispatching, m) {
     py::enum_<Microsoft::UI::Dispatching::DispatcherQueuePriority>(m, "Microsoft.UI.Dispatching.DispatcherQueuePriority")

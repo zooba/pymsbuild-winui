@@ -21,7 +21,7 @@ def test_basic_parse():
         {"name": "MyProperty4", "type": "winrt::hstring", "idltype": "String", "default": '" With spaces "'},
     ]
     assert [vars(h) for h in page.handlers] == [
-        {"name": "myButton_Click", "eventarg": "RoutedEventArgs", "sender": "IInspectable"},
+        {"name": "myButton_Click", "eventarg": "winrt::Microsoft::UI::Xaml::RoutedEventArgs", "sender": "IInspectable"},
         {"name": "myButton2_Click", "eventarg": "MadeUpEventArgs", "sender": "Button"},
     ]
     assert [vars(c) for c in page.controls] == [

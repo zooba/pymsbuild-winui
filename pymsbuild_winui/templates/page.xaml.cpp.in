@@ -189,11 +189,11 @@ namespace winrt::{{namespace}}::implementation
     // Event handlers
 {% for h in page.handlers %}
 
-    void {{page.name}}::{{h.name}}({{h.sender}} sender, {{h.eventarg}} e)
+    void {{page.name}}::{{h.name}}(const IInspectable &sender, const {{h.eventarg}} &e)
     {
         if (!__pyobj) return; // we are closing
         try {
-            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender), ::pywinui::hold(e));
+            __pyobj.attr("{{h.name}}")(::pywinui::hold(sender.as<{{h.sender}}>()), ::pywinui::hold(e));
         } catch (py::error_already_set &ex) {
             // TODO: Better error output
             const char *msg = ex.what();
