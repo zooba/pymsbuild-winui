@@ -171,12 +171,14 @@ class ParsedPage:
         h = ParsedEventHandler()
         h.name = e.attrib["Name"]
         h.sender = e.attrib.get("Sender", "IInspectable")
-        h.eventarg = _map_property_type(e.attrib.get("EventArgs", "Microsoft.UI.Xaml.Controls.RoutedEventArgs"))
+        h.eventarg = _map_property_type(e.attrib.get("EventArgs", "Microsoft.UI.Xaml.RoutedEventArgs"))
         self.handlers.append(h)
         self.types.add(h.sender)
         self.types.add(h.eventarg)
 
     def _control_handler(self, e, n):
+        if any(h.name == e.attrib[n] for h in self.handlers):
+            return
         try:
             sender, eventarg = KNOWN_EVENTS[short_name(e.tag), n]
         except LookupError:

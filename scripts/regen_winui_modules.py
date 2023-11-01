@@ -885,6 +885,9 @@ collect(
         "DeselectRange": CALL(itemIndexRange="Microsoft.UI.Xaml.Data.ItemIndexRange", void=True),
         "SelectAll": CALL(void=True),
         "SelectRange": CALL(itemIndexRange="Microsoft.UI.Xaml.Data.ItemIndexRange", void=True),
+        "DragItemsCompleted": XEVENT("DragItemsCompletedEventArgs"),
+        "DragItemsStarting": XEVENT("DragItemsStartingEventArgs"),
+        "ItemClick": XEVENT("ItemClickEventArgs"),
     },
     ListViewBaseHeaderItem={"__base__": "ContentControl"},
     ListViewHeaderItem={"__base__": "ListViewBaseHeaderItem"},
@@ -1297,6 +1300,7 @@ collect(
         "SelectedIndex": GETSET("int"),
         "SelectedItem": GETSET(ANY),
         "SelectedValue": GETSET(ANY),
+        "SelectionChanged": XEVENT("Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs"),
     },
     SelectorItem={
         "__base__": "Microsoft.UI.Xaml.Controls.ContentControl",

@@ -41,8 +41,8 @@ PACKAGE = Package(
         "PhotoViewer",
         XamlApp("app.xaml"),
         XamlPage("MainWindow.xaml"),
-        IncludePythonRuntime=True,  # default: True
-        IncludeAppRuntime=True,     # default: True
+        IncludePythonRuntime=True,  # these both default to True, they
+        IncludeAppRuntime=True,     # are just here for the example
     ),
 )
 
@@ -70,8 +70,8 @@ their viewmodels. This will enable `view.wrap()` and `view.unwrap()` to
 work.
 
 ```python
-    self.view.models[image_info.ImageInfo] = viewmodels.ImageInfo
-    self.view.models[image_info.ImagesRepository] = viewmodels.ImageRepository
+self.view.models[image_info.ImageInfo] = viewmodels.ImageInfo
+self.view.models[image_info.ImagesRepository] = viewmodels.ImageRepository
 ```
 
 The `view` object also contains any properties that were defined in the
@@ -79,17 +79,17 @@ XAML. Properties and viewmodels use a private XML namespace that is
 processed at build time.
 
 ```xml
-    ...
-    xmlns:py="http://schemas.stevedower.id.au/pymsbuild/winui"
-    ...
-    <py:ViewModel Name="ImageInfo">
-        <py:Property Name="Name" Type="str" />
-        <py:Property Name="Path" Type="str" />
-    </py:ViewModel>
-    <py:ViewModel Name="ImageRepository">
-        <py:Property Name="Images" Type="list[object]" />
-    </py:ViewModel>
-    <py:Property Name="ImagesRepository" Type="PhotoViewer.ImageRepository" />
+...
+xmlns:py="http://schemas.stevedower.id.au/pymsbuild/winui"
+...
+<py:ViewModel Name="ImageInfo">
+    <py:Property Name="Name" Type="str" />
+    <py:Property Name="Path" Type="str" />
+</py:ViewModel>
+<py:ViewModel Name="ImageRepository">
+    <py:Property Name="Images" Type="list[PhotoViewer.ImageInfo]" />
+</py:ViewModel>
+<py:Property Name="ImagesRepository" Type="PhotoViewer.ImageRepository" />
 ```
 
 Property types are _very_ limited, try to stick to primitives or
@@ -97,23 +97,44 @@ other viewmodels. Notice that the viewmodel type must include the
 namespace, which is implicitly added to the name specified when
 defining it.
 
-Event handlers must also be defined (for now), and also defined on your
-Python class. They are hooked up using normal XAML specifications.
+The `list[]` property type defines a readonly property containing an
+observable list that can contain any object type. The type specifier is
+for self-documentation only, it is never verified. You cannot assign to
+list properties, but can use their `append`, `clear`, `extend`,
+`insert` and `replace_all` methods to modify the contents. Note that
+each update to an observable list may trigger UI updates if it has been
+bound, and so `replace_all` is recommended for batching updates
+together.
+
+```python
+# Python list of Python objects
+images = [ImageInfo(p.name, p) for p in paths]
+
+# Update the viewmodel with wrapped instances
+viewmodel.Images.replace_all(view.wrap(i) for i in images)
+```
+
+Event handlers for common types will be automatically detected from
+your XAML. However, it is also possible to explicitly define them in
+case of needing to override the sender or argument type.
 
 ```xml
-    <py:EventHandler Name="ImageClick" />
-    <py:EventHandler Name="OnElementPointerEntered" EventArgs="Microsoft.UI.Xaml.Input.PointerRoutedEventArgs" />
+<!-- Not required for these particular events, but just syntax examples! -->
+<py:EventHandler Name="ImageClick" Sender="object" />
+<py:EventHandler Name="OnElementPointerEntered" EventArgs="Microsoft.UI.Xaml.Input.PointerRoutedEventArgs" />
 ```
 
 Arguments are passed through with exactly the type they are defined as,
-which often means `sender` will need to be down-cast in order to access
+which mean mean `sender` will need to be down-cast in order to access
 its members. The `.as_()` function takes a fully qualified name as a
 string, and will raise if the conversion fails. The `e` argument will
 already be usable as the type specified in the `EventArgs` attribute.
+Event handlers found automatically will pass in the type they were
+defined on.
 
 ```python
     def ImageClick(self, sender, e):
-        sender = sender.as_("Microsoft.UI.Xaml.Controls.Control")
+        sender = sender.as_("Microsoft.UI.Xaml.Controls.Button")
         ...
 
     def OnElementPointerEntered(self, sender, e):
