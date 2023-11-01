@@ -286,15 +286,17 @@ class Parser:
     def get_templates(self):
         """Returns a sequence of (template, additional_context_dict, output_filename)"""
         app_ctxt = {"page": self.pages[0]}
-        yield "app.xaml.cpp.in", app_ctxt, f"{self.app.basename}.cpp"
-        yield "app.xaml.h.in", app_ctxt, f"{self.app.basename}.h"
-        yield "app.idl.in", app_ctxt, f"{self.app.basename.rpartition('.')[0]}.idl"
-        yield "app.manifest.in", app_ctxt, "app.manifest"
+        g = RENDER_ENV.get_template
+        if self.app:
+            yield g("app.xaml.cpp.in"), app_ctxt, f"{self.app.basename}.cpp"
+            yield g("app.xaml.h.in"), app_ctxt, f"{self.app.basename}.h"
+            yield g("app.idl.in"), app_ctxt, f"{self.app.basename.rpartition('.')[0]}.idl"
+            yield g("app.manifest.in"), app_ctxt, "app.manifest"
         for p in self.pages:
             page_ctxt = {"page": p}
-            yield "page.xaml.cpp.in", page_ctxt, f"{p.basename}.cpp"
-            yield "page.xaml.h.in", page_ctxt, f"{p.basename}.h"
-            yield "page.idl.in", page_ctxt, f"{p.basename.rpartition('.')[0]}.idl"
+            yield g("page.xaml.cpp.in"), page_ctxt, f"{p.basename}.cpp"
+            yield g("page.xaml.h.in"), page_ctxt, f"{p.basename}.h"
+            yield g("page.idl.in"), page_ctxt, f"{p.basename.rpartition('.')[0]}.idl"
 
 
 def should_regen(buffer):
@@ -372,7 +374,7 @@ if __name__ == "__main__":
     base_ctxt = p.get_context()
     for tmpl, ctxt, dest in p.get_templates():
         if maybe_write_template(
-            RENDER_ENV.get_template(tmpl),
+            tmpl,
             {**base_ctxt, **ctxt},
             OUT / dest,
             force=force,
