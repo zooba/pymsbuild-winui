@@ -41,6 +41,8 @@ PACKAGE = Package(
         "PhotoViewer",
         XamlApp("app.xaml"),
         XamlPage("MainWindow.xaml"),
+        IncludePythonRuntime=True,  # default: True
+        IncludeAppRuntime=True,     # default: True
     ),
 )
 

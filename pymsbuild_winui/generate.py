@@ -1,7 +1,9 @@
-from pathlib import Path, PurePath
 import jinja2
-import xml.etree.ElementTree as ET
+import os
 import sys
+import xml.etree.ElementTree as ET
+
+from pathlib import Path, PurePath
 
 QN = ET.QName
 
@@ -272,75 +274,77 @@ class Parser:
 
         return page
 
-    def _open_files(self, force=False, **files):
-        ignore = []
-        if not force:
-            for k, v in files.items():
-                try:
-                    with open(v, "r", encoding="utf-8-sig") as f:
-                        for i, line in zip(range(8), f):
-                            if "-autogen:true" in line.lower().replace(" ", ""):
-                                break
-                        else:
-                            ignore.append(k)
-                except IOError:
-                    pass
-        return {k: (open(v, "w", encoding="utf-8") if k not in ignore else None)
-                for k, v in files.items()}
-
-    def open_app_files(self, force=False):
-        return self._open_files(
-            force,
-            cpp_file=f"{self.app.basename}.cpp",
-            h_file=f"{self.app.basename}.h",
-            idl_file=f"{self.app.basename.rpartition('.')[0]}.idl",
-            manifest_file=f"app.manifest",
-        )
-
-    def open_page_files(self, page, force=False):
-        return self._open_files(
-            force,
-            cpp_file=f"{page.basename}.cpp",
-            h_file=f"{page.basename}.h",
-            idl_file=f"{page.basename.rpartition('.')[0]}.idl",
-        )
-
-    def render_app(self, cpp_file, h_file, idl_file, manifest_file):
-        context = {
+    def get_context(self):
+        return {
             "winui_modules": WINUI_MODULES,
             "app": self.app,
-            "page": self.pages[0],
+            "mainpage": self.pages[0],
             "pages": self.pages,
             "namespace": self.namespace,
         }
-        for tmpl, file in [
-            ("app.xaml.cpp.in", cpp_file),
-            ("app.xaml.h.in", h_file),
-            ("app.idl.in", idl_file),
-            ("app.manifest.in", manifest_file),
-        ]:
-            if file:
-                for s in RENDER_ENV.get_template(tmpl).generate(context):
-                    file.write(s)
+
+    def get_templates(self):
+        """Returns a sequence of (template, additional_context_dict, output_filename)"""
+        app_ctxt = {"page": self.pages[0]}
+        g = RENDER_ENV.get_template
+        if self.app:
+            yield g("app.xaml.cpp.in"), app_ctxt, f"{self.app.basename}.cpp"
+            yield g("app.xaml.h.in"), app_ctxt, f"{self.app.basename}.h"
+            yield g("app.idl.in"), app_ctxt, f"{self.app.basename.rpartition('.')[0]}.idl"
+            yield g("app.manifest.in"), app_ctxt, "app.manifest"
+        for p in self.pages:
+            page_ctxt = {"page": p}
+            yield g("page.xaml.cpp.in"), page_ctxt, f"{p.basename}.cpp"
+            yield g("page.xaml.h.in"), page_ctxt, f"{p.basename}.h"
+            yield g("page.idl.in"), page_ctxt, f"{p.basename.rpartition('.')[0]}.idl"
 
 
-    def render_page(self, page, cpp_file, h_file, idl_file):
-        if not isinstance(page, ParsedPage):
-            page = [p for p in self.pages if p.basename == page][0]
-        context = {
-            "app": self.app,
-            "page": page,
-            "pages": self.pages,
-            "namespace": self.namespace,
-        }
-        for tmpl, file in [
-            ("page.xaml.cpp.in", cpp_file),
-            ("page.xaml.h.in", h_file),
-            ("page.idl.in", idl_file),
-        ]:
-            if file:
-                for s in RENDER_ENV.get_template(tmpl).generate(context):
-                    file.write(s)
+def should_regen(buffer):
+    if b'autoregen' not in buffer:
+        return False
+    if b'-autoregen:true' in buffer.lower().replace(b' ', b''):
+        return True
+    return False
+
+
+def maybe_write_template(template, context, dest, force=False):
+    read_f = write_f = None
+    if not force:
+        try:
+            read_f = open(dest, "rb")
+        except FileNotFoundError:
+            pass
+        else:
+            check_buf = read_f.read(1024)
+            read_f.seek(0)
+            if not should_regen(check_buf):
+                read_f.close()
+                return False
+    if not read_f:
+        write_f = open(dest, "wb")
+
+    chunks = []
+    for s in template.generate(context):
+        s = s.encode("ascii").replace(b"\n", b"\r\n")
+        if read_f:
+            if read_f.read(len(s)) == s:
+                chunks.append(s)
+            else:
+                read_f.close()
+                read_f = None
+                write_f = open(dest, "wb")
+                for c in chunks:
+                    write_f.write(c)
+                chunks = None
+        if write_f:
+            write_f.write(s)
+    if write_f:
+        tell = write_f.tell()
+        write_f.close()
+        os.truncate(dest, tell)
+        return True
+    return False
+
 
 
 if __name__ == "__main__":
@@ -351,17 +355,32 @@ if __name__ == "__main__":
     except ValueError:
         force = False
 
+    try:
+        args.remove("-q")
+        quiet = True
+    except ValueError:
+        quiet = False
+
+    OUT = Path.cwd()
     p = Parser()
-    app = None
-    to_write = []
     for f in args:
-        if f.startswith("--app:"):
-            app = p.parse_app(f[6:])
+        if f.startswith("-o:"):
+            OUT = Path(f[3:])
+        elif f.startswith("--app:"):
+            p.parse_app(f[6:])
         else:
-            to_write.append(p.parse_page(f))
+            p.parse_page(f)
 
-    if app:
-        p.render_app(**p.open_app_files(force=force))
-    for f in to_write:
-        p.render_page(f, **p.open_page_files(f, force=force))
-
+    base_ctxt = p.get_context()
+    for tmpl, ctxt, dest in p.get_templates():
+        if maybe_write_template(
+            tmpl,
+            {**base_ctxt, **ctxt},
+            OUT / dest,
+            force=force,
+        ):
+            if not quiet:
+                print("[pymsbuild-winui] Updating", dest)
+        else:
+            if not quiet:
+                print("[pymsbuild-winui] No updates to", dest)

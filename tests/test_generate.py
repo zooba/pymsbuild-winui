@@ -38,13 +38,17 @@ def test_basic_app_parse():
     assert p.namespace == "app"
 
 
+def render_one(parser, filename):
+    for tmpl, ctxt, name in parser.get_templates():
+        if pathlib.Path(name).match(filename):
+            return tmpl.render({**parser.get_context(), **ctxt})
+
+
 def test_basic_generate():
     p = Parser()
     p.parse_page(TESTDATA / "MainWindow.xaml")
-    cpp = StringIO()
-    h = StringIO()
-    p.render_page("MainWindow.xaml", cpp, h, None)
-    cpp, h = cpp.getvalue(), h.getvalue()
+    cpp = render_one(p, "MainWindow.xaml.cpp")
+    h = render_one(p, "MainWindow.xaml.h")
     print(cpp)
     print(h)
     #assert 0
@@ -54,9 +58,7 @@ def test_basic_app_generate():
     p = Parser()
     p.parse_app(TESTDATA / "App.xaml")
     p.parse_page(TESTDATA / "MainWindow.xaml")
-    cpp = StringIO()
-    h = StringIO()
-    p.render_app(cpp, h, None, None)
-    cpp, h = cpp.getvalue(), h.getvalue()
+    cpp = render_one(p, "app.xaml.cpp")
+    h = render_one(p, "app.xaml.h")
     print(cpp)
     print(h)
