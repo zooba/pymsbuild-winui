@@ -9,6 +9,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml, m) {
         .value("Visible", Microsoft::UI::Xaml::Visibility::Visible)
         .value("Collapsed", Microsoft::UI::Xaml::Visibility::Collapsed)
     ;
+    py::enum_<Microsoft::UI::Xaml::ElementSoundMode>(m, "Microsoft.UI.Xaml.ElementSoundMode")
+        .value("Default", Microsoft::UI::Xaml::ElementSoundMode::Default)
+        .value("FocusOnly", Microsoft::UI::Xaml::ElementSoundMode::FocusOnly)
+        .value("Off", Microsoft::UI::Xaml::ElementSoundMode::Off)
+    ;
 
     py::class_<Microsoft::UI::Xaml::BringIntoViewOptions, ::pywinui::holder<Microsoft::UI::Xaml::BringIntoViewOptions>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.BringIntoViewOptions")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::BringIntoViewOptions>()); }))
@@ -63,6 +68,11 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml, m) {
         .def_property_readonly("BringIntoViewDistanceY", [](typename cvt<Microsoft::UI::Xaml::EffectiveViewportChangedEventArgs>::cself_t _self) { return cvt_out(_self.BringIntoViewDistanceY()); })
         .def_property_readonly("EffectiveViewport", [](typename cvt<Microsoft::UI::Xaml::EffectiveViewportChangedEventArgs>::cself_t _self) { return cvt_out(_self.EffectiveViewport()); })
         .def_property_readonly("MaxViewport", [](typename cvt<Microsoft::UI::Xaml::EffectiveViewportChangedEventArgs>::cself_t _self) { return cvt_out(_self.MaxViewport()); })
+    ;
+    py::class_<Microsoft::UI::Xaml::ExceptionRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.ExceptionRoutedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>(_self).repr(); })
+        .def_property_readonly("ErrorMessage", [](typename cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>::cself_t _self) { return cvt_out(_self.ErrorMessage()); })
     ;
     py::class_<Microsoft::UI::Xaml::FrameworkElement, ::pywinui::holder<Microsoft::UI::Xaml::FrameworkElement>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.FrameworkElement")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::FrameworkElement>()); }))
