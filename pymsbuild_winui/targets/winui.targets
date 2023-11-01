@@ -51,7 +51,7 @@
   <Target Name="_PrepareXamlApp_Generate">
     <MakeDir Directories="$(_WinUIGeneratedDir)" />
     <PropertyGroup>
-      <_Cmd>"$(HostPython)" -m pymsbuild_winui.generate -f @(_PrepareXamlApp_SourceFiles->'%(_Cmd)',' ')</_Cmd>
+      <_Cmd>"$(HostPython)" -m pymsbuild_winui.generate @(_PrepareXamlApp_SourceFiles->'%(_Cmd)',' ')</_Cmd>
     </PropertyGroup>
     <ItemGroup>
     </ItemGroup>
@@ -123,6 +123,10 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="_GetWinUIExe_DownloadRuntime"
+          DependsOnTargets="DownloadRuntime"
+          Condition="$(IncludePythonRuntime) != 'false'" />
+
   <Target Name="_GetWinUIExePackageFiles"
           DependsOnTargets="DownloadRuntime">
     <CallTarget Targets="GetCopyToOutputDirectoryItems">
@@ -143,7 +147,7 @@
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>
       </AllSourceFiles>
-      <AllSourceFiles Include="@(PythonRuntime)">
+      <AllSourceFiles Include="@(PythonRuntime)" Condition="$(IncludePythonRuntime) != 'false'">
         <IncludeInSdist>false</IncludeInSdist>
         <IncludeInLayout>true</IncludeInLayout>
         <IncludeInWheel>true</IncludeInWheel>

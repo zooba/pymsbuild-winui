@@ -9,11 +9,12 @@
     <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
     <WindowsAppSDKWinUI>true</WindowsAppSDKWinUI>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
     <IntermediateOutputPath>$(IntDir)</IntermediateOutputPath>
 
-    <PythonRuntimeEmbeddable>true</PythonRuntimeEmbeddable>
+    <WindowsAppSDKSelfContained Condition="$(WindowsAppSDKSelfContained) == '' and $(IncludeAppRuntime) == ''">true</WindowsAppSDKSelfContained>
+    <WindowsAppSDKSelfContained Condition="$(WindowsAppSDKSelfContained) == '' and $(IncludeAppRuntime) != ''">$(IncludeAppRuntime)</WindowsAppSDKSelfContained>
+    <PythonRuntimeEmbeddable Condition="$(PythonRuntimeEmbeddable) == ''">true</PythonRuntimeEmbeddable>
 
     <GeneratedFilesDir>$([msbuild]::EnsureTrailingSlash('$(IntDir)Generated'))</GeneratedFilesDir>
     <PYMSBUILD_WINUIPACKAGES Condition="$(PYMSBUILD_WINUIPACKAGES) == ''">$(MSBuildThisFileDirectory)</PYMSBUILD_WINUIPACKAGES>
