@@ -49,4 +49,34 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation, m) {
         .def("Completed", [](IAsyncOperation<winrt::hstring> &_self, py::object on_complete) { _self.Completed(asyncop_completer<winrt::hstring>(on_complete)); })
     ;
 
+    py::class_<winrt::Windows::Foundation::Rect>(m, "Windows.Foundation.Rect")
+        .def(py::init<>())
+        .def(py::init([](double x, double y, double width, double height) {
+            return winrt::Windows::Foundation::Rect((float)x, (float)y, (float)width, (float)height);
+        }))
+        .def_readwrite("X", &winrt::Windows::Foundation::Rect::X)
+        .def_readwrite("Y", &winrt::Windows::Foundation::Rect::Y)
+        .def_readwrite("Width", &winrt::Windows::Foundation::Rect::Width)
+        .def_readwrite("Height", &winrt::Windows::Foundation::Rect::Height)
+        .def("__getitem__", [](const winrt::Windows::Foundation::Rect &rect, int index) {
+            switch (index) {
+            case 0: return rect.X;
+            case 1: return rect.Y;
+            case 2: return rect.Width;
+            case 3: return rect.Height;
+            default:
+                throw py::index_error();
+            }
+        })
+        .def("__setitem__", [](winrt::Windows::Foundation::Rect &rect, int index, double v) {
+            switch (index) {
+            case 0: rect.X = (float)v;
+            case 1: rect.Y = (float)v;
+            case 2: rect.Width = (float)v;
+            case 3: rect.Height = (float)v;
+            default:
+                throw py::index_error();
+            }
+        })
+    ;
 }

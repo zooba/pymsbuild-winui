@@ -3,10 +3,21 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
 
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>(_self).repr(); })
+        .def_property_readonly("IsPointerOver", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPointerOver()); })
+        .def_property_readonly("IsPressed", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPressed()); })
+        .def_property_readonly("DataContext", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.DataContext()); })
+        .def_property("Visibility", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Visibility()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Visibility())>::arg_t v) { cvt<decltype(_self.Visibility())>::param_t cvt_v{v}; _self.Visibility(cvt_v); })
+        .def("StartAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StartAnimation)>::value, "return value is not void"); _self.StartAnimation(cvt_animation); })
+        .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
+        .def_property("Content", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Content()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Content())>::arg_t v) { cvt<decltype(_self.Content())>::param_t cvt_v{v}; _self.Content(cvt_v); })
+        .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
+    ;
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::RangeBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.RangeBase")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>(_self).repr(); })

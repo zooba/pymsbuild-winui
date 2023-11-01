@@ -3,7 +3,6 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Windows_UI_Xaml_Interop, m) {
 

@@ -3,7 +3,6 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-#include "_winui_converters.h"
 
 PYBIND11_EMBEDDED_MODULE(_winui_Windows_ApplicationModel_DataTransfer, m) {
     py::enum_<Windows::ApplicationModel::DataTransfer::DataPackageOperation>(m, "Windows.ApplicationModel.DataTransfer.DataPackageOperation")

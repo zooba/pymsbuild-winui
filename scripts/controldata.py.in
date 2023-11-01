@@ -1,0 +1,64 @@
+__all__ = [
+    "PROPERTY_TYPE_MAP",
+    "PROPERTY_IDLTYPE_MAP",
+    "PROPERTYTYPE_TREAT_ELEMENT_AS_OBJECT",
+    "IDLTYPE_TREAT_ELEMENT_AS_OBJECT",
+    "KNOWN_EVENTS",
+    "KNOWN_EVENT_NAMES",
+]
+    
+
+PROPERTY_TYPE_MAP = {
+    "datetime": "winrt::Windows::Foundation::DateTime",
+    "timedelta": "winrt::Windows::Foundation::TimeSpan",
+    "str": "winrt::hstring",
+    "float": "double",
+    "object": "winrt::Windows::Foundation::IInspectable",
+    "list": "winrt::Windows::Foundation::Collections::IVector",
+    "UUID": "GUID",
+}
+
+
+PROPERTY_IDLTYPE_MAP = {
+    "uint8_t": "UInt8",
+    "uint16_t": "UInt16",
+    "uint32_t": "UInt32",
+    "uint64_t": "UInt64",
+    "int16_t": "Int16",
+    "int32_t": "Int32",
+    "int64_t": "Int64",
+    "wchar_t": "Char",
+    "std::wstring": "String",
+    "winrt::hstring": "String",
+    "float": "Single",
+    "double": "Double",
+    "bool": "Boolean",
+    "GUID": "Guid",
+    "winrt::Windows::Foundation::IInspectable": "IInspectable",
+    "winrt::Windows::Foundation::DateTime": "Windows.Foundation.DateTime",
+    "winrt::Windows::Foundation::TimeSpan": "Windows.Foundation.TimeSpan",
+    "winrt::Windows::Foundation::Collections::IVector": "Windows.Foundation.Collections.IVector",
+}
+
+PROPERTYTYPE_TREAT_ELEMENT_AS_OBJECT = {
+    "winrt::Windows::Foundation::Collections::IVector",
+}
+
+IDLTYPE_TREAT_ELEMENT_AS_OBJECT = {
+    "Windows.Foundation.Collections.IVector",
+}
+
+KNOWN_EVENTS = {
+{% for c in all_types %}
+{% if c.kind == "runtimeclass" %}
+{% for name, member in c.members.items() %}
+{% if member.kind == "xaml_event" %}
+    ("_:{{c.name}}", "{{name}}"): ("{{member.sender}}", "{{member.eventargs}}"),
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+}
+
+KNOWN_EVENT_NAMES = {k[1] for k in KNOWN_EVENTS}
+{{''}}

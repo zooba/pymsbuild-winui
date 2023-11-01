@@ -1,3 +1,4 @@
+import copy
 import jinja2
 import os
 import sys
@@ -7,6 +8,7 @@ from pathlib import Path
 FORCE = "-f" in sys.argv
 ROOT = Path(__file__).absolute().parent
 OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets"
+CONTROLDATA_OUTPUT = ROOT.parent / "pymsbuild_winui" / "_controldata.py"
 
 RENDER_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(ROOT),
@@ -47,10 +49,6 @@ class BaseInfo:
         self.name = name
         self.namespace = namespace
         self.members = members if members is not None else {}
-        if namespace and isinstance(self.members, dict):
-            for m in self.members.values():
-                if not getattr(m, "namespace", ...):
-                    m.namespace = namespace
 
     def __repr__(self):
         return f"<{self.fullname}>"
@@ -66,10 +64,6 @@ class BaseInfo:
     def make_info(self, namespace, name):
         if not self.namespace:
             self.namespace = namespace
-            if isinstance(self.members, dict):
-                for m in self.members.values():
-                    if not getattr(m, "namespace", ...):
-                        m.namespace = namespace
         self.name = name
         return self
 
@@ -211,6 +205,25 @@ class FIELD(GET):
 
 class EVENT(CALL):
     kind = "event"
+
+
+class XEVENT:
+    kind = "xaml_event"
+    def __init__(self, arg="Microsoft.UI.Xaml.RoutedEventArgs", sender=None):
+        self.selftype = None
+        self._arg = arg
+        self._sender = sender
+
+    @property
+    def sender(self):
+        return self._sender or self.selftype.fullname
+
+    @property
+    def eventargs(self):
+        arg = self._arg or "Microsoft.UI.Xaml.RoutedEventArgs"
+        if "." not in arg:
+            arg = f"{self.selftype.namespace}.{arg}"
+        return arg
 
 
 ANY = "Windows.Foundation.IInspectable"
@@ -425,10 +438,35 @@ collect(
         "VerticalAlignmentRatio": GETSET("double"),
         "VerticalOffset": GETSET("double"),
     },
+    BringIntoViewRequestedEventArgs={},
+    DataContextChangedEventArgs={"Handled": GETSET("bool"), "NewValue": GET(ANY)},
     DependencyObject={},
+    DependencyProperty={},
+    DependencyPropertyChangedEventArgs={
+        "NewValue": GET(ANY),
+        "OldValue": GET(ANY),
+        "Property": GET("DependencyProperty"),
+    },
+    DragEventArgs={},
+    DragStartingEventArgs={},
+    DropCompletedEventArgs={},
+    EffectiveViewportChangedEventArgs={
+        "BringIntoViewDistanceX": GET("double"),
+        "BringIntoViewDistanceY": GET("double"),
+        "EffectiveViewport": GET("Windows.Foundation.Rect"),
+        "MaxViewport": GET("Windows.Foundation.Rect"),
+    },
     FrameworkElement={
         "__base__": "UIElement",
         "DataContext": GET(ANY),
+        "ActualThemeChanged": XEVENT(ANY),
+        "DataContextChanged": XEVENT("DataContextChangedEventArgs"),
+        "EffectiveViewportChanged": XEVENT("EffectiveViewportChangedEventArgs"),
+        "LayoutUpdated": XEVENT(ANY),
+        "Loaded": XEVENT(),
+        "Loading": XEVENT(ANY),
+        "SizeChanged": XEVENT("SizeChangedEventHandler"),
+        "Unloaded": XEVENT(),
     },
     RoutedEventArgs={"OriginalSource": GET(ANY)},
     UIElement={
@@ -437,6 +475,46 @@ collect(
         # Strictly should be ICompositionAnimationBase, but who's counting?
         "StartAnimation": CALL(animation="Microsoft.UI.Composition.CompositionAnimation", void=True),
         "StopAnimation": CALL(animation="Microsoft.UI.Composition.CompositionAnimation", void=True),
+        "AccessKeyDisplayDismissed": XEVENT("Microsoft.UI.Xaml.Input.AccessKeyDisplayDismissedEventArgs"),
+        "AccessKeyDisplayRequested": XEVENT("Microsoft.UI.Xaml.Input.AccessKeyDisplayRequestedEventArgs"),
+        "AccessKeyInvoked": XEVENT("Microsoft.UI.Xaml.Input.AccessKeyInvokedEventArgs"),
+        "BringIntoViewRequested": XEVENT("BringIntoViewRequestedEventArgs"),
+        "CharacterReceived": XEVENT("Microsoft.UI.Xaml.Input.CharacterReceivedRoutedEventArgs"),
+        "ContextCanceled": XEVENT(),
+        "ContextRequested": XEVENT("Microsoft.UI.Xaml.Input.ContextRequestedEventArgs"),
+        "DoubleTapped": XEVENT("Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs"),
+        "DragEnter": XEVENT("DragEventArgs"),
+        "DragLeave": XEVENT("DragEventArgs"),
+        "DragOver": XEVENT("DragEventArgs"),
+        "DragStarting": XEVENT("DragStartingEventArgs"),
+        "Drop": XEVENT("DragEventArgs"),
+        "DropCompleted": XEVENT("DropCompletedEventArgs"),
+        "GettingFocus": XEVENT("Microsoft.UI.Xaml.Input.GettingFocusEventArgs"),
+        "GotFocus": XEVENT(),
+        "Holding": XEVENT("Microsoft.UI.Xaml.Input.HoldingEventArgs"),
+        "KeyDown": XEVENT("Microsoft.UI.Xaml.Input.KeyRoutedEventArgs"),
+        "KeyUp": XEVENT("Microsoft.UI.Xaml.Input.KeyRoutedEventArgs"),
+        "LosingFocus": XEVENT("Microsoft.UI.Xaml.Input.LosingFocusEventArgs"),
+        "LostFocus": XEVENT(),
+        "ManipulationCompleted": XEVENT("Microsoft.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs"),
+        "ManipulationDelta": XEVENT("Microsoft.UI.Xaml.Input.ManipulationDeltaRoutedEventArgs"),
+        "ManipulationInertiaStarting": XEVENT("Microsoft.UI.Xaml.Input.ManipulationInertiaStartingRoutedEventArgs"),
+        "ManipulationStarted": XEVENT("Microsoft.UI.Xaml.Input.ManipulationStartedRoutedEventArgs"),
+        "ManipulationStarting": XEVENT("Microsoft.UI.Xaml.Input.ManipulationStartingRoutedEventArgs"),
+        "NoFocusCandidateFound": XEVENT("Microsoft.UI.Xaml.Input.NoFocusCandidateFoundEventArgs"),
+        "PointerCanceled": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerCaptureLost": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerEntered": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerExited": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerMoved": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerPressed": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerReleased": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PointerWheelChanged": XEVENT("Microsoft.UI.Xaml.Input.PointerRoutedEventArgs"),
+        "PreviewKeyDown": XEVENT("Microsoft.UI.Xaml.Input.KeyRoutedEventArgs"),
+        "PreviewKeyUp": XEVENT("Microsoft.UI.Xaml.Input.KeyRoutedEventArgs"),
+        "ProcessKeyboardAccelerators": XEVENT(),
+        "RightTapped": XEVENT("Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs"),
+        "Tapped": XEVENT("Microsoft.UI.Xaml.Input.TappedRoutedEventArgs"),
     },
     Window={
         "Activate": CALL(void=True),
@@ -474,6 +552,7 @@ collect(
         "IsOpen": GETSET("bool"),
     },
     AppBarButton={
+        "__base__": "Button",
         "Label": GETSET(STR),
     },
     #AppBarElementContainer={"__base__": "ContentControl"},
@@ -505,7 +584,7 @@ collect(
         "Index": GET("int"),
         "Item": GET(ANY),
     },
-    Button={"__base__": "ContentControl"},
+    Button={"__base__": "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase"},
     CalendarDatePicker={
         "__base__": "Control",
         "Date": GETSET("IReference<Windows.Foundation.DateTime>"),
@@ -625,6 +704,9 @@ collect(
     Control={
         "__base__": "Microsoft.UI.Xaml.FrameworkElement",
         "IsEnabled": GETSET("bool"),
+        "FocusDisengaged": XEVENT("FocusDisengagedEventArgs"),
+        "FocusEngaged": XEVENT("FocusEngagedEventArgs"),
+        "IsEnabledChanged": XEVENT("Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs"),
     },
     #ControlTemplate={},
     #CoreWebView2InitializedEventArgs={},
@@ -697,7 +779,10 @@ collect(
     HubSection={"__base__": "Control"},
     #HubSectionCollection={},
     HubSectionHeaderClickEventArgs={"Section": GET("HubSection")},
-    HyperlinkButton={"__base__": "ContentControl", "NavigateUri": GETSET("Windows.Foundation.Uri")},
+    HyperlinkButton={
+        "__base__": "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase",
+        "NavigateUri": GETSET("Windows.Foundation.Uri"),
+    },
     IconElement={"__base__": "Microsoft.UI.Xaml.FrameworkElement"},
     IconSource={"__base__": "Microsoft.UI.Xaml.DependencyObject"},
     IconSourceElement={"__base__": "IconElement"},
@@ -959,15 +1044,6 @@ collect(
         "__base__": "MenuFlyoutItem",
         "IsChecked": GETSET("bool"),
     },
-    RangeBase={
-        "__namespace__": "Microsoft.UI.Xaml.Controls.Primitives",
-        "__base__": "Control",
-        "LargeChange": GETSET("double"),
-        "Minimum": GETSET("double"),
-        "Maximum": GETSET("double"),
-        "SmallChange": GETSET("double"),
-        "Value": GETSET("double"),
-    },
     RatingControl={
         "__base__": "Control",
         "MaxRating": GETSET("double"),
@@ -993,7 +1069,7 @@ collect(
         "__base__": "Control",
         # TODO: Implement TextDocument
         "TextDocument": GET("Microsoft.UI.Text.RichEditTextDocument"),
-        
+
     },
     RichEditBoxSelectionChangingEventArgs={
         "Cancel": GETSET("bool"),
@@ -1031,18 +1107,6 @@ collect(
     SelectionChangedEventArgs={
         "AddedItems": GET(LIST_OBJ),
         "RemovedItems": GET(LIST_OBJ),
-    },
-    Selector={
-        "__base__": "ItemsControl",
-        "__namespace__": "Microsoft.UI.Xaml.Controls.Primitives",
-        "SelectedIndex": GETSET("int"),
-        "SelectedItem": GETSET(ANY),
-        "SelectedValue": GETSET(ANY),
-    },
-    SelectorItem={
-        "__base__": "ContentControl",
-        "__namespace__": "Microsoft.UI.Xaml.Controls.Primitives",
-        "IsSelected": GETSET("bool"),
     },
     #SemanticZoom={"__base__": "Control"},
     #SemanticZoomLocation={},
@@ -1213,6 +1277,34 @@ collect(
 )
 
 collect(
+    "Microsoft.UI.Xaml.Controls.Primitives",
+    ButtonBase={
+        "__base__": "Microsoft.UI.Xaml.Controls.ContentControl",
+        "IsPointerOver": GET("bool"),
+        "IsPressed": GET("bool"),
+        "Click": XEVENT(),
+    },
+    RangeBase={
+        "__base__": "Microsoft.UI.Xaml.Controls.Control",
+        "LargeChange": GETSET("double"),
+        "Minimum": GETSET("double"),
+        "Maximum": GETSET("double"),
+        "SmallChange": GETSET("double"),
+        "Value": GETSET("double"),
+    },
+    Selector={
+        "__base__": "Microsoft.UI.Xaml.Controls.ItemsControl",
+        "SelectedIndex": GETSET("int"),
+        "SelectedItem": GETSET(ANY),
+        "SelectedValue": GETSET(ANY),
+    },
+    SelectorItem={
+        "__base__": "Microsoft.UI.Xaml.Controls.ContentControl",
+        "IsSelected": GETSET("bool"),
+    },
+)
+
+collect(
     "Windows.UI.Xaml.Interop",
     TypeName=StructInfo(),
 )
@@ -1241,6 +1333,18 @@ def resolve_bases(all_types):
     for c in all_types:
         for sub in derived.get(c.fullname, ()):
             sub.members.update(c.members)
+
+
+def update_members(all_types):
+    for c in all_types:
+        if not isinstance(c.members, dict):
+            continue
+        c.members = copy.deepcopy(c.members)
+        for m in c.members.values():
+            if hasattr(m, "selftype"):
+                m.selftype = c
+            if not getattr(m, "namespace", ...):
+                m.namespace = c.namespace
 
 
 def maybe_write_template(template, context, dest, force=False):
@@ -1277,6 +1381,7 @@ def maybe_write_template(template, context, dest, force=False):
 
 
 resolve_bases(ALL_TYPES)
+update_members(ALL_TYPES)
 
 MODULES = {}
 for c in ALL_TYPES:
@@ -1287,6 +1392,13 @@ maybe_write_template(
     RENDER_ENV.get_template("winui_converters.h.in"),
     dict(all_types=ALL_TYPES),
     OUTPUT / "_winui_converters.h",
+    FORCE,
+)
+
+maybe_write_template(
+    RENDER_ENV.get_template("controldata.py.in"),
+    dict(all_types=ALL_TYPES),
+    CONTROLDATA_OUTPUT,
     FORCE,
 )
 
