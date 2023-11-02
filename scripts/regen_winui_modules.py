@@ -7,7 +7,7 @@ from pathlib import Path
 
 FORCE = "-f" in sys.argv
 ROOT = Path(__file__).absolute().parent
-OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets"
+OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets" / "_winui"
 CONTROLDATA_OUTPUT = ROOT.parent / "pymsbuild_winui" / "_controldata.py"
 
 # Number of types to define in the same .cpp file
