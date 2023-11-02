@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Windows.UI.h>
 
 void add_struct_Windows_UI_Color(const py::module_ &m) {
 }

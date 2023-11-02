@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/{{namespace}}.h>
 
 {% for c in module_types %}
 void add_{{c.kind}}_{{c.cppname.replace('::', '_')}}(const py::module_ &m) {

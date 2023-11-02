@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 void add_runtimeclass_Microsoft_UI_Xaml_Controls_TextBlock(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::TextBlock, ::pywinui::holder<Microsoft::UI::Xaml::Controls::TextBlock>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.TextBlock")

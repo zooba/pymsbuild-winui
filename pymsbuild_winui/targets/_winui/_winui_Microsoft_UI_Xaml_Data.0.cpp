@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Data.h>
 
 void add_runtimeclass_Microsoft_UI_Xaml_Data_ItemIndexRange(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Data::ItemIndexRange, ::pywinui::holder<Microsoft::UI::Xaml::Data::ItemIndexRange>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Data.ItemIndexRange")

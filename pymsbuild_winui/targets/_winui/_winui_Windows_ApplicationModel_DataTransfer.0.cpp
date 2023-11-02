@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
 void add_enum_Windows_ApplicationModel_DataTransfer_DataPackageOperation(const py::module_ &m) {
     py::enum_<Windows::ApplicationModel::DataTransfer::DataPackageOperation>(m, "Windows.ApplicationModel.DataTransfer.DataPackageOperation")

@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Composition.h>
 
 void add_runtimeclass_Microsoft_UI_Composition_AmbientLight(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::AmbientLight, ::pywinui::holder<Microsoft::UI::Composition::AmbientLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AmbientLight")

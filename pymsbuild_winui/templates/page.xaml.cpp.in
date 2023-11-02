@@ -117,8 +117,8 @@ namespace winrt::{{namespace}}::implementation
     py::object {{page.name}}::as_viewmodel(const ::winrt::Windows::Foundation::IInspectable &o) {
         if (!o) return py::none();
 {% for vm in page.viewmodels %}
-        std::optional<winrt::{{namespace}}::{{vm.name}}> {{vm.name}}_opt = o.try_as<winrt::{{namespace}}::{{vm.name}}>();
-        if ({{vm.name}}_opt) return py::cast(::pywinui::hold(*{{vm.name}}_opt));
+        winrt::{{namespace}}::{{vm.name}} {{vm.name}}_opt = o.try_as<winrt::{{namespace}}::{{vm.name}}>();
+        if ({{vm.name}}_opt) return py::cast(::pywinui::hold({{vm.name}}_opt));
 {% endfor %}
         throw py::type_error("unrecognized object");
     }

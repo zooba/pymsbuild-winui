@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 
 void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_ButtonBase(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase")
