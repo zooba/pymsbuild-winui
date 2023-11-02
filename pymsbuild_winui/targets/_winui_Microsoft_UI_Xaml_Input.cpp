@@ -4,10 +4,8 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Input, m) {
+extern void add_runtimeclass_Microsoft_UI_Xaml_Input_PointerRoutedEventArgs(const py::module_ &m);
 
-    py::class_<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.PointerRoutedEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>(_self).repr(); })
-    ;
+PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Input, m) {
+    add_runtimeclass_Microsoft_UI_Xaml_Input_PointerRoutedEventArgs(m);
 }

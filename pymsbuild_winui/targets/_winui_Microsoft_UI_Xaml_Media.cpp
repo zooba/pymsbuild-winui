@@ -4,11 +4,8 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Media, m) {
+extern void add_runtimeclass_Microsoft_UI_Xaml_Media_MediaTransportControlsThumbnailRequestedEventArgs(const py::module_ &m);
 
-    py::class_<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Media.MediaTransportControlsThumbnailRequestedEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>(_self).repr(); })
-        .def("GetDeferral", [](typename cvt<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>::self_t _self) {return cvt_out(_self.GetDeferral()); })
-    ;
+PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Media, m) {
+    add_runtimeclass_Microsoft_UI_Xaml_Media_MediaTransportControlsThumbnailRequestedEventArgs(m);
 }

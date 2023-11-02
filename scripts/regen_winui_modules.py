@@ -10,6 +10,10 @@ ROOT = Path(__file__).absolute().parent
 OUTPUT = ROOT.parent / "pymsbuild_winui" / "targets"
 CONTROLDATA_OUTPUT = ROOT.parent / "pymsbuild_winui" / "_controldata.py"
 
+# Number of types to define in the same .cpp file
+# Smaller numbers means more build parallelisation
+TYPE_CHUNK_SIZE = 100
+
 RENDER_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(ROOT),
     trim_blocks=True,
@@ -1538,6 +1542,19 @@ for m, types in MODULES.items():
     maybe_write_template(
         RENDER_ENV.get_template("winui_module.cpp.in"),
         CONTEXT,
-        OUTPUT / (safe_name + ".cpp"),
+        DEST,
         FORCE,
     )
+
+    to_write = list(types)
+    next_i = 0
+    while to_write:
+        DEST = OUTPUT / f"{safe_name}.{next_i}.cpp"
+        maybe_write_template(
+            RENDER_ENV.get_template("winui_module_impl.cpp.in"),
+            {**CONTEXT, "module_types": to_write[:TYPE_CHUNK_SIZE]},
+            DEST,
+            FORCE,
+        )
+        to_write[:TYPE_CHUNK_SIZE] = []
+        next_i += 1

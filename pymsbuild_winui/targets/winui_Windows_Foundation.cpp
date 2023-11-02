@@ -33,7 +33,7 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation, m) {
             module_name += type;
             module_name.erase(module_name.find_last_of('.'));
             std::replace(std::begin(module_name), std::end(module_name), '.', '_');
-            return py::module_::import(module_name.c_str()).attr(type)(_self);
+            return py::module_::import(module_name.c_str()).attr(type)(::pywinui::hold(_self));
         })
     ;
 
