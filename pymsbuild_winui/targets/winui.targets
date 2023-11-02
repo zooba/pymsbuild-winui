@@ -106,7 +106,7 @@
     <ItemGroup>
       <_Src Include="$(GeneratedFilesDir)module.g.cpp" />
       <_Src Include="$(MSBuildThisFileDirectory)winui_*.cpp" />
-      <_Src Include="$(MSBuildThisFileDirectory)_winui_*.cpp" />
+      <_Src Include="$(MSBuildThisFileDirectory)_winui/*.cpp" />
       <ClInclude Include="$(MSBuildThisFileDirectory)_winui.h" />
       <ClInclude Include="$(MSBuildThisFileDirectory)_winui_converters.h" />
       <ClCompile Include="@(_Src)">

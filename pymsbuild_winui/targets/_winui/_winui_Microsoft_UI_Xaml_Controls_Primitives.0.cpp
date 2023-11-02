@@ -4,7 +4,70 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_ButtonBase(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>(_self).repr(); })
+        .def_property_readonly("IsPointerOver", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPointerOver()); })
+        .def_property_readonly("IsPressed", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPressed()); })
+        .def_property_readonly("DataContext", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.DataContext()); })
+        .def_property("Visibility", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Visibility()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Visibility())>::arg_t v) { cvt<decltype(_self.Visibility())>::param_t cvt_v{v}; _self.Visibility(cvt_v); })
+        .def("StartAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StartAnimation)>::value, "return value is not void"); _self.StartAnimation(cvt_animation); })
+        .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
+        .def_property("Content", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Content()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Content())>::arg_t v) { cvt<decltype(_self.Content())>::param_t cvt_v{v}; _self.Content(cvt_v); })
+        .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_DragCompletedEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragCompletedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>(_self).repr(); })
+        .def_property_readonly("Canceled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.Canceled()); })
+        .def_property_readonly("HorizontalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalChange()); })
+        .def_property_readonly("VerticalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.VerticalChange()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_DragDeltaEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragDeltaEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>(_self).repr(); })
+        .def_property_readonly("HorizontalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalChange()); })
+        .def_property_readonly("VerticalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt_out(_self.VerticalChange()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_DragStartedEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragStartedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>(_self).repr(); })
+        .def_property_readonly("HorizontalOffset", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalOffset()); })
+        .def_property_readonly("VerticalOffset", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt_out(_self.VerticalOffset()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_FlyoutBase(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>(_self).repr(); })
+        .def_property("ElementSoundMode", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.ElementSoundMode()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<decltype(_self.ElementSoundMode())>::arg_t v) { cvt<decltype(_self.ElementSoundMode())>::param_t cvt_v{v}; _self.ElementSoundMode(cvt_v); })
+        .def_property_readonly("IsOpen", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.IsOpen()); })
+        .def_property("ShowMode", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.ShowMode()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<decltype(_self.ShowMode())>::arg_t v) { cvt<decltype(_self.ShowMode())>::param_t cvt_v{v}; _self.ShowMode(cvt_v); })
+        .def("Hide", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase::Hide)>::value, "return value is not void"); _self.Hide(); })
+        .def("ShowAt", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<Microsoft::UI::Xaml::DependencyObject>::arg_t placementTarget, typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::arg_t showOptions) {cvt<Microsoft::UI::Xaml::DependencyObject>::param_t cvt_placementTarget{ placementTarget }; cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::param_t cvt_showOptions{ showOptions }; _self.ShowAt(cvt_placementTarget, cvt_showOptions); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_FlyoutBaseClosingEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBaseClosingEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>(_self).repr(); })
+        .def_property("Cancel", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::cself_t _self) { return cvt_out(_self.Cancel()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::self_t _self, typename cvt<decltype(_self.Cancel())>::arg_t v) { cvt<decltype(_self.Cancel())>::param_t cvt_v{v}; _self.Cancel(cvt_v); })
+    ;
+}
+
+void add_enum_Microsoft_UI_Xaml_Controls_Primitives_FlyoutPlacementMode(const py::module_ &m) {
     py::enum_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutPlacementMode>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode")
         .value("Auto", Microsoft::UI::Xaml::Controls::Primitives::FlyoutPlacementMode::Auto)
         .value("Bottom", Microsoft::UI::Xaml::Controls::Primitives::FlyoutPlacementMode::Bottom)
@@ -21,69 +84,18 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .value("TopEdgeAlignedLeft", Microsoft::UI::Xaml::Controls::Primitives::FlyoutPlacementMode::TopEdgeAlignedLeft)
         .value("TopEdgeAlignedRight", Microsoft::UI::Xaml::Controls::Primitives::FlyoutPlacementMode::TopEdgeAlignedRight)
     ;
+}
+
+void add_enum_Microsoft_UI_Xaml_Controls_Primitives_FlyoutShowMode(const py::module_ &m) {
     py::enum_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowMode>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowMode")
         .value("Auto", Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowMode::Auto)
         .value("Standard", Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowMode::Standard)
         .value("Transient", Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowMode::Transient)
         .value("TransientWithDismissOnPointerMoveAway", Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowMode::TransientWithDismissOnPointerMoveAway)
     ;
-    py::enum_<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType>(m, "Microsoft.UI.Xaml.Controls.Primitives.ScrollEventType")
-        .value("EndScroll", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::EndScroll)
-        .value("First", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::First)
-        .value("LargeDecrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::LargeDecrement)
-        .value("LargeIncrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::LargeIncrement)
-        .value("Last", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::Last)
-        .value("SmallDecrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::SmallDecrement)
-        .value("SmallIncrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::SmallIncrement)
-        .value("ThumbPosition", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::ThumbPosition)
-        .value("ThumbTrack", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::ThumbTrack)
-    ;
+}
 
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>(_self).repr(); })
-        .def_property_readonly("IsPointerOver", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPointerOver()); })
-        .def_property_readonly("IsPressed", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsPressed()); })
-        .def_property_readonly("DataContext", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.DataContext()); })
-        .def_property("Visibility", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Visibility()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Visibility())>::arg_t v) { cvt<decltype(_self.Visibility())>::param_t cvt_v{v}; _self.Visibility(cvt_v); })
-        .def("StartAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StartAnimation)>::value, "return value is not void"); _self.StartAnimation(cvt_animation); })
-        .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::ButtonBase::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
-        .def_property("Content", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.Content()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.Content())>::arg_t v) { cvt<decltype(_self.Content())>::param_t cvt_v{v}; _self.Content(cvt_v); })
-        .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ButtonBase>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
-    ;
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragCompletedEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>(_self).repr(); })
-        .def_property_readonly("Canceled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.Canceled()); })
-        .def_property_readonly("HorizontalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalChange()); })
-        .def_property_readonly("VerticalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragCompletedEventArgs>::cself_t _self) { return cvt_out(_self.VerticalChange()); })
-    ;
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragDeltaEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>(_self).repr(); })
-        .def_property_readonly("HorizontalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalChange()); })
-        .def_property_readonly("VerticalChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragDeltaEventArgs>::cself_t _self) { return cvt_out(_self.VerticalChange()); })
-    ;
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.DragStartedEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>(_self).repr(); })
-        .def_property_readonly("HorizontalOffset", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt_out(_self.HorizontalOffset()); })
-        .def_property_readonly("VerticalOffset", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::DragStartedEventArgs>::cself_t _self) { return cvt_out(_self.VerticalOffset()); })
-    ;
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>(_self).repr(); })
-        .def_property("ElementSoundMode", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.ElementSoundMode()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<decltype(_self.ElementSoundMode())>::arg_t v) { cvt<decltype(_self.ElementSoundMode())>::param_t cvt_v{v}; _self.ElementSoundMode(cvt_v); })
-        .def_property_readonly("IsOpen", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.IsOpen()); })
-        .def_property("ShowMode", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::cself_t _self) { return cvt_out(_self.ShowMode()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<decltype(_self.ShowMode())>::arg_t v) { cvt<decltype(_self.ShowMode())>::param_t cvt_v{v}; _self.ShowMode(cvt_v); })
-        .def("Hide", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self) {static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase::Hide)>::value, "return value is not void"); _self.Hide(); })
-        .def("ShowAt", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBase>::self_t _self, typename cvt<Microsoft::UI::Xaml::DependencyObject>::arg_t placementTarget, typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::arg_t showOptions) {cvt<Microsoft::UI::Xaml::DependencyObject>::param_t cvt_placementTarget{ placementTarget }; cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::param_t cvt_showOptions{ showOptions }; _self.ShowAt(cvt_placementTarget, cvt_showOptions); })
-    ;
-    py::class_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBaseClosingEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>(_self).repr(); })
-        .def_property("Cancel", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::cself_t _self) { return cvt_out(_self.Cancel()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutBaseClosingEventArgs>::self_t _self, typename cvt<decltype(_self.Cancel())>::arg_t v) { cvt<decltype(_self.Cancel())>::param_t cvt_v{v}; _self.Cancel(cvt_v); })
-    ;
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_FlyoutShowOptions(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>(_self).repr(); })
@@ -92,6 +104,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def_property("Position", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::cself_t _self) { return cvt_out(_self.Position()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::self_t _self, typename cvt<decltype(_self.Position())>::arg_t v) { cvt<decltype(_self.Position())>::param_t cvt_v{v}; _self.Position(cvt_v); })
         .def_property("ShowMode", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::cself_t _self) { return cvt_out(_self.ShowMode()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::FlyoutShowOptions>::self_t _self, typename cvt<decltype(_self.ShowMode())>::arg_t v) { cvt<decltype(_self.ShowMode())>::param_t cvt_v{v}; _self.ShowMode(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_LoopingSelector(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.LoopingSelector")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>(_self).repr(); })
@@ -106,6 +121,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
         .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::LoopingSelector>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_RangeBase(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::RangeBase, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.RangeBase")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>(_self).repr(); })
@@ -120,6 +138,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::RangeBase::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
         .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::RangeBase>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_ScrollBar(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ScrollBar")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>(_self).repr(); })
@@ -134,12 +155,32 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def_property("SmallChange", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>::cself_t _self) { return cvt_out(_self.SmallChange()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>::self_t _self, typename cvt<decltype(_self.SmallChange())>::arg_t v) { cvt<decltype(_self.SmallChange())>::param_t cvt_v{v}; _self.SmallChange(cvt_v); })
         .def_property("Value", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>::cself_t _self) { return cvt_out(_self.Value()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollBar>::self_t _self, typename cvt<decltype(_self.Value())>::arg_t v) { cvt<decltype(_self.Value())>::param_t cvt_v{v}; _self.Value(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_ScrollEventArgs(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ScrollEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>(_self).repr(); })
         .def_property_readonly("NewValue", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>::cself_t _self) { return cvt_out(_self.NewValue()); })
         .def_property_readonly("ScrollEventType", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventArgs>::cself_t _self) { return cvt_out(_self.ScrollEventType()); })
     ;
+}
+
+void add_enum_Microsoft_UI_Xaml_Controls_Primitives_ScrollEventType(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType>(m, "Microsoft.UI.Xaml.Controls.Primitives.ScrollEventType")
+        .value("EndScroll", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::EndScroll)
+        .value("First", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::First)
+        .value("LargeDecrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::LargeDecrement)
+        .value("LargeIncrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::LargeIncrement)
+        .value("Last", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::Last)
+        .value("SmallDecrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::SmallDecrement)
+        .value("SmallIncrement", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::SmallIncrement)
+        .value("ThumbPosition", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::ThumbPosition)
+        .value("ThumbTrack", Microsoft::UI::Xaml::Controls::Primitives::ScrollEventType::ThumbTrack)
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_Selector(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::Selector, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::Selector>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.Selector")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::Selector>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>(_self).repr(); })
@@ -156,6 +197,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def("IndexFromContainer", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::self_t _self, typename cvt<Microsoft::UI::Xaml::DependencyObject>::arg_t container) {cvt<Microsoft::UI::Xaml::DependencyObject>::param_t cvt_container{ container }; return cvt_out(_self.IndexFromContainer(cvt_container)); })
         .def("ItemFromContainer", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Selector>::self_t _self, typename cvt<Microsoft::UI::Xaml::DependencyObject>::arg_t container) {cvt<Microsoft::UI::Xaml::DependencyObject>::param_t cvt_container{ container }; return cvt_out(_self.ItemFromContainer(cvt_container)); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_SelectorItem(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.SelectorItem")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>(_self).repr(); })
@@ -167,6 +211,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def_property("Content", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt_out(_self.Content()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::self_t _self, typename cvt<decltype(_self.Content())>::arg_t v) { cvt<decltype(_self.Content())>::param_t cvt_v{v}; _self.Content(cvt_v); })
         .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::SelectorItem>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_Thumb(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::Thumb, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::Thumb>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.Thumb")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::Thumb>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Thumb>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::Thumb>(_self).repr(); })
@@ -178,6 +225,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Thumb>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::Primitives::Thumb::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
         .def_property("IsEnabled", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Thumb>::cself_t _self) { return cvt_out(_self.IsEnabled()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::Thumb>::self_t _self, typename cvt<decltype(_self.IsEnabled())>::arg_t v) { cvt<decltype(_self.IsEnabled())>::param_t cvt_v{v}; _self.IsEnabled(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Controls_Primitives_ToggleButton(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton, ::pywinui::holder<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.Primitives.ToggleButton")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton>(_self).repr(); })
@@ -193,3 +243,4 @@ PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Xaml_Controls_Primitives, m) {
         .def_property_readonly("IsPressed", [](typename cvt<Microsoft::UI::Xaml::Controls::Primitives::ToggleButton>::cself_t _self) { return cvt_out(_self.IsPressed()); })
     ;
 }
+

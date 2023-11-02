@@ -4,6 +4,6 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Windows_UI, m) {
-
+void add_struct_Windows_UI_Color(const py::module_ &m) {
 }
+

@@ -4,14 +4,16 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Windows_ApplicationModel_DataTransfer, m) {
+void add_enum_Windows_ApplicationModel_DataTransfer_DataPackageOperation(const py::module_ &m) {
     py::enum_<Windows::ApplicationModel::DataTransfer::DataPackageOperation>(m, "Windows.ApplicationModel.DataTransfer.DataPackageOperation")
         .value("None", Windows::ApplicationModel::DataTransfer::DataPackageOperation::None)
         .value("Copy", Windows::ApplicationModel::DataTransfer::DataPackageOperation::Copy)
         .value("Move", Windows::ApplicationModel::DataTransfer::DataPackageOperation::Move)
         .value("Link", Windows::ApplicationModel::DataTransfer::DataPackageOperation::Link)
     ;
+}
 
+void add_runtimeclass_Windows_ApplicationModel_DataTransfer_DataPackage(const py::module_ &m) {
     py::class_<Windows::ApplicationModel::DataTransfer::DataPackage, ::pywinui::holder<Windows::ApplicationModel::DataTransfer::DataPackage>, Windows::Foundation::IInspectable>(m, "Windows.ApplicationModel.DataTransfer.DataPackage")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Windows::ApplicationModel::DataTransfer::DataPackage>()); }))
         .def("__repr__", [](typename cvt<Windows::ApplicationModel::DataTransfer::DataPackage>::cself_t _self) { return cvt<Windows::ApplicationModel::DataTransfer::DataPackage>(_self).repr(); })
@@ -24,3 +26,4 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_ApplicationModel_DataTransfer, m) {
         .def("SetWebLink", [](typename cvt<Windows::ApplicationModel::DataTransfer::DataPackage>::self_t _self, typename cvt<Windows::Foundation::Uri>::arg_t value) {cvt<Windows::Foundation::Uri>::param_t cvt_value{ value }; static_assert(ensure_void<decltype(&Windows::ApplicationModel::DataTransfer::DataPackage::SetWebLink)>::value, "return value is not void"); _self.SetWebLink(cvt_value); })
     ;
 }
+

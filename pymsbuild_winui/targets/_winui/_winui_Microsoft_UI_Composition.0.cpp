@@ -4,477 +4,666 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Microsoft_UI_Composition, m) {
-    py::enum_<Microsoft::UI::Composition::AnimationControllerProgressBehavior>(m, "Microsoft.UI.Composition.AnimationControllerProgressBehavior")
-    ;
-    py::enum_<Microsoft::UI::Composition::AnimationDelayBehavior>(m, "Microsoft.UI.Composition.AnimationDelayBehavior")
-    ;
-    py::enum_<Microsoft::UI::Composition::AnimationDirection>(m, "Microsoft.UI.Composition.AnimationDirection")
-    ;
-    py::enum_<Microsoft::UI::Composition::AnimationIterationBehavior>(m, "Microsoft.UI.Composition.AnimationIterationBehavior")
-    ;
-    py::enum_<Microsoft::UI::Composition::AnimationPropertyAccessMode>(m, "Microsoft.UI.Composition.AnimationPropertyAccessMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::AnimationStopBehavior>(m, "Microsoft.UI.Composition.AnimationStopBehavior")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionBackfaceVisibility>(m, "Microsoft.UI.Composition.CompositionBackfaceVisibility")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionBatchTypes>(m, "Microsoft.UI.Composition.CompositionBatchTypes")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionBitmapInterpolationMode>(m, "Microsoft.UI.Composition.CompositionBitmapInterpolationMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionBorderMode>(m, "Microsoft.UI.Composition.CompositionBorderMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionColorSpace>(m, "Microsoft.UI.Composition.CompositionColorSpace")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionCompositeMode>(m, "Microsoft.UI.Composition.CompositionCompositeMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionDropShadowSourcePolicy>(m, "Microsoft.UI.Composition.CompositionDropShadowSourcePolicy")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionEasingFunctionMode>(m, "Microsoft.UI.Composition.CompositionEasingFunctionMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionEffectFactoryLoadStatus>(m, "Microsoft.UI.Composition.CompositionEffectFactoryLoadStatus")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionGetValueStatus>(m, "Microsoft.UI.Composition.CompositionGetValueStatus")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionGradientExtendMode>(m, "Microsoft.UI.Composition.CompositionGradientExtendMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionMappingMode>(m, "Microsoft.UI.Composition.CompositionMappingMode")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionStretch>(m, "Microsoft.UI.Composition.CompositionStretch")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionStrokeCap>(m, "Microsoft.UI.Composition.CompositionStrokeCap")
-    ;
-    py::enum_<Microsoft::UI::Composition::CompositionStrokeLineJoin>(m, "Microsoft.UI.Composition.CompositionStrokeLineJoin")
-    ;
-
+void add_runtimeclass_Microsoft_UI_Composition_AmbientLight(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::AmbientLight, ::pywinui::holder<Microsoft::UI::Composition::AmbientLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AmbientLight")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AmbientLight>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::AmbientLight>::cself_t _self) { return cvt<Microsoft::UI::Composition::AmbientLight>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_AnimationController(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::AnimationController, ::pywinui::holder<Microsoft::UI::Composition::AnimationController>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AnimationController")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AnimationController>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::AnimationController>::cself_t _self) { return cvt<Microsoft::UI::Composition::AnimationController>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationControllerProgressBehavior(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationControllerProgressBehavior>(m, "Microsoft.UI.Composition.AnimationControllerProgressBehavior")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationDelayBehavior(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationDelayBehavior>(m, "Microsoft.UI.Composition.AnimationDelayBehavior")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationDirection(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationDirection>(m, "Microsoft.UI.Composition.AnimationDirection")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationIterationBehavior(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationIterationBehavior>(m, "Microsoft.UI.Composition.AnimationIterationBehavior")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationPropertyAccessMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationPropertyAccessMode>(m, "Microsoft.UI.Composition.AnimationPropertyAccessMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_AnimationPropertyInfo(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::AnimationPropertyInfo, ::pywinui::holder<Microsoft::UI::Composition::AnimationPropertyInfo>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.AnimationPropertyInfo")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::AnimationPropertyInfo>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::AnimationPropertyInfo>::cself_t _self) { return cvt<Microsoft::UI::Composition::AnimationPropertyInfo>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_AnimationStopBehavior(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::AnimationStopBehavior>(m, "Microsoft.UI.Composition.AnimationStopBehavior")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BackEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BackEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::BackEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BackEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BackEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BackEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::BackEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BooleanKeyFrameAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BooleanKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::BooleanKeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BooleanKeyFrameAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BooleanKeyFrameAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BooleanKeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::BooleanKeyFrameAnimation>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BounceEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BounceEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::BounceEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BounceEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::BounceEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BounceScalarNaturalMotionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceScalarNaturalMotionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::BounceScalarNaturalMotionAnimation>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BounceVector2NaturalMotionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceVector2NaturalMotionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::BounceVector2NaturalMotionAnimation>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_BounceVector3NaturalMotionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.BounceVector3NaturalMotionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::BounceVector3NaturalMotionAnimation>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CircleEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CircleEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CircleEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CircleEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CircleEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CircleEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::CircleEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ColorKeyFrameAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ColorKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::ColorKeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ColorKeyFrameAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ColorKeyFrameAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ColorKeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::ColorKeyFrameAnimation>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionAnimation, ::pywinui::holder<Microsoft::UI::Composition::CompositionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionAnimation>(_self).repr(); })
         .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::CompositionAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
         .def_property("Target", [](typename cvt<Microsoft::UI::Composition::CompositionAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::CompositionAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionAnimationGroup(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionAnimationGroup, ::pywinui::holder<Microsoft::UI::Composition::CompositionAnimationGroup>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionAnimationGroup")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionAnimationGroup>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionAnimationGroup>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionAnimationGroup>(_self).repr(); })
     ;
+}
+
+void add_struct_Microsoft_UI_Composition_CompositionApiInformation(const py::module_ &m) {
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionBackdropBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionBackdropBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionBackdropBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBackdropBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBackdropBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionBackdropBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionBackdropBrush>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionBackfaceVisibility(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionBackfaceVisibility>(m, "Microsoft.UI.Composition.CompositionBackfaceVisibility")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionBatchCompletedEventArgs(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs, ::pywinui::holder<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBatchCompletedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionBatchCompletedEventArgs>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionBatchTypes(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionBatchTypes>(m, "Microsoft.UI.Composition.CompositionBatchTypes")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionBitmapInterpolationMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionBitmapInterpolationMode>(m, "Microsoft.UI.Composition.CompositionBitmapInterpolationMode")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionBorderMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionBorderMode>(m, "Microsoft.UI.Composition.CompositionBorderMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionCapabilities(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionCapabilities, ::pywinui::holder<Microsoft::UI::Composition::CompositionCapabilities>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionCapabilities")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionCapabilities>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionCapabilities>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionCapabilities>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionClip(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionClip, ::pywinui::holder<Microsoft::UI::Composition::CompositionClip>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionClip")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionClip>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionClip>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionClip>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionColorBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionColorBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionColorBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionColorBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionColorGradientStop(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionColorGradientStop, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorGradientStop>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorGradientStop")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorGradientStop>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionColorGradientStop>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionColorGradientStop>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionColorGradientStopCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionColorGradientStopCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionColorGradientStopCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionColorGradientStopCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionColorGradientStopCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionColorGradientStopCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionColorGradientStopCollection>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionColorSpace(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionColorSpace>(m, "Microsoft.UI.Composition.CompositionColorSpace")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionCommitBatch(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionCommitBatch, ::pywinui::holder<Microsoft::UI::Composition::CompositionCommitBatch>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionCommitBatch")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionCommitBatch>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionCommitBatch>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionCommitBatch>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionCompositeMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionCompositeMode>(m, "Microsoft.UI.Composition.CompositionCompositeMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionContainerShape(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionContainerShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionContainerShape>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionContainerShape")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionContainerShape>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionContainerShape>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionContainerShape>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionDrawingSurface(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionDrawingSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionDrawingSurface>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionDrawingSurface")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionDrawingSurface>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionDrawingSurface>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionDrawingSurface>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionDropShadowSourcePolicy(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionDropShadowSourcePolicy>(m, "Microsoft.UI.Composition.CompositionDropShadowSourcePolicy")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CompositionEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionEasingFunctionMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionEasingFunctionMode>(m, "Microsoft.UI.Composition.CompositionEasingFunctionMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionEffectBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionEffectBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionEffectBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionEffectBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionEffectFactory(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionEffectFactory, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectFactory>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectFactory")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectFactory>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionEffectFactory>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionEffectFactory>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionEffectFactoryLoadStatus(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionEffectFactoryLoadStatus>(m, "Microsoft.UI.Composition.CompositionEffectFactoryLoadStatus")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionEffectSourceParameter(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionEffectSourceParameter, ::pywinui::holder<Microsoft::UI::Composition::CompositionEffectSourceParameter>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEffectSourceParameter")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEffectSourceParameter>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionEffectSourceParameter>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionEffectSourceParameter>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionEllipseGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionEllipseGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionEllipseGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionEllipseGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionEllipseGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionEllipseGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionEllipseGeometry>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionGeometricClip(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionGeometricClip, ::pywinui::holder<Microsoft::UI::Composition::CompositionGeometricClip>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGeometricClip")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGeometricClip>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionGeometricClip>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionGeometricClip>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionGeometry>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionGetValueStatus(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionGetValueStatus>(m, "Microsoft.UI.Composition.CompositionGetValueStatus")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionGradientBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionGradientBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGradientBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGradientBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionGradientBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionGradientBrush>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionGradientExtendMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionGradientExtendMode>(m, "Microsoft.UI.Composition.CompositionGradientExtendMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionGraphicsDevice(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionGraphicsDevice, ::pywinui::holder<Microsoft::UI::Composition::CompositionGraphicsDevice>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionGraphicsDevice")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionGraphicsDevice>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionGraphicsDevice>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionGraphicsDevice>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionLight(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionLight, ::pywinui::holder<Microsoft::UI::Composition::CompositionLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLight")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLight>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionLight>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionLight>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionLinearGradientBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionLinearGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionLinearGradientBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLinearGradientBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLinearGradientBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionLinearGradientBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionLinearGradientBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionLineGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionLineGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionLineGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionLineGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionLineGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionLineGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionLineGeometry>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionMappingMode(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionMappingMode>(m, "Microsoft.UI.Composition.CompositionMappingMode")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionMaskBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionMaskBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionMaskBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionMaskBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionMaskBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionMaskBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionMaskBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionMipmapSurface(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionMipmapSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionMipmapSurface>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionMipmapSurface")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionMipmapSurface>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionMipmapSurface>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionMipmapSurface>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionNineGridBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionNineGridBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionNineGridBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionNineGridBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionNineGridBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionNineGridBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionNineGridBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionObject(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionObject, ::pywinui::holder<Microsoft::UI::Composition::CompositionObject>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionObject")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionObject>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionObject>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionObject>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionPath(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionPath, ::pywinui::holder<Microsoft::UI::Composition::CompositionPath>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPath")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPath>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionPath>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionPath>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionPathGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionPathGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionPathGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPathGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPathGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionPathGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionPathGeometry>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionProjectedShadow(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionProjectedShadow, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadow>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadow")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadow>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionProjectedShadow>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionProjectedShadow>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionProjectedShadowCaster(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionProjectedShadowCaster, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowCaster>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowCaster")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowCaster>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionProjectedShadowCaster>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionProjectedShadowCaster>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionProjectedShadowCasterCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowCasterCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionProjectedShadowCasterCollection>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionProjectedShadowReceiver(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionProjectedShadowReceiver, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowReceiver")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionProjectedShadowReceiver>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionProjectedShadowReceiverUnorderedCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionProjectedShadowReceiverUnorderedCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionProjectedShadowReceiverUnorderedCollection>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionPropertySet(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionPropertySet, ::pywinui::holder<Microsoft::UI::Composition::CompositionPropertySet>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionPropertySet")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionPropertySet>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionPropertySet>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionPropertySet>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionRadialGradientBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionRadialGradientBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionRadialGradientBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRadialGradientBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRadialGradientBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionRadialGradientBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionRadialGradientBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionRectangleGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionRectangleGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionRectangleGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRectangleGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRectangleGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionRectangleGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionRectangleGeometry>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionRoundedRectangleGeometry(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry, ::pywinui::holder<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionRoundedRectangleGeometry")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionRoundedRectangleGeometry>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionScopedBatch(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionScopedBatch, ::pywinui::holder<Microsoft::UI::Composition::CompositionScopedBatch>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionScopedBatch")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionScopedBatch>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionScopedBatch>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionScopedBatch>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionShadow(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionShadow, ::pywinui::holder<Microsoft::UI::Composition::CompositionShadow>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShadow")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShadow>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionShadow>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionShadow>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionShape(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionShape>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShape")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShape>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionShape>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionShape>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionShapeCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionShapeCollection, ::pywinui::holder<Microsoft::UI::Composition::CompositionShapeCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionShapeCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionShapeCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionShapeCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionShapeCollection>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionSpriteShape(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionSpriteShape, ::pywinui::holder<Microsoft::UI::Composition::CompositionSpriteShape>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionSpriteShape")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionSpriteShape>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionSpriteShape>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionSpriteShape>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionStretch(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionStretch>(m, "Microsoft.UI.Composition.CompositionStretch")
+    ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionStrokeCap(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionStrokeCap>(m, "Microsoft.UI.Composition.CompositionStrokeCap")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionStrokeDashArray(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionStrokeDashArray, ::pywinui::holder<Microsoft::UI::Composition::CompositionStrokeDashArray>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionStrokeDashArray")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionStrokeDashArray>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionStrokeDashArray>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionStrokeDashArray>(_self).repr(); })
     ;
+}
+
+void add_enum_Microsoft_UI_Composition_CompositionStrokeLineJoin(const py::module_ &m) {
+    py::enum_<Microsoft::UI::Composition::CompositionStrokeLineJoin>(m, "Microsoft.UI.Composition.CompositionStrokeLineJoin")
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionSurfaceBrush(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionSurfaceBrush, ::pywinui::holder<Microsoft::UI::Composition::CompositionSurfaceBrush>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionSurfaceBrush")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionSurfaceBrush>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionSurfaceBrush>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionSurfaceBrush>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionTransform(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionTransform, ::pywinui::holder<Microsoft::UI::Composition::CompositionTransform>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionTransform")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionTransform>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionTransform>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionTransform>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionViewBox(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionViewBox, ::pywinui::holder<Microsoft::UI::Composition::CompositionViewBox>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionViewBox")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionViewBox>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionViewBox>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionViewBox>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionVirtualDrawingSurface(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionVirtualDrawingSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionVirtualDrawingSurface")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionVirtualDrawingSurface>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CompositionVisualSurface(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CompositionVisualSurface, ::pywinui::holder<Microsoft::UI::Composition::CompositionVisualSurface>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CompositionVisualSurface")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CompositionVisualSurface>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CompositionVisualSurface>::cself_t _self) { return cvt<Microsoft::UI::Composition::CompositionVisualSurface>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_Compositor(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::Compositor, ::pywinui::holder<Microsoft::UI::Composition::Compositor>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Compositor")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Compositor>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Compositor>::cself_t _self) { return cvt<Microsoft::UI::Composition::Compositor>(_self).repr(); })
         .def("CreateSpringVector3Animation", [](typename cvt<Microsoft::UI::Composition::Compositor>::self_t _self) {return cvt_out(_self.CreateSpringVector3Animation()); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ContainerVisual(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ContainerVisual, ::pywinui::holder<Microsoft::UI::Composition::ContainerVisual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ContainerVisual")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ContainerVisual>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ContainerVisual>::cself_t _self) { return cvt<Microsoft::UI::Composition::ContainerVisual>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_CubicBezierEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::CubicBezierEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::CubicBezierEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.CubicBezierEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::CubicBezierEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::CubicBezierEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::CubicBezierEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_DistantLight(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::DistantLight, ::pywinui::holder<Microsoft::UI::Composition::DistantLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.DistantLight")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::DistantLight>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::DistantLight>::cself_t _self) { return cvt<Microsoft::UI::Composition::DistantLight>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_DropShadow(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::DropShadow, ::pywinui::holder<Microsoft::UI::Composition::DropShadow>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.DropShadow")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::DropShadow>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::DropShadow>::cself_t _self) { return cvt<Microsoft::UI::Composition::DropShadow>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ElasticEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ElasticEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::ElasticEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ElasticEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ElasticEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ElasticEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::ElasticEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ExponentialEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ExponentialEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::ExponentialEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ExponentialEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ExponentialEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ExponentialEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::ExponentialEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ExpressionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ExpressionAnimation, ::pywinui::holder<Microsoft::UI::Composition::ExpressionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ExpressionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ExpressionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ExpressionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::ExpressionAnimation>(_self).repr(); })
         .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::ExpressionAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
         .def_property("Target", [](typename cvt<Microsoft::UI::Composition::ExpressionAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::ExpressionAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_ImplicitAnimationCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::ImplicitAnimationCollection, ::pywinui::holder<Microsoft::UI::Composition::ImplicitAnimationCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ImplicitAnimationCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ImplicitAnimationCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ImplicitAnimationCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::ImplicitAnimationCollection>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_InitialValueExpressionCollection(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::InitialValueExpressionCollection, ::pywinui::holder<Microsoft::UI::Composition::InitialValueExpressionCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.InitialValueExpressionCollection")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::InitialValueExpressionCollection>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::InitialValueExpressionCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::InitialValueExpressionCollection>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_InsetClip(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::InsetClip, ::pywinui::holder<Microsoft::UI::Composition::InsetClip>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.InsetClip")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::InsetClip>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::InsetClip>::cself_t _self) { return cvt<Microsoft::UI::Composition::InsetClip>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_KeyFrameAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::KeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.KeyFrameAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::KeyFrameAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::KeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::KeyFrameAnimation>(_self).repr(); })
         .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::KeyFrameAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
         .def_property("Target", [](typename cvt<Microsoft::UI::Composition::KeyFrameAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::KeyFrameAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_LayerVisual(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::LayerVisual, ::pywinui::holder<Microsoft::UI::Composition::LayerVisual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.LayerVisual")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::LayerVisual>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::LayerVisual>::cself_t _self) { return cvt<Microsoft::UI::Composition::LayerVisual>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_LinearEasingFunction(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::LinearEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::LinearEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.LinearEasingFunction")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::LinearEasingFunction>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::LinearEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::LinearEasingFunction>(_self).repr(); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_NaturalMotionAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.NaturalMotionAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::NaturalMotionAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::NaturalMotionAnimation>(_self).repr(); })
         .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
         .def_property("Target", [](typename cvt<Microsoft::UI::Composition::NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
     ;
+}
+
+void add_runtimeclass_Microsoft_UI_Composition_PathKeyFrameAnimation(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::PathKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::PathKeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PathKeyFrameAnimation")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PathKeyFrameAnimation>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Composition::PathKeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::PathKeyFrameAnimation>(_self).repr(); })
     ;
-    py::class_<Microsoft::UI::Composition::PointLight, ::pywinui::holder<Microsoft::UI::Composition::PointLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PointLight")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PointLight>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::PointLight>::cself_t _self) { return cvt<Microsoft::UI::Composition::PointLight>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::PowerEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::PowerEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PowerEasingFunction")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::PowerEasingFunction>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::PowerEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::PowerEasingFunction>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::QuaternionKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.QuaternionKeyFrameAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::QuaternionKeyFrameAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::RectangleClip, ::pywinui::holder<Microsoft::UI::Composition::RectangleClip>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RectangleClip")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RectangleClip>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::RectangleClip>::cself_t _self) { return cvt<Microsoft::UI::Composition::RectangleClip>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::RedirectVisual, ::pywinui::holder<Microsoft::UI::Composition::RedirectVisual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RedirectVisual")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RedirectVisual>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::RedirectVisual>::cself_t _self) { return cvt<Microsoft::UI::Composition::RedirectVisual>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs, ::pywinui::holder<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.RenderingDeviceReplacedEventArgs")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Composition::RenderingDeviceReplacedEventArgs>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::ScalarKeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::ScalarKeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ScalarKeyFrameAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ScalarKeyFrameAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ScalarKeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::ScalarKeyFrameAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::ScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ScalarNaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::ScalarNaturalMotionAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::ShapeVisual, ::pywinui::holder<Microsoft::UI::Composition::ShapeVisual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.ShapeVisual")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::ShapeVisual>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::ShapeVisual>::cself_t _self) { return cvt<Microsoft::UI::Composition::ShapeVisual>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::SineEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::SineEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SineEasingFunction")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SineEasingFunction>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SineEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::SineEasingFunction>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::SpotLight, ::pywinui::holder<Microsoft::UI::Composition::SpotLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpotLight")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpotLight>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SpotLight>::cself_t _self) { return cvt<Microsoft::UI::Composition::SpotLight>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringScalarNaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::SpringScalarNaturalMotionAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringVector2NaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::SpringVector2NaturalMotionAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpringVector3NaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>(_self).repr(); })
-        .def_property("DampingRatio", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.DampingRatio()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.DampingRatio())>::arg_t v) { cvt<decltype(_self.DampingRatio())>::param_t cvt_v{v}; _self.DampingRatio(cvt_v); })
-        .def_property("Period", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.Period()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.Period())>::arg_t v) { cvt<decltype(_self.Period())>::param_t cvt_v{v}; _self.Period(cvt_v); })
-        .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
-        .def_property("Target", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
-        .def_property("InitialValue", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialValue()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.InitialValue())>::arg_t v) { cvt<decltype(_self.InitialValue())>::param_t cvt_v{v}; _self.InitialValue(cvt_v); })
-        .def_property("FinalValue", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.FinalValue()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.FinalValue())>::arg_t v) { cvt<decltype(_self.FinalValue())>::param_t cvt_v{v}; _self.FinalValue(cvt_v); })
-        .def_property("InitialVelocity", [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialVelocity()); }, [](typename cvt<Microsoft::UI::Composition::SpringVector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.InitialVelocity())>::arg_t v) { cvt<decltype(_self.InitialVelocity())>::param_t cvt_v{v}; _self.InitialVelocity(cvt_v); })
-    ;
-    py::class_<Microsoft::UI::Composition::SpriteVisual, ::pywinui::holder<Microsoft::UI::Composition::SpriteVisual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.SpriteVisual")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::SpriteVisual>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::SpriteVisual>::cself_t _self) { return cvt<Microsoft::UI::Composition::SpriteVisual>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::StepEasingFunction, ::pywinui::holder<Microsoft::UI::Composition::StepEasingFunction>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.StepEasingFunction")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::StepEasingFunction>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::StepEasingFunction>::cself_t _self) { return cvt<Microsoft::UI::Composition::StepEasingFunction>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::Vector2KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector2KeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector2KeyFrameAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector2KeyFrameAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Vector2KeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::Vector2KeyFrameAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::Vector2NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector2NaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::Vector2NaturalMotionAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::Vector3KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector3KeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector3KeyFrameAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector3KeyFrameAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Vector3KeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::Vector3KeyFrameAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::Vector3NaturalMotionAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector3NaturalMotionAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>(_self).repr(); })
-        .def_property("InitialValue", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialValue()); }, [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.InitialValue())>::arg_t v) { cvt<decltype(_self.InitialValue())>::param_t cvt_v{v}; _self.InitialValue(cvt_v); })
-        .def_property("FinalValue", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.FinalValue()); }, [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.FinalValue())>::arg_t v) { cvt<decltype(_self.FinalValue())>::param_t cvt_v{v}; _self.FinalValue(cvt_v); })
-        .def_property("InitialVelocity", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialVelocity()); }, [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.InitialVelocity())>::arg_t v) { cvt<decltype(_self.InitialVelocity())>::param_t cvt_v{v}; _self.InitialVelocity(cvt_v); })
-        .def_property_readonly("InitialValueExpressions", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.InitialValueExpressions()); })
-        .def_property("Target", [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::cself_t _self) { return cvt_out(_self.Target()); }, [](typename cvt<Microsoft::UI::Composition::Vector3NaturalMotionAnimation>::self_t _self, typename cvt<decltype(_self.Target())>::arg_t v) { cvt<decltype(_self.Target())>::param_t cvt_v{v}; _self.Target(cvt_v); })
-    ;
-    py::class_<Microsoft::UI::Composition::Vector4KeyFrameAnimation, ::pywinui::holder<Microsoft::UI::Composition::Vector4KeyFrameAnimation>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Vector4KeyFrameAnimation")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Vector4KeyFrameAnimation>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Vector4KeyFrameAnimation>::cself_t _self) { return cvt<Microsoft::UI::Composition::Vector4KeyFrameAnimation>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::Visual, ::pywinui::holder<Microsoft::UI::Composition::Visual>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.Visual")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::Visual>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::Visual>::cself_t _self) { return cvt<Microsoft::UI::Composition::Visual>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::VisualCollection, ::pywinui::holder<Microsoft::UI::Composition::VisualCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.VisualCollection")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::VisualCollection>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::VisualCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::VisualCollection>(_self).repr(); })
-    ;
-    py::class_<Microsoft::UI::Composition::VisualUnorderedCollection, ::pywinui::holder<Microsoft::UI::Composition::VisualUnorderedCollection>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.VisualUnorderedCollection")
-        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Composition::VisualUnorderedCollection>()); }))
-        .def("__repr__", [](typename cvt<Microsoft::UI::Composition::VisualUnorderedCollection>::cself_t _self) { return cvt<Microsoft::UI::Composition::VisualUnorderedCollection>(_self).repr(); })
-    ;
 }
+

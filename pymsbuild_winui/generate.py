@@ -32,7 +32,7 @@ RENDER_ENV = jinja2.Environment(
 
 
 TARGETS = Path(__file__).absolute().parent / "targets"
-WINUI_MODULES = [f.stem for f in TARGETS.glob("_winui*.cpp")]
+WINUI_MODULES = [f.stem for f in (TARGETS / "_winui").glob("*.cpp") if "." not in f.stem]
 
 def short_name(text):
     if text.startswith("{"):

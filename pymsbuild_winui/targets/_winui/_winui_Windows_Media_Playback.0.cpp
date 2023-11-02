@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "_winui.h"
 
-PYBIND11_EMBEDDED_MODULE(_winui_Windows_Media_Playback, m) {
+void add_enum_Windows_Media_Playback_MediaPlaybackState(const py::module_ &m) {
     py::enum_<Windows::Media::Playback::MediaPlaybackState>(m, "Windows.Media.Playback.MediaPlaybackState")
         .value("None", Windows::Media::Playback::MediaPlaybackState::None)
         .value("Opening", Windows::Media::Playback::MediaPlaybackState::Opening)
@@ -12,7 +12,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Media_Playback, m) {
         .value("Playing", Windows::Media::Playback::MediaPlaybackState::Playing)
         .value("Paused", Windows::Media::Playback::MediaPlaybackState::Paused)
     ;
+}
 
+void add_runtimeclass_Windows_Media_Playback_MediaPlaybackSession(const py::module_ &m) {
     py::class_<Windows::Media::Playback::MediaPlaybackSession, ::pywinui::holder<Windows::Media::Playback::MediaPlaybackSession>, Windows::Foundation::IInspectable>(m, "Windows.Media.Playback.MediaPlaybackSession")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Windows::Media::Playback::MediaPlaybackSession>()); }))
         .def("__repr__", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt<Windows::Media::Playback::MediaPlaybackSession>(_self).repr(); })
@@ -20,6 +22,9 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Media_Playback, m) {
         .def_property_readonly("PlaybackState", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt_out(_self.PlaybackState()); })
         .def_property_readonly("Position", [](typename cvt<Windows::Media::Playback::MediaPlaybackSession>::cself_t _self) { return cvt_out(_self.Position()); })
     ;
+}
+
+void add_runtimeclass_Windows_Media_Playback_MediaPlayer(const py::module_ &m) {
     py::class_<Windows::Media::Playback::MediaPlayer, ::pywinui::holder<Windows::Media::Playback::MediaPlayer>, Windows::Foundation::IInspectable>(m, "Windows.Media.Playback.MediaPlayer")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Windows::Media::Playback::MediaPlayer>()); }))
         .def("__repr__", [](typename cvt<Windows::Media::Playback::MediaPlayer>::cself_t _self) { return cvt<Windows::Media::Playback::MediaPlayer>(_self).repr(); })
@@ -30,3 +35,4 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Media_Playback, m) {
         .def("StepForwardOneFrame", [](typename cvt<Windows::Media::Playback::MediaPlayer>::self_t _self) {static_assert(ensure_void<decltype(&Windows::Media::Playback::MediaPlayer::StepForwardOneFrame)>::value, "return value is not void"); _self.StepForwardOneFrame(); })
     ;
 }
+
