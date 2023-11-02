@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Media.h>
 
 void add_runtimeclass_Microsoft_UI_Xaml_Media_MediaTransportControlsThumbnailRequestedEventArgs(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Media::MediaTransportControlsThumbnailRequestedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Media.MediaTransportControlsThumbnailRequestedEventArgs")

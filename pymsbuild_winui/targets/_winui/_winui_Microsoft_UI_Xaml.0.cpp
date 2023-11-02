@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.h>
 
 void add_enum_Microsoft_UI_Xaml_Visibility(const py::module_ &m) {
     py::enum_<Microsoft::UI::Xaml::Visibility>(m, "Microsoft.UI.Xaml.Visibility")
@@ -108,6 +109,7 @@ void add_runtimeclass_Microsoft_UI_Xaml_ExceptionRoutedEventArgs(const py::modul
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>(_self).repr(); })
         .def_property_readonly("ErrorMessage", [](typename cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>::cself_t _self) { return cvt_out(_self.ErrorMessage()); })
+        .def_property_readonly("OriginalSource", [](typename cvt<Microsoft::UI::Xaml::ExceptionRoutedEventArgs>::cself_t _self) { return cvt_out(_self.OriginalSource()); })
     ;
 }
 

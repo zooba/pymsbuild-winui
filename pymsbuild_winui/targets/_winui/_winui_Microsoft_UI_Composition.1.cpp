@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Composition.h>
 
 void add_runtimeclass_Microsoft_UI_Composition_PointLight(const py::module_ &m) {
     py::class_<Microsoft::UI::Composition::PointLight, ::pywinui::holder<Microsoft::UI::Composition::PointLight>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Composition.PointLight")

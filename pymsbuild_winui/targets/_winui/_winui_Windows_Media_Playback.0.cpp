@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Windows.Media.Playback.h>
 
 void add_enum_Windows_Media_Playback_MediaPlaybackState(const py::module_ &m) {
     py::enum_<Windows::Media::Playback::MediaPlaybackState>(m, "Windows.Media.Playback.MediaPlaybackState")

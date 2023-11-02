@@ -3,11 +3,62 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Input.h>
+
+void add_runtimeclass_Microsoft_UI_Xaml_Input_DoubleTappedRoutedEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>(_self).repr(); })
+        .def_property("Handled", [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.Handled()); }, [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::self_t _self, typename cvt<decltype(_self.Handled())>::arg_t v) { cvt<decltype(_self.Handled())>::param_t cvt_v{v}; _self.Handled(cvt_v); })
+        .def_property_readonly("PointerDeviceType", [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.PointerDeviceType()); })
+        .def("GetPosition", [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::self_t _self, typename cvt<Microsoft::UI::Xaml::UIElement>::arg_t relativeTo) {cvt<Microsoft::UI::Xaml::UIElement>::param_t cvt_relativeTo{ relativeTo }; return cvt_out(_self.GetPosition(cvt_relativeTo)); })
+        .def_property_readonly("OriginalSource", [](typename cvt<Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.OriginalSource()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Input_Pointer(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Input::Pointer, ::pywinui::holder<Microsoft::UI::Xaml::Input::Pointer>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.Pointer")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::Pointer>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::Pointer>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::Pointer>(_self).repr(); })
+        .def_property_readonly("IsInContact", [](typename cvt<Microsoft::UI::Xaml::Input::Pointer>::cself_t _self) { return cvt_out(_self.IsInContact()); })
+        .def_property_readonly("IsInRange", [](typename cvt<Microsoft::UI::Xaml::Input::Pointer>::cself_t _self) { return cvt_out(_self.IsInRange()); })
+        .def_property_readonly("PointerDeviceType", [](typename cvt<Microsoft::UI::Xaml::Input::Pointer>::cself_t _self) { return cvt_out(_self.PointerDeviceType()); })
+        .def_property_readonly("PointerId", [](typename cvt<Microsoft::UI::Xaml::Input::Pointer>::cself_t _self) { return cvt_out(_self.PointerId()); })
+    ;
+}
 
 void add_runtimeclass_Microsoft_UI_Xaml_Input_PointerRoutedEventArgs(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.PointerRoutedEventArgs")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>(_self).repr(); })
+        .def_property("Handled", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt_out(_self.Handled()); }, [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::self_t _self, typename cvt<decltype(_self.Handled())>::arg_t v) { cvt<decltype(_self.Handled())>::param_t cvt_v{v}; _self.Handled(cvt_v); })
+        .def_property_readonly("IsGenerated", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt_out(_self.IsGenerated()); })
+        .def_property_readonly("KeyModifiers", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt_out(_self.KeyModifiers()); })
+        .def_property_readonly("Pointer", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt_out(_self.Pointer()); })
+        .def("GetCurrentPoint", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::self_t _self, typename cvt<Microsoft::UI::Xaml::UIElement>::arg_t relativeTo) {cvt<Microsoft::UI::Xaml::UIElement>::param_t cvt_relativeTo{ relativeTo }; return cvt_out(_self.GetCurrentPoint(cvt_relativeTo)); })
+        .def_property_readonly("OriginalSource", [](typename cvt<Microsoft::UI::Xaml::Input::PointerRoutedEventArgs>::cself_t _self) { return cvt_out(_self.OriginalSource()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Input_RightTappedRoutedEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>(_self).repr(); })
+        .def_property("Handled", [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.Handled()); }, [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::self_t _self, typename cvt<decltype(_self.Handled())>::arg_t v) { cvt<decltype(_self.Handled())>::param_t cvt_v{v}; _self.Handled(cvt_v); })
+        .def_property_readonly("PointerDeviceType", [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.PointerDeviceType()); })
+        .def("GetPosition", [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::self_t _self, typename cvt<Microsoft::UI::Xaml::UIElement>::arg_t relativeTo) {cvt<Microsoft::UI::Xaml::UIElement>::param_t cvt_relativeTo{ relativeTo }; return cvt_out(_self.GetPosition(cvt_relativeTo)); })
+        .def_property_readonly("OriginalSource", [](typename cvt<Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.OriginalSource()); })
+    ;
+}
+
+void add_runtimeclass_Microsoft_UI_Xaml_Input_TappedRoutedEventArgs(const py::module_ &m) {
+    py::class_<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Input.TappedRoutedEventArgs")
+        .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>()); }))
+        .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>(_self).repr(); })
+        .def_property("Handled", [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.Handled()); }, [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::self_t _self, typename cvt<decltype(_self.Handled())>::arg_t v) { cvt<decltype(_self.Handled())>::param_t cvt_v{v}; _self.Handled(cvt_v); })
+        .def_property_readonly("PointerDeviceType", [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.PointerDeviceType()); })
+        .def("GetPosition", [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::self_t _self, typename cvt<Microsoft::UI::Xaml::UIElement>::arg_t relativeTo) {cvt<Microsoft::UI::Xaml::UIElement>::param_t cvt_relativeTo{ relativeTo }; return cvt_out(_self.GetPosition(cvt_relativeTo)); })
+        .def_property_readonly("OriginalSource", [](typename cvt<Microsoft::UI::Xaml::Input::TappedRoutedEventArgs>::cself_t _self) { return cvt_out(_self.OriginalSource()); })
     ;
 }
 

@@ -461,7 +461,7 @@ collect(
         "MaxViewport": GET("Windows.Foundation.Rect"),
     },
     ElementSoundMode=EnumInfo("Default", "FocusOnly", "Off"),
-    ExceptionRoutedEventArgs={"ErrorMessage": GET(STR)},
+    ExceptionRoutedEventArgs={"__base__": "Microsoft.UI.Xaml.RoutedEventArgs", "ErrorMessage": GET(STR)},
     FrameworkElement={
         "__base__": "UIElement",
         "DataContext": GET(ANY),
@@ -705,7 +705,7 @@ collect(
     ContentDialogOpenedEventArgs={},
     ContentDialogResult=EnumInfo("None", "Primary", "Secondary"),
     ContentDialogResult_Op=AsyncOpInfo("ContentDialogResult"),
-    ContentPresenter={"Content": GETSET(ANY)},
+    ContentPresenter={"__base__": "Microsoft.UI.Xaml.FrameworkElement", "Content": GETSET(ANY)},
     ContextMenuEventArgs={"CursorLeft": GET("double"), "CursorTop": GET("double"), "Handled": GETSET("bool")},
     Control={
         "__base__": "Microsoft.UI.Xaml.FrameworkElement",
@@ -770,7 +770,7 @@ collect(
         "Navigate": CALL(sourcePageType="Windows.UI.Xaml.Interop.TypeName", parameter=ANY),
         "SetNavigationState": CALL(navigationState=STR, suppressNavigate="bool", void="unchecked"),
     },
-    Grid={},
+    Grid={"__base__": "Panel"},
     GridView={"__base__": "ListViewBase"},
     GridViewHeaderItem={"__base__": "ListViewBaseHeaderItem"},
     GridViewItem={"__base__": "Microsoft.UI.Xaml.Controls.Primitives.SelectorItem"},
@@ -1069,7 +1069,6 @@ collect(
     },
     PivotItem={"__base__": "ContentControl"},
     PivotItemEventArgs={"Item": GETSET(ANY)},
-    PointerRoutedEventArgs={"__namespace__": "Microsoft.UI.Xaml.Input"},
     ProgressBar={
         "__base__": "Microsoft.UI.Xaml.Controls.Primitives.RangeBase",
         "IsIndeterminate": GETSET("bool"),
@@ -1433,6 +1432,56 @@ collect(
 )
 
 collect(
+    "Microsoft.UI.Xaml.Input",
+    PointerDeviceType=EnumInfo("Touch", "Pen", "Mouse", "Touchpad", namespace="Microsoft.UI.Input"),
+    PointerPoint={
+        "__namespace__": "Microsoft.UI.Input",
+        "FrameId": GET("uint32_t"),
+        "IsInContact": GET("bool"),
+        "PointerDeviceType": GET("PointerDeviceType"),
+        "PointerId": GET("uint32_t"),
+        "Position": GET("Windows.Foundation.Point"),
+        "Properties": GET("PointerPointProperties"),
+        "Timestamp": GET("uint64_t"),
+    },
+    PointerPointProperties={"__namespace__": "Microsoft.UI.Input"},
+    VirtualKeyModifiers=EnumInfo("None", "Control", "Menu", "Shift", "Windows", namespace="Windows.System"),
+
+    DoubleTappedRoutedEventArgs={
+        "__base__": "Microsoft.UI.Xaml.RoutedEventArgs",
+        "Handled": GETSET("bool"),
+        "PointerDeviceType": GET("Microsoft.UI.Input.PointerDeviceType"),
+        "GetPosition": CALL(relativeTo="Microsoft.UI.Xaml.UIElement"),
+    },
+    Pointer={
+        "IsInContact": GET("bool"),
+        "IsInRange": GET("bool"),
+        "PointerDeviceType": GET("Microsoft.UI.PointerDeviceType"),
+        "PointerId": GET("uint32_t"),
+    },
+    PointerRoutedEventArgs={
+        "__base__": "Microsoft.UI.Xaml.RoutedEventArgs",
+        "Handled": GETSET("bool"),
+        "IsGenerated": GET("bool"),
+        "KeyModifiers": GET("Windows.System.VirtualKeyModifiers"),
+        "Pointer": GET("Pointer"),
+        "GetCurrentPoint": CALL(relativeTo="Microsoft.UI.Xaml.UIElement"),
+    },
+    RightTappedRoutedEventArgs={
+        "__base__": "Microsoft.UI.Xaml.RoutedEventArgs",
+        "Handled": GETSET("bool"),
+        "PointerDeviceType": GET("Microsoft.UI.Input.PointerDeviceType"),
+        "GetPosition": CALL(relativeTo="Microsoft.UI.Xaml.UIElement"),
+    },
+    TappedRoutedEventArgs={
+        "__base__": "Microsoft.UI.Xaml.RoutedEventArgs",
+        "Handled": GETSET("bool"),
+        "PointerDeviceType": GET("Microsoft.UI.Input.PointerDeviceType"),
+        "GetPosition": CALL(relativeTo="Microsoft.UI.Xaml.UIElement"),
+    },
+)
+
+collect(
     "Windows.UI.Xaml.Interop",
     TypeName=StructInfo(),
 )
@@ -1533,6 +1582,7 @@ maybe_write_template(
 for m, types in MODULES.items():
     safe_name = f"_winui_{m.replace('.', '_')}"
     CONTEXT = dict(
+        namespace=m,
         module=safe_name,
         all_types=ALL_TYPES,
         module_types=types,

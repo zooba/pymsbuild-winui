@@ -3,8 +3,9 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
-#include <winrt/Windows.UI.Xaml.Interop.h>
 
-void add_struct_Windows_UI_Xaml_Interop_TypeName(const py::module_ &m) {
+extern void add_enum_Windows_System_VirtualKeyModifiers(const py::module_ &m);
+
+PYBIND11_EMBEDDED_MODULE(_winui_Windows_System, m) {
+    add_enum_Windows_System_VirtualKeyModifiers(m);
 }
-

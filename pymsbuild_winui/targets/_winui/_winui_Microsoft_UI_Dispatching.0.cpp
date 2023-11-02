@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Dispatching.h>
 
 void add_runtimeclass_Microsoft_UI_Dispatching_DispatcherQueue(const py::module_ &m) {
     py::class_<Microsoft::UI::Dispatching::DispatcherQueue, ::pywinui::holder<Microsoft::UI::Dispatching::DispatcherQueue>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Dispatching.DispatcherQueue")

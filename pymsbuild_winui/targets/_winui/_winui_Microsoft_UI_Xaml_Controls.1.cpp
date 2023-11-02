@@ -3,6 +3,7 @@
 // ****************************************************** //
 #include "pch.h"
 #include "_winui.h"
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 void add_runtimeclass_Microsoft_UI_Xaml_Controls_ItemClickEventArgs(const py::module_ &m) {
     py::class_<Microsoft::UI::Xaml::Controls::ItemClickEventArgs, ::pywinui::holder<Microsoft::UI::Xaml::Controls::ItemClickEventArgs>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.ItemClickEventArgs")
@@ -979,6 +980,10 @@ void add_runtimeclass_Microsoft_UI_Xaml_Controls_SwapChainPanel(const py::module
     py::class_<Microsoft::UI::Xaml::Controls::SwapChainPanel, ::pywinui::holder<Microsoft::UI::Xaml::Controls::SwapChainPanel>, Windows::Foundation::IInspectable>(m, "Microsoft.UI.Xaml.Controls.SwapChainPanel")
         .def(py::init([](const ::winrt::Windows::Foundation::IInspectable &unk) { return ::pywinui::hold(unk.as<Microsoft::UI::Xaml::Controls::SwapChainPanel>()); }))
         .def("__repr__", [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::cself_t _self) { return cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>(_self).repr(); })
+        .def_property_readonly("DataContext", [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::cself_t _self) { return cvt_out(_self.DataContext()); })
+        .def_property("Visibility", [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::cself_t _self) { return cvt_out(_self.Visibility()); }, [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::self_t _self, typename cvt<decltype(_self.Visibility())>::arg_t v) { cvt<decltype(_self.Visibility())>::param_t cvt_v{v}; _self.Visibility(cvt_v); })
+        .def("StartAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::SwapChainPanel::StartAnimation)>::value, "return value is not void"); _self.StartAnimation(cvt_animation); })
+        .def("StopAnimation", [](typename cvt<Microsoft::UI::Xaml::Controls::SwapChainPanel>::self_t _self, typename cvt<Microsoft::UI::Composition::CompositionAnimation>::arg_t animation) {cvt<Microsoft::UI::Composition::CompositionAnimation>::param_t cvt_animation{ animation }; static_assert(ensure_void<decltype(&Microsoft::UI::Xaml::Controls::SwapChainPanel::StopAnimation)>::value, "return value is not void"); _self.StopAnimation(cvt_animation); })
     ;
 }
 
