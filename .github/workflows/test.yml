@@ -25,5 +25,7 @@ jobs:
       run: pip install -r tests/requirements.txt
     - name: Test with pytest
       run: pytest
-    - name: Check self builds
-      run: python -m pymsbuild sdist wheel
+    - name: Check self build (sdist)
+      run: python -m pymsbuild sdist
+    - name: Check self build (wheel)
+      run: python -m pymsbuild wheel
