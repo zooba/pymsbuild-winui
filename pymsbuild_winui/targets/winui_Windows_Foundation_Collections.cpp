@@ -27,7 +27,10 @@ PYBIND11_EMBEDDED_MODULE(_winui_Windows_Foundation_Collections, m) {
         .def("clear", [](Cls &c) { c.Clear(); })
         .def("insert", [](Cls &c, uint32_t index, const Elem &e) { c.InsertAt(index, e); })
         .def("__delitem__", [](Cls &c, uint32_t index) { c.RemoveAt(index); })
-        .def("__getitem__", [](Cls &c, uint32_t index) { return c.GetAt(index); })
+        .def("__getitem__", [](Cls &c, uint32_t index) {
+            // TODO: Unwrap to viewmodel if possible?
+            return ::pywinui::hold(c.GetAt(index));
+        })
         .def("__len__", [](const Cls &c) { return c.Size(); })
         .def("__repr__", [](const Cls &c) {
             std::wstringstream s{L"["};
