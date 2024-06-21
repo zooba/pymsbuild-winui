@@ -51,6 +51,19 @@ def init_PACKAGE(tag):
     PACKAGE.find("PhotoViewer").init_PACKAGE(tag)
 ```
 
+Build the module using `pymsbuild` as normal. The created executable will
+be put in a directory following the main package name, containing an
+executable following the `WinUIExe` name. You can also produce an sdist
+or wheel, which will be transferrable to other machines. (Note that the
+wheel will be quite large, due to containing all the files needed to run
+the application.)
+
+```
+$> python -m pymsbuild
+< lots of build output >
+$> .\PhotoViewerApp\PhotoViewer.exe
+```
+
 In the main Python module (`PhotoViewer.py` in the above example), each
 XAML page must have a class with matching name and the initializer
 shown below.
